@@ -418,7 +418,7 @@ body {
                     else if (data.success) {
                         if (data.session) { localStorage.setItem('omg_access_token', data.session.access_token); localStorage.setItem('omg_refresh_token', data.session.refresh_token); }
                         notify('Login realizado!', 'success');
-                        setTimeout(function() { window.location.href = 'templte.html'; }, 1000);
+                        setTimeout(function() { window.location.href = 'index.html'; }, 1000);
                     }
                 } catch (err) { show('loginError', 'Erro de conexão. Tente novamente.', 'error'); }
                 stopLoading();
@@ -443,7 +443,7 @@ body {
                     else if (data.success) {
                         if (data.session) { localStorage.setItem('omg_access_token', data.session.access_token); localStorage.setItem('omg_refresh_token', data.session.refresh_token); }
                         show('registerSuccess', 'Conta criada! Redirecionando...', 'success');
-                        setTimeout(function() { window.location.href = 'templte.html'; }, 2000);
+                        setTimeout(function() { window.location.href = 'index.html'; }, 2000);
                     }
                 } catch (err) { show('registerError', 'Erro de conexão. Tente novamente.', 'error'); }
                 stopLoading();
@@ -455,7 +455,7 @@ body {
                     try {
                         var res = await fetch(API + '/auth-check', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token } });
                         var data = await res.json();
-                        if (data.authenticated) window.location.href = 'templte.html';
+                        if (data.authenticated) window.location.href = 'index.html';
                     } catch (err) {}
                 }
             })();
