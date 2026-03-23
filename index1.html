@@ -12400,6 +12400,13 @@ let omgSystem;
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
+        // Restaurar sessão do token salvo no localStorage (compatível com login.html)
+        const accessToken = localStorage.getItem('omg_access_token');
+        const refreshToken = localStorage.getItem('omg_refresh_token');
+        if (accessToken && refreshToken) {
+            await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+        }
+
         // Verificar autenticação
         const { data: { user }, error } = await supabase.auth.getUser();
         if (!user) {
