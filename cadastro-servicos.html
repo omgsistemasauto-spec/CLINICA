@@ -1,0 +1,1883 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serviços - OMG Saloon</title>
+    
+    <!-- Supabase -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- SheetJS -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #2563EB;
+            --primary-dark: #1E40AF;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --info: #06B6D4;
+            --gray-50: #F9FAFB;
+            --gray-100: #F3F4F6;
+            --gray-200: #E5E7EB;
+            --gray-300: #D1D5DB;
+            --gray-400: #9CA3AF;
+            --gray-500: #6B7280;
+            --gray-600: #4B5563;
+            --gray-700: #374151;
+            --gray-800: #1F2937;
+            --gray-900: #111827;
+            --white: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-900);
+            line-height: 1.6;
+        }
+
+        /* ==========================================
+           SIDEBAR (MANTIDA IGUAL DO PRODUTO)
+           ========================================== */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: linear-gradient(180deg, #0F172A 0%, #1E293B 100%);
+            box-shadow: 4px 0 32px rgba(0, 0, 0, 0.12);
+            z-index: 1000;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-right: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-280px);
+        }
+
+        .logo-section {
+            padding: 2rem;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            background: rgba(15, 23, 42, 0.5);
+        }
+
+        .logo-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: 900;
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.25);
+            transition: transform 0.3s ease;
+        }
+
+        .logo-icon:hover {
+            transform: scale(1.05) rotate(-5deg);
+        }
+
+        .logo-text-wrapper {
+            flex: 1;
+        }
+
+        .logo-text {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: white;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+            line-height: 1;
+        }
+
+        .logo-subtitle {
+            font-size: 0.75rem;
+            color: #94A3B8;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 1.5rem 1rem;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            color: #94A3B8;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+
+        .sidebar-nav a::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 0;
+            background: linear-gradient(180deg, #3B82F6, #2563EB);
+            border-radius: 0 4px 4px 0;
+            transition: height 0.3s ease;
+        }
+
+        .sidebar-nav a:hover {
+            background: rgba(59, 130, 246, 0.08);
+            color: #E2E8F0;
+            transform: translateX(4px);
+        }
+
+        .sidebar-nav a:hover::before {
+            height: 70%;
+        }
+
+        .sidebar-nav a.active {
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.05) 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        }
+
+        .sidebar-nav a.active::before {
+            height: 70%;
+        }
+
+        .sidebar-nav i {
+            width: 22px;
+            text-align: center;
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-nav a:hover i,
+        .sidebar-nav a.active i {
+            transform: scale(1.1);
+        }
+
+        .sidebar-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            border-top: 1px solid rgba(148, 163, 184, 0.1);
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            background: rgba(59, 130, 246, 0.08);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .user-info:hover {
+            background: rgba(59, 130, 246, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .user-avatar {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .user-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .user-name {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: white;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 0.25rem;
+        }
+
+        .user-role {
+            font-size: 0.75rem;
+            color: #94A3B8;
+            font-weight: 500;
+        }
+
+        .logout-btn {
+            width: 36px;
+            height: 36px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 10px;
+            color: #94A3B8;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #EF4444;
+            transform: scale(1.05);
+        }
+
+        /* ==========================================
+           MAIN CONTENT - MINIMALISTA
+           ========================================== */
+        .main-content {
+            margin-left: 280px;
+            min-height: 100vh;
+            padding: 0;
+            transition: margin-left 0.3s ease;
+        }
+
+        .sidebar.collapsed + .main-content {
+            margin-left: 0;
+        }
+
+        /* Header */
+        .page-header {
+            background: var(--white);
+            border-bottom: 1px solid var(--gray-200);
+            padding: 2rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-content h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 0.25rem;
+        }
+
+        .header-content p {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+            font-weight: 400;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--gray-200);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .stat-item {
+            background: var(--white);
+            padding: 1.5rem 3rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 3rem;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .search-filters {
+            display: flex;
+            gap: 1rem;
+            flex: 1;
+        }
+
+        .search-box {
+            flex: 1;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.75rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            font-size: 0.875rem;
+            background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'%3E%3C/path%3E%3C/svg%3E") no-repeat 0.875rem center;
+            background-size: 1.25rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .filter-select {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            font-size: 0.875rem;
+            background: var(--white);
+            color: var(--gray-700);
+            cursor: pointer;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Button */
+        .btn {
+            padding: 0.75rem 1.25rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--white);
+            color: var(--gray-700);
+            border: 1px solid var(--gray-300);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-50);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        .btn-danger:hover {
+            background: #DC2626;
+        }
+
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.8125rem;
+        }
+
+        /* Table */
+        .table-container {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table thead {
+            background: var(--gray-50);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .table th {
+            padding: 0.875rem 1rem;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table tbody tr {
+            border-bottom: 1px solid var(--gray-100);
+            transition: background 0.15s ease;
+        }
+
+        .table tbody tr:hover {
+            background: var(--gray-50);
+        }
+
+        .table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .table td {
+            padding: 1rem;
+            font-size: 0.875rem;
+            color: var(--gray-700);
+        }
+
+        .table td:first-child {
+            font-weight: 500;
+            color: var(--gray-900);
+        }
+
+        .category-badge {
+            display: inline-block;
+            padding: 0.25rem 0.625rem;
+            background: var(--gray-100);
+            color: var(--gray-600);
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.625rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-ativo {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .status-inativo {
+            background: rgba(107, 114, 128, 0.1);
+            color: var(--gray-500);
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.show {
+            display: flex;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: 8px;
+            width: 100%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: none;
+            color: var(--gray-400);
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .modal-close:hover {
+            background: var(--gray-100);
+            color: var(--gray-600);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+
+        /* Form */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.25rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .form-label.required::after {
+            content: '*';
+            color: var(--danger);
+            margin-left: 0.25rem;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            padding: 0.625rem 0.875rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-family: inherit;
+            color: var(--gray-900);
+            background: var(--white);
+            transition: all 0.15s ease;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* Import Zone */
+        .import-zone {
+            border: 2px dashed var(--gray-300);
+            border-radius: 8px;
+            padding: 3rem;
+            text-align: center;
+            background: var(--gray-50);
+            transition: all 0.15s ease;
+            cursor: pointer;
+            margin-bottom: 1.5rem;
+        }
+
+        .import-zone:hover {
+            border-color: var(--primary);
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .import-zone.dragover {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .import-zone i {
+            font-size: 3rem;
+            color: var(--gray-400);
+            margin-bottom: 1rem;
+        }
+
+        .import-zone h3 {
+            font-size: 1.125rem;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+        }
+
+        .import-zone p {
+            color: var(--gray-500);
+            font-size: 0.875rem;
+        }
+
+        /* Preview */
+        .import-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .summary-item {
+            text-align: center;
+            padding: 1rem;
+            background: var(--gray-50);
+            border-radius: 6px;
+        }
+
+        .summary-number {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .summary-item.total .summary-number { color: var(--primary); }
+        .summary-item.valid .summary-number { color: var(--success); }
+        .summary-item.invalid .summary-number { color: var(--danger); }
+
+        .summary-label {
+            font-size: 0.75rem;
+            color: var(--gray-600);
+            font-weight: 500;
+        }
+
+        .preview-table {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid var(--gray-200);
+            border-radius: 6px;
+        }
+
+        .preview-header {
+            background: var(--gray-50);
+            padding: 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--gray-700);
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+            gap: 0.75rem;
+            border-bottom: 1px solid var(--gray-200);
+            position: sticky;
+            top: 0;
+        }
+
+        .preview-row {
+            padding: 0.75rem;
+            font-size: 0.8125rem;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+            gap: 0.75rem;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .preview-row.error {
+            background: rgba(239, 68, 68, 0.05);
+            border-left: 3px solid var(--danger);
+        }
+
+        .preview-row.success {
+            background: rgba(16, 185, 129, 0.05);
+            border-left: 3px solid var(--success);
+        }
+
+        .error-message {
+            grid-column: 1 / -1;
+            color: var(--danger);
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.15s ease;
+        }
+
+        .loading-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--gray-200);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.875rem 1.25rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            z-index: 10001;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            animation: slideIn 0.2s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .notification.success {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .notification.error {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            color: var(--gray-300);
+            margin-bottom: 1rem;
+        }
+
+        .empty-state-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state-text {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+
+            .page-header,
+            .stat-item,
+            .container {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+            }
+
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .header-actions {
+                flex-wrap: wrap;
+                width: 100%;
+            }
+
+            .header-actions .btn {
+                flex: 1;
+                min-width: 120px;
+            }
+
+            .toolbar {
+                flex-direction: column;
+            }
+
+            .search-filters {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .search-box {
+                max-width: 100%;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+
+            .table {
+                min-width: 800px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text" id="loadingText">Carregando...</div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="logo-section" style="padding:1.5rem;border-bottom:1px solid rgba(148,163,184,.1);display:flex;align-items:center;gap:1rem">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjX3FIgwQ1yUrYjlzzlATIHy6w8gtyBGyYrv9UeDRnDgCYfvSzvXE8mySFxLQ45dut1UP_FD0Srttnd2kD6jf7VXIil6ZfJEUFchoazwH-ZP11gUsyt6zxgQ5K-aQ-76VXWOClTjSWmKxX8IKZI7uZEBZBKO7el9g9vj-sXRqRGrLxUYhLYNBdVDf_J9OuL/w200-h200/ChatGPT%20Image%2029%20de%20dez.%20de%202025,%2012_21_08.png" alt="Logo" class="logo-img" style="width:48px;height:48px;border-radius:12px">
+            <div class="logo-text" id="logoText" style="font-size:1.3rem;font-weight:800;color:#fff">VECXO</div>
+        </div>
+
+            <ul class="sidebar-nav">
+        <li><a href="index1.html">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a></li>
+        
+        <li><a href="cadastro-cliente.html">
+            <i class="fas fa-user-injured"></i>
+            <span>Pacientes</span>
+        </a></li>
+        
+        <li><a href="mensalidades.html">
+            <i class="fas fa-file-invoice-dollar"></i>
+            <span>Mensalidades</span>
+        </a></li>
+        
+        <li><a href="cadastro-servicos.html" class="active">
+            <i class="fas fa-hand-holding-medical"></i>
+            <span>Serviços</span>
+        </a></li>
+        
+        <li><a href="cadastro-produtos.html">
+            <i class="fas fa-box"></i>
+            <span>Materiais</span>
+        </a></li>
+        
+        <li><a href="finalizar-servico.html">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Vendas</span>
+        </a></li>
+        
+        <li><a href="profissionais.html">
+            <i class="fas fa-user-md"></i>
+            <span>Profissionais</span>
+        </a></li>
+        
+        <li><a href="ponto.html">
+            <i class="fas fa-clock"></i>
+            <span>Ponto</span>
+        </a></li>
+        
+        <li><a href="financeiro.html">
+            <i class="fas fa-chart-line"></i>
+            <span>Financeiro</span>
+        </a></li>
+    </ul>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">A</div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Administrador</div>
+                    <div class="user-role">Gerente</div>
+                </div>
+                <button class="logout-btn" onclick="logout()" title="Sair">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <div class="page-header">
+            <div class="header-content">
+                <h1>Serviços</h1>
+                <p>Gerencie os serviços oferecidos pelo salão</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="downloadTemplate()">
+                    <i class="fas fa-download"></i> Modelo
+                </button>
+                <button class="btn btn-secondary" onclick="openImportModal()">
+                    <i class="fas fa-upload"></i> Importar
+                </button>
+                <button class="btn btn-primary" onclick="openServiceModal()">
+                    <i class="fas fa-plus"></i> Novo Serviço
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-value" id="totalServices">0</div>
+                <div class="stat-label">Total de Serviços</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="activeServices">0</div>
+                <div class="stat-label">Serviços Ativos</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="categories">0</div>
+                <div class="stat-label">Categorias</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="avgPrice">R$ 0</div>
+                <div class="stat-label">Preço Médio</div>
+            </div>
+        </div>
+
+        <!-- Container -->
+        <div class="container">
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <div class="search-filters">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" class="search-input" placeholder="Buscar serviços...">
+                    </div>
+                    <select class="filter-select" id="categoryFilter">
+                        <option value="">Todas Categorias</option>
+                        <option value="fisioterapia">Fisioterapia</option>
+                        <option value="fonoaudiologia">Fonoaudiologia</option>
+                        <option value="terapia_ocupacional">Terapia Ocupacional</option>
+                        <option value="psicologia">Psicologia</option>
+                        <option value="neuropsicologia">Neuropsicologia</option>
+                        <option value="psicopedagogia">Psicopedagogia</option>
+                        <option value="musicoterapia">Musicoterapia</option>
+                        <option value="hidroterapia">Hidroterapia</option>
+                        <option value="acupuntura">Acupuntura</option>
+                        <option value="pilates">Pilates Terapêutico</option>
+                        <option value="avaliacao">Avaliação</option>
+                        <option value="outro">Outro</option>
+                    </select>
+                    <select class="filter-select" id="statusFilter">
+                        <option value="">Todos Status</option>
+                        <option value="ativo">Ativo</option>
+                        <option value="inativo">Inativo</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Serviço</th>
+                            <th>Categoria</th>
+                            <th>Preço</th>
+                            <th>Duração</th>
+                            <th>Comissão</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="servicesTableBody">
+                        <!-- Serviços serão carregados aqui -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Cadastro Serviço -->
+    <div id="serviceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Novo Serviço</h2>
+                <button class="modal-close" onclick="closeServiceModal()">×</button>
+            </div>
+
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label required" for="serviceName">Nome do Serviço</label>
+                        <input type="text" class="form-input" id="serviceName" placeholder="Ex: Sessão de Fisioterapia" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required" for="serviceCategory">Categoria</label>
+                        <select class="form-select" id="serviceCategory" required>
+                            <option value="">Selecione</option>
+                            <option value="fisioterapia">Fisioterapia</option>
+                            <option value="fonoaudiologia">Fonoaudiologia</option>
+                            <option value="terapia_ocupacional">Terapia Ocupacional</option>
+                            <option value="psicologia">Psicologia</option>
+                            <option value="neuropsicologia">Neuropsicologia</option>
+                            <option value="psicopedagogia">Psicopedagogia</option>
+                            <option value="musicoterapia">Musicoterapia</option>
+                            <option value="hidroterapia">Hidroterapia</option>
+                            <option value="acupuntura">Acupuntura</option>
+                            <option value="pilates">Pilates Terapêutico</option>
+                            <option value="avaliacao">Avaliação</option>
+                            <option value="outro">Outro</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required" for="servicePrice">Preço (R$)</label>
+                        <input type="number" class="form-input" id="servicePrice" step="0.01" min="0" placeholder="0.00" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required" for="serviceDuration">Duração (min)</label>
+                        <input type="number" class="form-input" id="serviceDuration" min="15" step="15" placeholder="30" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="serviceCommission">Comissão (%)</label>
+                        <input type="number" class="form-input" id="serviceCommission" step="0.5" min="0" max="100" value="10">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="serviceStatus">Status</label>
+                        <select class="form-select" id="serviceStatus">
+                            <option value="ativo">Ativo</option>
+                            <option value="inativo">Inativo</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group full">
+                        <label class="form-label" for="serviceDescription">Descrição</label>
+                        <textarea class="form-textarea" id="serviceDescription" placeholder="Descrição do serviço (opcional)"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeServiceModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveService()">
+                    <i class="fas fa-check"></i> Salvar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Importação -->
+    <div id="importModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Importar Serviços</h2>
+                <button class="modal-close" onclick="closeImportModal()">×</button>
+            </div>
+
+            <div class="modal-body">
+                <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none" onchange="handleFileSelect(event)">
+                
+                <div class="import-zone" id="importZone" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h3>Arraste o arquivo ou clique para selecionar</h3>
+                    <p>Formatos aceitos: .xlsx, .xls</p>
+                </div>
+
+                <div id="previewContainer" style="display:none">
+                    <div class="import-summary">
+                        <div class="summary-item total">
+                            <div class="summary-number" id="totalImport">0</div>
+                            <div class="summary-label">Total</div>
+                        </div>
+                        <div class="summary-item valid">
+                            <div class="summary-number" id="validImport">0</div>
+                            <div class="summary-label">Válidos</div>
+                        </div>
+                        <div class="summary-item invalid">
+                            <div class="summary-number" id="invalidImport">0</div>
+                            <div class="summary-label">Erros</div>
+                        </div>
+                    </div>
+
+                    <div class="preview-table">
+                        <div class="preview-header">
+                            <div>Nome</div>
+                            <div>Categoria</div>
+                            <div>Preço</div>
+                            <div>Duração</div>
+                            <div>Status</div>
+                        </div>
+                        <div id="previewBody"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeImportModal()">Cancelar</button>
+                <button class="btn btn-success" id="confirmImportBtn" onclick="confirmImport()" style="display:none">
+                    <i class="fas fa-check"></i> Confirmar Importação
+                </button>
+            </div>
+        </div>
+    </div>
+
+<script>
+// =====================================================
+// SECURE SERVICE MANAGER - OMG SALOON
+// Todas as operações críticas via Edge Functions
+// =====================================================
+
+const SUPABASE_URL = 'https://rdfcosxyeqgbjdedargd.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkZmNvc3h5ZXFnYmpkZWRhcmdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDkxNTQsImV4cCI6MjA3NzA4NTE1NH0.wNx6jQAi9nn2K_E-40VuV6k0sWPoF5bWAw_si__aSyo';
+const EDGE_FUNCTIONS_URL = `${SUPABASE_URL}/functions/v1`;
+
+var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let services = [];
+let currentUser = null;
+let currentSalaoId = null;
+let currentEditId = null;
+let isSaving = false;
+let importData = [];
+let accessToken = null;
+
+// =====================================================
+// CHAMADA SEGURA PARA EDGE FUNCTIONS
+// =====================================================
+async function callEdgeFunction(functionName, data = {}) {
+    if (!accessToken) throw new Error('Token de acesso não disponível');
+    const response = await fetch(`${EDGE_FUNCTIONS_URL}/${functionName}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+        },
+        body: JSON.stringify(data)
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'Erro na requisição');
+    return result;
+}
+
+// =====================================================
+// ESCAPE HTML (proteção XSS)
+// =====================================================
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// =====================================================
+// INICIALIZAÇÃO
+// =====================================================
+async function init() {
+    try {
+        showLoading('Verificando autenticação...');
+        
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError || !session) {
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        accessToken = session.access_token;
+        currentUser = session.user;
+
+        const { data: salaoData } = await supabase
+            .from('saloes')
+            .select('*')
+            .eq('usuario_id', currentUser.id)
+            .eq('ativo', true)
+            .single();
+
+        if (!salaoData) {
+            alert('Nenhum salão ativo encontrado');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        currentSalaoId = salaoData.id;
+        // Logo fixo VECXO
+        document.getElementById('userName').textContent = currentUser.user_metadata?.full_name || 'Administrador';
+
+        hideLoading();
+        await loadServices();
+        setupFilters();
+        setupDragDrop();
+    } catch (error) {
+        console.error('Erro:', error);
+        hideLoading();
+    }
+}
+
+function setupFilters() {
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const statusFilter = document.getElementById('statusFilter');
+
+    let searchTimeout;
+    searchInput?.addEventListener('input', () => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => renderServices(), 300);
+    });
+
+    categoryFilter?.addEventListener('change', () => renderServices());
+    statusFilter?.addEventListener('change', () => renderServices());
+}
+
+function setupDragDrop() {
+    const zone = document.getElementById('importZone');
+    if (!zone) return;
+    
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        zone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        }, false);
+    });
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        zone.addEventListener(eventName, () => zone.classList.add('dragover'), false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        zone.addEventListener(eventName, () => zone.classList.remove('dragover'), false);
+    });
+
+    zone.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            handleFileSelect({ target: { files: files } });
+        }
+    }, false);
+}
+
+// =====================================================
+// CARREGAR SERVIÇOS (via Edge Function)
+// =====================================================
+async function loadServices() {
+    try {
+        showLoading('Carregando serviços...');
+        const result = await callEdgeFunction('load-services');
+        services = result.data || [];
+        renderServices();
+        await updateStats();
+    } catch (error) {
+        console.error('Erro ao carregar serviços:', error);
+        showNotification('Erro ao carregar serviços', 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+// =====================================================
+// RENDERIZAR SERVIÇOS (com proteção XSS)
+// =====================================================
+function renderServices() {
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    const categoryFilter = document.getElementById('categoryFilter').value;
+    const statusFilter = document.getElementById('statusFilter').value;
+
+    const filtered = services.filter(s => {
+        const matchQuery = !query || s.nome.toLowerCase().includes(query) ||
+                           (s.descricao && s.descricao.toLowerCase().includes(query));
+        const matchCategory = !categoryFilter || s.categoria === categoryFilter;
+        const matchStatus = !statusFilter || (s.ativo ? 'ativo' : 'inativo') === statusFilter;
+        return matchQuery && matchCategory && matchStatus;
+    });
+
+    const tbody = document.getElementById('servicesTableBody');
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔍</div>
+                        <h3 class="empty-state-title">Nenhum serviço encontrado</h3>
+                        <p class="empty-state-text">Cadastre ou importe serviços para começar</p>
+                    </div>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    const categoryLabels = {
+        cabelo: 'Cabelo',
+        unhas: 'Unhas',
+        estetica: 'Estética',
+        sobrancelha: 'Sobrancelha',
+        depilacao: 'Depilação',
+        massagem: 'Massagem'
+    };
+
+    // Usar DOM methods para evitar XSS
+    tbody.innerHTML = '';
+    filtered.forEach(s => {
+        const tr = document.createElement('tr');
+        
+        const tdNome = document.createElement('td');
+        tdNome.textContent = s.nome;
+        
+        const tdCategoria = document.createElement('td');
+        const spanCat = document.createElement('span');
+        spanCat.className = 'category-badge';
+        spanCat.textContent = categoryLabels[s.categoria] || s.categoria;
+        tdCategoria.appendChild(spanCat);
+        
+        const tdPreco = document.createElement('td');
+        tdPreco.textContent = `R$ ${parseFloat(s.preco).toFixed(2)}`;
+        
+        const tdDuracao = document.createElement('td');
+        tdDuracao.textContent = `${s.duracao_minutos} min`;
+        
+        const tdComissao = document.createElement('td');
+        tdComissao.textContent = `${s.comissao || 0}%`;
+        
+        const tdStatus = document.createElement('td');
+        const spanStatus = document.createElement('span');
+        spanStatus.className = `status-badge status-${s.ativo ? 'ativo' : 'inativo'}`;
+        spanStatus.textContent = s.ativo ? 'Ativo' : 'Inativo';
+        tdStatus.appendChild(spanStatus);
+        
+        const tdAcoes = document.createElement('td');
+        tdAcoes.innerHTML = `
+            <div class="actions-cell">
+                <button class="btn btn-sm btn-secondary" onclick="editService('${escapeHtml(s.id)}')">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="deleteService('${escapeHtml(s.id)}')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        `;
+        
+        tr.appendChild(tdNome);
+        tr.appendChild(tdCategoria);
+        tr.appendChild(tdPreco);
+        tr.appendChild(tdDuracao);
+        tr.appendChild(tdComissao);
+        tr.appendChild(tdStatus);
+        tr.appendChild(tdAcoes);
+        tbody.appendChild(tr);
+    });
+}
+
+// =====================================================
+// ESTATÍSTICAS (via Edge Function)
+// =====================================================
+async function updateStats() {
+    try {
+        const result = await callEdgeFunction('load-services-stats');
+        document.getElementById('totalServices').textContent = result.totalServices || 0;
+        document.getElementById('activeServices').textContent = result.activeServices || 0;
+        document.getElementById('categories').textContent = result.categories || 0;
+        document.getElementById('avgPrice').textContent = `R$ ${result.avgPrice || 0}`;
+    } catch (error) {
+        console.error('Erro ao carregar estatísticas:', error);
+    }
+}
+
+// =====================================================
+// MODAL DE SERVIÇO
+// =====================================================
+function openServiceModal(id = null) {
+    currentEditId = id;
+    
+    if (id) {
+        const service = services.find(s => s.id === id);
+        if (service) {
+            document.getElementById('modalTitle').textContent = 'Editar Serviço';
+            document.getElementById('serviceName').value = service.nome;
+            document.getElementById('serviceCategory').value = service.categoria || '';
+            document.getElementById('servicePrice').value = service.preco;
+            document.getElementById('serviceDuration').value = service.duracao_minutos;
+            document.getElementById('serviceCommission').value = service.comissao || 10;
+            document.getElementById('serviceStatus').value = service.ativo ? 'ativo' : 'inativo';
+            document.getElementById('serviceDescription').value = service.descricao || '';
+        }
+    } else {
+        document.getElementById('modalTitle').textContent = 'Novo Serviço';
+        document.getElementById('serviceName').value = '';
+        document.getElementById('serviceCategory').value = '';
+        document.getElementById('servicePrice').value = '';
+        document.getElementById('serviceDuration').value = '';
+        document.getElementById('serviceCommission').value = '10';
+        document.getElementById('serviceStatus').value = 'ativo';
+        document.getElementById('serviceDescription').value = '';
+    }
+
+    document.getElementById('serviceModal').classList.add('show');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('serviceName').focus(), 100);
+}
+
+function closeServiceModal() {
+    document.getElementById('serviceModal').classList.remove('show');
+    document.body.style.overflow = '';
+    currentEditId = null;
+}
+
+function editService(id) {
+    openServiceModal(id);
+}
+
+// =====================================================
+// SALVAR SERVIÇO (via Edge Function)
+// =====================================================
+async function saveService() {
+    if (isSaving) return;
+    isSaving = true;
+
+    try {
+        const formData = {
+            serviceId: currentEditId,
+            nome: document.getElementById('serviceName').value.trim(),
+            categoria: document.getElementById('serviceCategory').value,
+            preco: parseFloat(document.getElementById('servicePrice').value),
+            duracao_minutos: parseInt(document.getElementById('serviceDuration').value),
+            comissao: parseFloat(document.getElementById('serviceCommission').value) || 0,
+            ativo: document.getElementById('serviceStatus').value === 'ativo',
+            descricao: document.getElementById('serviceDescription').value.trim() || null
+        };
+
+        if (!formData.nome || formData.nome.length < 2) {
+            showNotification('Nome do serviço é obrigatório', 'error');
+            return;
+        }
+
+        if (!formData.categoria) {
+            showNotification('Categoria é obrigatória', 'error');
+            return;
+        }
+
+        if (isNaN(formData.preco) || formData.preco < 0) {
+            showNotification('Preço inválido', 'error');
+            return;
+        }
+
+        if (isNaN(formData.duracao_minutos) || formData.duracao_minutos <= 0) {
+            showNotification('Duração deve ser maior que zero', 'error');
+            return;
+        }
+
+        showLoading(currentEditId ? 'Atualizando...' : 'Salvando...');
+        const result = await callEdgeFunction('save-service', formData);
+        
+        showNotification(result.message, 'success');
+        await loadServices();
+        closeServiceModal();
+    } catch (error) {
+        console.error('Erro:', error);
+        showNotification(error.message || 'Erro ao salvar serviço', 'error');
+    } finally {
+        isSaving = false;
+        hideLoading();
+    }
+}
+
+// =====================================================
+// DELETAR SERVIÇO (via Edge Function)
+// =====================================================
+async function deleteService(id) {
+    const service = services.find(s => s.id === id);
+    if (!service || !confirm(`Excluir "${service.nome}"?`)) return;
+
+    try {
+        showLoading('Excluindo...');
+        const result = await callEdgeFunction('delete-service', { serviceId: id });
+        showNotification(result.message || 'Serviço excluído!', 'success');
+        await loadServices();
+    } catch (error) {
+        console.error('Erro:', error);
+        showNotification(error.message || 'Erro ao excluir', 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+// =====================================================
+// IMPORTAÇÃO
+// =====================================================
+function downloadTemplate() {
+    const wb = XLSX.utils.book_new();
+    
+    const templateData = [
+        ['Nome', 'Categoria', 'Preço', 'Duração (min)', 'Comissão (%)', 'Status', 'Descrição'],
+        ['Corte Masculino', 'cabelo', '35.00', '30', '10', 'ativo', 'Corte simples masculino'],
+        ['Manicure', 'unhas', '45.00', '60', '15', 'ativo', 'Manicure completa'],
+        ['Limpeza de Pele', 'estetica', '120.00', '90', '20', 'ativo', 'Limpeza facial'],
+        ['Design de Sobrancelha', 'sobrancelha', '40.00', '30', '12', 'ativo', 'Design com henna']
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet(templateData);
+    ws['!cols'] = [
+        { wch: 25 }, { wch: 15 }, { wch: 10 }, { wch: 15 },
+        { wch: 13 }, { wch: 10 }, { wch: 40 }
+    ];
+
+    XLSX.utils.book_append_sheet(wb, ws, 'Serviços');
+    XLSX.writeFile(wb, 'modelo_servicos_omg_saloon.xlsx');
+    
+    showNotification('Modelo baixado com sucesso!', 'success');
+}
+
+function openImportModal() {
+    document.getElementById('importModal').classList.add('show');
+    document.body.style.overflow = 'hidden';
+    document.getElementById('fileInput').value = '';
+    document.getElementById('previewContainer').style.display = 'none';
+    document.getElementById('confirmImportBtn').style.display = 'none';
+    importData = [];
+}
+
+function closeImportModal() {
+    document.getElementById('importModal').classList.remove('show');
+    document.body.style.overflow = '';
+    importData = [];
+}
+
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+            processImportData(jsonData);
+        } catch (error) {
+            console.error('Erro ao ler arquivo:', error);
+            showNotification('Erro ao ler arquivo Excel', 'error');
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+function processImportData(data) {
+    const validCategories = ['cabelo', 'unhas', 'estetica', 'sobrancelha', 'depilacao', 'massagem'];
+    const validStatus = ['ativo', 'inativo'];
+
+    importData = data.map((row, index) => {
+        const errors = [];
+
+        if (!row.Nome || row.Nome.trim() === '') {
+            errors.push('Nome é obrigatório');
+        }
+
+        const categoria = row.Categoria ? row.Categoria.toLowerCase().trim() : '';
+        if (!validCategories.includes(categoria)) {
+            errors.push('Categoria inválida');
+        }
+
+        const preco = parseFloat(row.Preço || row['Preço'] || 0);
+        if (isNaN(preco) || preco < 0) {
+            errors.push('Preço inválido');
+        }
+
+        const duracao = parseInt(row['Duração (min)'] || row.Duracao || 0);
+        if (isNaN(duracao) || duracao <= 0) {
+            errors.push('Duração inválida');
+        }
+
+        const comissao = parseFloat(row['Comissão (%)'] || row.Comissao || 10);
+        const status = row.Status ? row.Status.toLowerCase().trim() : 'ativo';
+        
+        if (!validStatus.includes(status)) {
+            errors.push('Status inválido');
+        }
+
+        return {
+            linha: index + 2,
+            nome: row.Nome ? row.Nome.trim() : '',
+            categoria: categoria,
+            preco: preco,
+            duracao_minutos: duracao,
+            comissao: comissao,
+            ativo: status === 'ativo',
+            descricao: row.Descrição || row.Descricao || null,
+            valido: errors.length === 0,
+            erros: errors
+        };
+    });
+
+    renderPreview();
+}
+
+function renderPreview() {
+    const validCount = importData.filter(d => d.valido).length;
+    const invalidCount = importData.length - validCount;
+
+    document.getElementById('totalImport').textContent = importData.length;
+    document.getElementById('validImport').textContent = validCount;
+    document.getElementById('invalidImport').textContent = invalidCount;
+
+    const categoryLabels = {
+        cabelo: 'Cabelo',
+        unhas: 'Unhas',
+        estetica: 'Estética',
+        sobrancelha: 'Sobrancelha',
+        depilacao: 'Depilação',
+        massagem: 'Massagem'
+    };
+
+    const previewBody = document.getElementById('previewBody');
+    previewBody.innerHTML = '';
+    
+    importData.forEach(item => {
+        const row = document.createElement('div');
+        row.className = `preview-row ${item.valido ? 'success' : 'error'}`;
+        
+        const divNome = document.createElement('div');
+        divNome.textContent = item.nome || '(vazio)';
+        
+        const divCat = document.createElement('div');
+        divCat.textContent = categoryLabels[item.categoria] || item.categoria || '(vazio)';
+        
+        const divPreco = document.createElement('div');
+        divPreco.textContent = `R$ ${item.preco.toFixed(2)}`;
+        
+        const divDuracao = document.createElement('div');
+        divDuracao.textContent = `${item.duracao_minutos} min`;
+        
+        const divStatus = document.createElement('div');
+        divStatus.textContent = item.ativo ? 'Ativo' : 'Inativo';
+        
+        row.appendChild(divNome);
+        row.appendChild(divCat);
+        row.appendChild(divPreco);
+        row.appendChild(divDuracao);
+        row.appendChild(divStatus);
+        
+        if (!item.valido) {
+            const divError = document.createElement('div');
+            divError.className = 'error-message';
+            divError.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${escapeHtml(item.erros.join(', '))}`;
+            row.appendChild(divError);
+        }
+        
+        previewBody.appendChild(row);
+    });
+
+    document.getElementById('previewContainer').style.display = 'block';
+    document.getElementById('confirmImportBtn').style.display = validCount > 0 ? 'inline-flex' : 'none';
+}
+
+// =====================================================
+// CONFIRMAR IMPORTAÇÃO (via Edge Function)
+// =====================================================
+async function confirmImport() {
+    const validData = importData.filter(d => d.valido);
+    if (validData.length === 0) {
+        showNotification('Nenhum registro válido para importar', 'error');
+        return;
+    }
+
+    if (!confirm(`Importar ${validData.length} serviço(s)?`)) return;
+
+    try {
+        showLoading('Importando serviços...');
+
+        const servicesToImport = validData.map(item => ({
+            nome: item.nome,
+            categoria: item.categoria,
+            preco: item.preco,
+            duracao_minutos: item.duracao_minutos,
+            comissao: item.comissao,
+            ativo: item.ativo,
+            descricao: item.descricao
+        }));
+
+        const result = await callEdgeFunction('import-services', { services: servicesToImport });
+
+        showNotification(result.message, 'success');
+        closeImportModal();
+        await loadServices();
+    } catch (error) {
+        console.error('Erro:', error);
+        showNotification(error.message || 'Erro ao importar serviços', 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+// =====================================================
+// UTILITÁRIOS
+// =====================================================
+function showLoading(message) {
+    const loading = document.getElementById('loadingOverlay');
+    const text = document.getElementById('loadingText');
+    text.textContent = message;
+    loading.classList.add('show');
+}
+
+function hideLoading() {
+    document.getElementById('loadingOverlay').classList.remove('show');
+}
+
+function showNotification(message, type) {
+    const notif = document.createElement('div');
+    notif.className = `notification ${type}`;
+    notif.textContent = message;
+    document.body.appendChild(notif);
+    setTimeout(() => notif.remove(), 3000);
+}
+
+async function logout() {
+    try {
+        await supabase.auth.signOut();
+        window.location.href = 'login.html';
+    } catch (error) {
+        console.error('Erro no logout:', error);
+    }
+}
+
+// Inicialização
+document.addEventListener('DOMContentLoaded', init);
+
+supabase.auth.onAuthStateChange((event) => {
+    if (event === 'SIGNED_OUT') window.location.href = 'login.html';
+});
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Splash Screen</title>
+    <style>
+        /* Remove margens e padding padrão */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        /* Estilo para a imagem de fundo */
+        .splash-screen {
+            width: 100%;
+            height: 100%;
+            background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh89nKgpu6u6Z5uZwD2rTDKgsnYezle7ZclkNlfwdJ_v-2fTuiVcu6jVQldUI1N3qdqOH74MbQBcuqclj2qVQGbv9qp1t0ObX_EMswPBLWlYNEm64rLFxo2_FOlzbsLUGMCziunBt_3zUq-dys-Wj1iuRyS5bDfUom6RG_WawNMCx9QHs3MV-tJvAugcP2e/s16000/vecxo_transparent%20(2).png'); /* ALTERE AQUI o caminho da sua imagem */
+            background-size: cover; /* Cobre toda a tela */
+            background-position: center; /* Centraliza a imagem */
+            background-repeat: no-repeat; /* Não repete a imagem */
+        }
+    </style>
+</head>
+<body>
+    <div class="splash-screen"></div>
+
+    <script>
+        // Redireciona para template.html após 3 segundos (3000 milissegundos)
+        setTimeout(function() {
+            window.location.href = 'index1.html';
+        }, 5000);
+    </script>
+</body>
+</html>

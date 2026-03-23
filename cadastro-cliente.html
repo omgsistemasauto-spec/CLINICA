@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes - OMG Saloon</title>
+    
+    <!-- Supabase -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- SheetJS -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #2563EB;
+            --primary-dark: #1E40AF;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --gray-50: #F9FAFB;
+            --gray-100: #F3F4F6;
+            --gray-200: #E5E7EB;
+            --gray-300: #D1D5DB;
+            --gray-400: #9CA3AF;
+            --gray-500: #6B7280;
+            --gray-600: #4B5563;
+            --gray-700: #374151;
+            --gray-800: #1F2937;
+            --gray-900: #111827;
+            --white: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-900);
+            line-height: 1.6;
+        }
+
+        /* Sidebar (mantida igual) */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: linear-gradient(180deg, #0F172A 0%, #1E293B 100%);
+            box-shadow: 4px 0 32px rgba(0, 0, 0, 0.12);
+            z-index: 1000;
+            border-right: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .logo-section {
+            padding: 2rem;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            background: rgba(15, 23, 42, 0.5);
+        }
+
+        .logo-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: 900;
+        }
+
+        .logo-text-wrapper {
+            flex: 1;
+        }
+
+        .logo-text {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: white;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .logo-subtitle {
+            font-size: 0.75rem;
+            color: #94A3B8;
+            font-weight: 500;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 1.5rem 1rem;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            color: #94A3B8;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+
+        .sidebar-nav a::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 0;
+            background: linear-gradient(180deg, #3B82F6, #2563EB);
+            border-radius: 0 4px 4px 0;
+            transition: height 0.3s ease;
+        }
+
+        .sidebar-nav a:hover {
+            background: rgba(59, 130, 246, 0.08);
+            color: #E2E8F0;
+            transform: translateX(4px);
+        }
+
+        .sidebar-nav a:hover::before {
+            height: 70%;
+        }
+
+        .sidebar-nav a.active {
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.05) 100%);
+            color: white;
+        }
+
+        .sidebar-nav a.active::before {
+            height: 70%;
+        }
+
+        .sidebar-nav i {
+            width: 22px;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        .sidebar-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            border-top: 1px solid rgba(148, 163, 184, 0.1);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            background: rgba(59, 130, 246, 0.08);
+            border-radius: 12px;
+        }
+
+        .user-avatar {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .user-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .user-name {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: white;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 0.25rem;
+        }
+
+        .user-role {
+            font-size: 0.75rem;
+            color: #94A3B8;
+        }
+
+        .logout-btn {
+            width: 36px;
+            height: 36px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 10px;
+            color: #94A3B8;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.15);
+            color: #EF4444;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        /* Header */
+        .page-header {
+            background: var(--white);
+            border-bottom: 1px solid var(--gray-200);
+            padding: 2rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-content h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 0.25rem;
+        }
+
+        .header-content p {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: var(--gray-200);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .stat-item {
+            background: var(--white);
+            padding: 1.5rem 3rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 3rem;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .search-box {
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.75rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            font-size: 0.875rem;
+            background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'%3E%3C/path%3E%3C/svg%3E") no-repeat 0.875rem center;
+            background-size: 1.25rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Button */
+        .btn {
+            padding: 0.75rem 1.25rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--white);
+            color: var(--gray-700);
+            border: 1px solid var(--gray-300);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-50);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        .btn-danger:hover {
+            background: #DC2626;
+        }
+
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.8125rem;
+        }
+.actions-cell {
+    display: flex;
+    gap: 0.5rem;
+}
+        /* Table */
+        .table-container {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table thead {
+            background: var(--gray-50);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .table th {
+            padding: 0.875rem 1rem;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table tbody tr {
+            border-bottom: 1px solid var(--gray-100);
+            transition: background 0.15s ease;
+        }
+
+        .table tbody tr:hover {
+            background: var(--gray-50);
+        }
+
+        .table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .table td {
+            padding: 1rem;
+            font-size: 0.875rem;
+            color: var(--gray-700);
+        }
+
+        .table td:first-child {
+            font-weight: 500;
+            color: var(--gray-900);
+        }
+
+        .birthday-badge {
+            background: var(--warning);
+            color: var(--white);
+            padding: 0.125rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.show {
+            display: flex;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: 8px;
+            width: 100%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: none;
+            color: var(--gray-400);
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 1.5rem;
+        }
+
+        .modal-close:hover {
+            background: var(--gray-100);
+            color: var(--gray-600);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+
+        /* Form */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.25rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .form-label.required::after {
+            content: '*';
+            color: var(--danger);
+            margin-left: 0.25rem;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            padding: 0.625rem 0.875rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-family: inherit;
+            color: var(--gray-900);
+            background: var(--white);
+            transition: all 0.15s ease;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-input.error {
+            border-color: var(--danger);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* Import Modal */
+        .import-zone {
+            border: 2px dashed var(--gray-300);
+            border-radius: 8px;
+            padding: 3rem;
+            text-align: center;
+            background: var(--gray-50);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .import-zone:hover {
+            border-color: var(--primary);
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .import-zone i {
+            font-size: 3rem;
+            color: var(--gray-400);
+            margin-bottom: 1rem;
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.15s ease;
+        }
+
+        .loading-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--gray-200);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.875rem 1.25rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            z-index: 10001;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            animation: slideIn 0.2s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .notification.success {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .notification.error {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        .notification.info {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            color: var(--gray-300);
+            margin-bottom: 1rem;
+        }
+
+        .empty-state-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state-text {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+
+            .page-header,
+            .stat-item,
+            .container {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+            }
+
+            .stats-bar {
+                grid-template-columns: 1fr;
+            }
+
+            .header-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .toolbar {
+                flex-direction: column;
+            }
+
+            .search-box {
+                max-width: 100%;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+
+            .table {
+                min-width: 800px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text" id="loadingText">Carregando...</div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo-section" style="padding:1.5rem;border-bottom:1px solid rgba(148,163,184,.1);display:flex;align-items:center;gap:1rem">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjX3FIgwQ1yUrYjlzzlATIHy6w8gtyBGyYrv9UeDRnDgCYfvSzvXE8mySFxLQ45dut1UP_FD0Srttnd2kD6jf7VXIil6ZfJEUFchoazwH-ZP11gUsyt6zxgQ5K-aQ-76VXWOClTjSWmKxX8IKZI7uZEBZBKO7el9g9vj-sXRqRGrLxUYhLYNBdVDf_J9OuL/w200-h200/ChatGPT%20Image%2029%20de%20dez.%20de%202025,%2012_21_08.png" alt="Logo" class="logo-img" style="width:48px;height:48px;border-radius:12px">
+            <div class="logo-text" id="logoText" style="font-size:1.3rem;font-weight:800;color:#fff">VECXO</div>
+        </div>
+
+            <ul class="sidebar-nav">
+        <li><a href="index1.html">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a></li>
+        
+        <li><a href="cadastro-cliente.html" class="active">
+            <i class="fas fa-user-injured"></i>
+            <span>Pacientes</span>
+        </a></li>
+        
+        <li><a href="mensalidades.html">
+            <i class="fas fa-file-invoice-dollar"></i>
+            <span>Mensalidades</span>
+        </a></li>
+        
+        <li><a href="cadastro-servicos.html">
+            <i class="fas fa-hand-holding-medical"></i>
+            <span>Serviços</span>
+        </a></li>
+        
+        <li><a href="cadastro-produtos.html">
+            <i class="fas fa-box"></i>
+            <span>Materiais</span>
+        </a></li>
+        
+        <li><a href="finalizar-servico.html">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Vendas</span>
+        </a></li>
+        
+        <li><a href="profissionais.html">
+            <i class="fas fa-user-md"></i>
+            <span>Profissionais</span>
+        </a></li>
+        
+        <li><a href="ponto.html">
+            <i class="fas fa-clock"></i>
+            <span>Ponto</span>
+        </a></li>
+        
+        <li><a href="financeiro.html">
+            <i class="fas fa-chart-line"></i>
+            <span>Financeiro</span>
+        </a></li>
+    </ul>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">A</div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Administrador</div>
+                    <div class="user-role">Gerente</div>
+                </div>
+                <button class="logout-btn" onclick="logout()" title="Sair">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <div class="page-header">
+            <div class="header-content">
+                <h1>Pacientes</h1>
+                <p>Gerencie sua base de clientes</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="openImportModal()">
+                    <i class="fas fa-file-excel"></i> Importar
+                </button>
+                <button class="btn btn-primary" onclick="openModal()">
+                    <i class="fas fa-plus"></i> Novo Paciente
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-value" id="totalClients">0</div>
+                <div class="stat-label">Total de Pacientes</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="newClientsMonth">0</div>
+                <div class="stat-label">Novos este Mês</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="birthdaysMonth">0</div>
+                <div class="stat-label">Aniversários este Mês</div>
+            </div>
+        </div>
+
+        <!-- Container -->
+        <div class="container">
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <div class="search-box">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Buscar pacientes...">
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Telefone</th>
+                            <th>Email</th>
+                            <th>Cidade</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientsTableBody">
+                        <!-- Clientes serão carregados aqui -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Cadastro Cliente -->
+    <div id="clientModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Novo Paciente</h2>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+
+            <form id="clientForm">
+                <input type="hidden" id="clientId">
+                
+                <div class="modal-body">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label required" for="nome">Nome Completo</label>
+                            <input type="text" class="form-input" id="nome" required placeholder="Nome completo">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label required" for="telefone">Telefone/WhatsApp</label>
+                            <input type="tel" class="form-input" id="telefone" required placeholder="(11) 99999-9999">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="cpf">CPF</label>
+                            <input type="text" class="form-input" id="cpf" placeholder="000.000.000-00">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="rg">RG</label>
+                            <input type="text" class="form-input" id="rg" placeholder="RG do paciente">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="email">E-mail</label>
+                            <input type="email" class="form-input" id="email" placeholder="email@exemplo.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="data_nascimento">Data de Nascimento</label>
+                            <input type="date" class="form-input" id="data_nascimento">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="endereco_rua">Endereço</label>
+                            <input type="text" class="form-input" id="endereco_rua" placeholder="Rua, Avenida...">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="endereco_cidade">Cidade</label>
+                            <input type="text" class="form-input" id="endereco_cidade" placeholder="Sua cidade">
+                        </div>
+
+                        <div class="form-group full">
+                            <label class="form-label" for="observacoes">Observações Gerais</label>
+                            <textarea class="form-textarea" id="observacoes" placeholder="Observações gerais sobre o paciente..."></textarea>
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label class="form-label" for="convenio">Convênio / Plano de Saúde</label>
+                            <input type="text" class="form-input" id="convenio" placeholder="Nome do convênio (se houver)">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="responsavel">Responsável (menores)</label>
+                            <input type="text" class="form-input" id="responsavel" placeholder="Nome do responsável">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="responsavel_telefone">Telefone Responsável</label>
+                            <input type="tel" class="form-input" id="responsavel_telefone" placeholder="(11) 99999-9999">
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label class="form-label" for="anamnese">Anamnese / Histórico Clínico</label>
+                            <textarea class="form-textarea" id="anamnese" placeholder="Queixa principal, diagnóstico, histórico médico, medicamentos em uso..." style="min-height:120px;"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-check"></i> Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Importação Excel -->
+    <div id="importModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Importar Clientes</h2>
+                <button class="modal-close" onclick="closeImportModal()">×</button>
+            </div>
+
+            <div class="modal-body">
+                <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleFileSelect(event)">
+                
+                <div class="import-zone" onclick="document.getElementById('excelFile').click()">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h3 style="font-size: 1.125rem; margin-bottom: 0.5rem;">Arraste o arquivo ou clique para selecionar</h3>
+                    <p style="font-size: 0.875rem; color: var(--gray-500);">Formatos aceitos: .xlsx, .xls, .csv</p>
+                </div>
+
+                <div style="margin-top: 1.5rem; padding: 1rem; background: var(--gray-50); border-radius: 6px;">
+                    <p style="font-size: 0.875rem; color: var(--gray-700); margin-bottom: 0.5rem;">
+                        <strong>Colunas obrigatórias:</strong> nome, telefone
+                    </p>
+                    <p style="font-size: 0.875rem; color: var(--gray-700);">
+                        <strong>Colunas opcionais:</strong> email, data_nascimento, endereco_cidade, cpf, convenio
+                    </p>
+                </div>
+
+                <div id="previewSection" style="display: none; margin-top: 1.5rem;">
+                    <h3 style="font-size: 0.9375rem; font-weight: 600; margin-bottom: 1rem;">Pré-visualização</h3>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem;">
+                        <div style="text-align: center; padding: 1rem; background: var(--gray-50); border-radius: 6px;">
+                            <div style="font-size: 1.5rem; font-weight: 600;" id="totalRows">0</div>
+                            <div style="font-size: 0.75rem; color: var(--gray-600);">Total</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; background: rgba(16, 185, 129, 0.1); border-radius: 6px;">
+                            <div style="font-size: 1.5rem; font-weight: 600; color: var(--success);" id="validRows">0</div>
+                            <div style="font-size: 0.75rem; color: var(--gray-600);">Válidos</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; background: rgba(239, 68, 68, 0.1); border-radius: 6px;">
+                            <div style="font-size: 1.5rem; font-weight: 600; color: var(--danger);" id="invalidRows">0</div>
+                            <div style="font-size: 0.75rem; color: var(--gray-600);">Erros</div>
+                        </div>
+                    </div>
+                    <div style="max-height: 300px; overflow-y: auto; border: 1px solid var(--gray-200); border-radius: 6px;">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Telefone</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="previewTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer" id="importActions" style="display: none;">
+                <button class="btn btn-secondary" onclick="closeImportModal()">Cancelar</button>
+                <button class="btn btn-primary" id="startImportBtn" onclick="startImport()">
+                    <i class="fas fa-file-import"></i> Importar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+// =====================================================
+// SECURE CLIENT MANAGER - OMG SALOON
+// Todas as operações críticas via Edge Functions
+// =====================================================
+
+const SUPABASE_URL = 'https://rdfcosxyeqgbjdedargd.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkZmNvc3h5ZXFnYmpkZWRhcmdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDkxNTQsImV4cCI6MjA3NzA4NTE1NH0.wNx6jQAi9nn2K_E-40VuV6k0sWPoF5bWAw_si__aSyo';
+const EDGE_FUNCTIONS_URL = `${SUPABASE_URL}/functions/v1`;
+
+var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+class SecureClientManager {
+    constructor() {
+        this.clients = [];
+        this.editingClient = null;
+        this.currentUser = null;
+        this.salaoInfo = null;
+        this.importedData = null;
+        this.accessToken = null;
+        this.searchTimeout = null;
+        this.init();
+    }
+
+    async callEdgeFunction(functionName, data = {}, method = 'POST') {
+        if (!this.accessToken) throw new Error('Token de acesso não disponível');
+        const response = await fetch(`${EDGE_FUNCTIONS_URL}/${functionName}`, {
+            method: method,
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.accessToken}` },
+            body: method !== 'GET' ? JSON.stringify(data) : undefined
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Erro na requisição');
+        return result;
+    }
+
+    async init() {
+        try {
+            await this.checkAuthentication();
+            this.setupEventListeners();
+            this.setupPhoneMask();
+            await this.loadClients();
+            await this.loadStats();
+        } catch (error) {
+            console.error('Erro ao inicializar:', error);
+            this.showNotification('Erro de autenticação', 'error');
+            setTimeout(() => window.location.href = 'login.html', 2000);
+        }
+    }
+
+    async checkAuthentication() {
+        this.showLoading('Verificando autenticação...');
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError || !session) throw new Error('Sessão não encontrada');
+        this.accessToken = session.access_token;
+        const authResult = await this.callEdgeFunction('check-auth');
+        if (!authResult.authenticated) throw new Error(authResult.error || 'Não autenticado');
+        if (!authResult.hasSalao) throw new Error('Nenhum salão ativo encontrado');
+        this.currentUser = authResult.user;
+        this.salaoInfo = authResult.salao;
+        // Logo fixo VECXO
+        document.getElementById('userName').textContent = this.currentUser.name;
+        this.hideLoading();
+    }
+
+    setupEventListeners() {
+        document.getElementById('clientForm').addEventListener('submit', (e) => { e.preventDefault(); this.saveClient(); });
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            clearTimeout(this.searchTimeout);
+            this.searchTimeout = setTimeout(() => this.searchClients(e.target.value), 300);
+        });
+    }
+
+    setupPhoneMask() {
+        const phoneInput = document.getElementById('telefone');
+        phoneInput.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 11) value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+            else if (value.length >= 7) value = value.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+            else if (value.length >= 3) value = value.replace(/(\d{2})(\d{0,5})/, '($1) $2');
+            e.target.value = value;
+        });
+    }
+
+    async loadClients() {
+        try {
+            this.showLoading('Carregando clientes...');
+            const result = await this.callEdgeFunction('load-clients');
+            this.clients = result.data || [];
+            this.renderClients();
+        } catch (error) {
+            console.error('Erro ao carregar clientes:', error);
+            this.showNotification('Erro ao carregar clientes', 'error');
+        } finally { this.hideLoading(); }
+    }
+
+    escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    renderClients(clientsToRender = this.clients) {
+        const tbody = document.getElementById('clientsTableBody');
+        if (clientsToRender.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">👥</div><h3 class="empty-state-title">Nenhum paciente cadastrado</h3><p class="empty-state-text">Clique em "Novo Paciente" para começar</p></div></td></tr>';
+            return;
+        }
+        const today = new Date();
+        const currentMonth = today.getMonth();
+        const currentDay = today.getDate();
+        tbody.innerHTML = '';
+        clientsToRender.forEach(client => {
+            const tr = document.createElement('tr');
+            const tdNome = document.createElement('td');
+            tdNome.textContent = client.nome || '';
+            if (client.data_nascimento) {
+                const birthDate = new Date(client.data_nascimento);
+                if (birthDate.getMonth() === currentMonth && birthDate.getDate() === currentDay) {
+                    const badge = document.createElement('span');
+                    badge.className = 'birthday-badge';
+                    badge.textContent = '🎂 Aniversário';
+                    tdNome.appendChild(badge);
+                }
+            }
+            const tdTelefone = document.createElement('td'); tdTelefone.textContent = this.formatPhone(client.telefone);
+            const tdEmail = document.createElement('td'); tdEmail.textContent = client.email || '-';
+            const tdCidade = document.createElement('td'); tdCidade.textContent = client.endereco_cidade || '-';
+            const tdAcoes = document.createElement('td');
+            tdAcoes.innerHTML = `<div class="actions-cell"><button class="btn btn-sm btn-secondary" onclick="clientManager.editClient('${this.escapeHtml(client.id)}')"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-success" onclick="clientManager.openWhatsApp('${this.escapeHtml(client.telefone)}')"><i class="fab fa-whatsapp"></i></button><button class="btn btn-sm btn-danger" onclick="clientManager.deleteClient('${this.escapeHtml(client.id)}')"><i class="fas fa-trash"></i></button><button class="btn btn-sm btn-primary" onclick="clientManager.viewClientFile('${this.escapeHtml(client.id)}')" title="Ver Ficha"><i class="fas fa-folder"></i></button></div>`;
+            tr.appendChild(tdNome); tr.appendChild(tdTelefone); tr.appendChild(tdEmail); tr.appendChild(tdCidade); tr.appendChild(tdAcoes);
+            tbody.appendChild(tr);
+        });
+    }
+
+    async saveClient() {
+        try {
+            if (!this.validateForm()) return;
+            this.showLoading(this.editingClient ? 'Atualizando...' : 'Salvando...');
+            const data = {
+                clientId: this.editingClient,
+                nome: document.getElementById('nome').value.trim(),
+                telefone: document.getElementById('telefone').value,
+                email: document.getElementById('email').value.trim(),
+                data_nascimento: document.getElementById('data_nascimento').value,
+                endereco_rua: document.getElementById('endereco_rua').value.trim(),
+                endereco_cidade: document.getElementById('endereco_cidade').value.trim(),
+                observacoes: document.getElementById('observacoes').value.trim()
+            };
+            const result = await this.callEdgeFunction('save-client', data);
+            this.showNotification(result.message, 'success');
+            this.closeModal();
+            await this.loadClients();
+            await this.loadStats();
+        } catch (error) {
+            console.error('Erro ao salvar:', error);
+            this.showNotification(error.message || 'Erro ao salvar cliente', 'error');
+        } finally { this.hideLoading(); }
+    }
+
+    async editClient(clientId) {
+        try {
+            this.showLoading('Carregando...');
+            const result = await this.callEdgeFunction('edit-client', { clientId });
+            const client = result.data;
+            document.getElementById('nome').value = client.nome || '';
+            document.getElementById('telefone').value = this.formatPhone(client.telefone);
+            document.getElementById('email').value = client.email || '';
+            document.getElementById('data_nascimento').value = client.data_nascimento || '';
+            document.getElementById('endereco_rua').value = client.endereco_rua || '';
+            document.getElementById('endereco_cidade').value = client.endereco_cidade || '';
+            document.getElementById('observacoes').value = client.observacoes || '';
+            this.editingClient = clientId;
+            document.getElementById('modalTitle').textContent = 'Editar Paciente';
+            this.openModal();
+        } catch (error) {
+            console.error('Erro ao carregar cliente:', error);
+            this.showNotification(error.message || 'Erro ao carregar dados', 'error');
+        } finally { this.hideLoading(); }
+    }
+
+    async deleteClient(clientId) {
+        if (!confirm('Deseja excluir este cliente?')) return;
+        try {
+            this.showLoading('Excluindo...');
+            const result = await this.callEdgeFunction('delete-client', { clientId });
+            this.showNotification(result.message, 'success');
+            await this.loadClients();
+            await this.loadStats();
+        } catch (error) {
+            console.error('Erro ao excluir:', error);
+            this.showNotification(error.message || 'Erro ao excluir cliente', 'error');
+        } finally { this.hideLoading(); }
+    }
+
+    async searchClients(query) {
+        if (!query.trim()) { this.renderClients(); return; }
+        if (query.trim().length < 2) return;
+        try {
+            const result = await this.callEdgeFunction('search-clients', { query: query.trim(), limit: 50 });
+            this.renderClients(result.data || []);
+        } catch (error) {
+            console.error('Erro na busca:', error);
+            const searchTerm = query.toLowerCase();
+            const filtered = this.clients.filter(c => (c.nome && c.nome.toLowerCase().includes(searchTerm)) || (c.telefone && c.telefone.includes(query)) || (c.email && c.email.toLowerCase().includes(searchTerm)) || (c.endereco_cidade && c.endereco_cidade.toLowerCase().includes(searchTerm)));
+            this.renderClients(filtered);
+        }
+    }
+
+    async loadStats() {
+        try {
+            const result = await this.callEdgeFunction('load-stats');
+            document.getElementById('totalClients').textContent = result.totalClients || 0;
+            document.getElementById('newClientsMonth').textContent = result.newClientsMonth || 0;
+            document.getElementById('birthdaysMonth').textContent = result.birthdaysMonth || 0;
+        } catch (error) { console.error('Erro ao carregar estatísticas:', error); }
+    }
+
+    async handleFileSelect(file) {
+        try {
+            this.showLoading('Processando arquivo...');
+            const data = await this.readExcelFile(file);
+            const processedData = this.processExcelData(data);
+            this.showPreview(processedData);
+            this.hideLoading();
+        } catch (error) {
+            console.error('Erro ao processar arquivo:', error);
+            this.showNotification('Erro ao processar arquivo', 'error');
+            this.hideLoading();
+        }
+    }
+
+    readExcelFile(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet, { raw: false });
+                    resolve(jsonData);
+                } catch (error) { reject(error); }
+            };
+            reader.onerror = () => reject(new Error('Erro ao ler arquivo'));
+            reader.readAsArrayBuffer(file);
+        });
+    }
+
+    processExcelData(rawData) {
+        const limitedData = rawData.slice(0, 500);
+        const processedData = limitedData.map((row, index) => {
+            const normalizedRow = {};
+            Object.keys(row).forEach(key => { normalizedRow[key.toLowerCase().trim()] = row[key]; });
+            const nome = (normalizedRow.nome || '').trim();
+            let telefone = String(normalizedRow.telefone || '').replace(/\D/g, '');
+            const valid = nome.length >= 2 && telefone.length >= 10;
+            return { index: index + 1, nome, telefone: this.formatPhone(telefone), telefoneRaw: telefone, email: (normalizedRow.email || '').trim(), data_nascimento: normalizedRow.data_nascimento || null, endereco_cidade: (normalizedRow.endereco_cidade || normalizedRow.cidade || '').trim(), valid, errors: !valid ? ['Nome ou telefone inválido'] : [] };
+        });
+        this.importedData = processedData;
+        return processedData;
+    }
+
+    showPreview(data) {
+        const validCount = data.filter(d => d.valid).length;
+        const invalidCount = data.length - validCount;
+        document.getElementById('totalRows').textContent = data.length;
+        document.getElementById('validRows').textContent = validCount;
+        document.getElementById('invalidRows').textContent = invalidCount;
+        const tbody = document.getElementById('previewTableBody');
+        tbody.innerHTML = '';
+        data.forEach(row => {
+            const tr = document.createElement('tr');
+            if (!row.valid) tr.style.background = 'rgba(239, 68, 68, 0.1)';
+            const tdNome = document.createElement('td'); tdNome.textContent = row.nome || '-';
+            const tdTelefone = document.createElement('td'); tdTelefone.textContent = row.telefone || '-';
+            const tdStatus = document.createElement('td'); tdStatus.innerHTML = row.valid ? '<span style="color:var(--success);">✓ Válido</span>' : '<span style="color:var(--danger);">✗ Inválido</span>';
+            tr.appendChild(tdNome); tr.appendChild(tdTelefone); tr.appendChild(tdStatus);
+            tbody.appendChild(tr);
+        });
+        document.getElementById('previewSection').style.display = 'block';
+        document.getElementById('importActions').style.display = 'flex';
+        const startBtn = document.getElementById('startImportBtn');
+        startBtn.disabled = validCount === 0;
+        startBtn.textContent = validCount === 0 ? 'Nenhum registro válido' : `Importar ${validCount} cliente(s)`;
+    }
+
+    async startImport() {
+        if (!this.importedData) return;
+        const validRows = this.importedData.filter(row => row.valid);
+        if (validRows.length === 0) return;
+        try {
+            this.showLoading('Importando...');
+            const clientsToImport = validRows.map(row => ({ nome: row.nome, telefone: row.telefoneRaw, email: row.email || null, data_nascimento: row.data_nascimento || null, endereco_cidade: row.endereco_cidade || null }));
+            const result = await this.callEdgeFunction('import-clients', { clients: clientsToImport });
+            this.showNotification(result.message, 'success');
+            this.closeImportModal();
+            await this.loadClients();
+            await this.loadStats();
+        } catch (error) {
+            console.error('Erro na importação:', error);
+            this.showNotification(error.message || 'Erro na importação', 'error');
+        } finally { this.hideLoading(); }
+    }
+
+    validateForm() {
+        const nome = document.getElementById('nome').value.trim();
+        const telefone = document.getElementById('telefone').value.replace(/\D/g, '');
+        document.getElementById('nome').classList.remove('error');
+        document.getElementById('telefone').classList.remove('error');
+        if (!nome || nome.length < 2) { document.getElementById('nome').classList.add('error'); this.showNotification('Nome deve ter pelo menos 2 caracteres', 'error'); return false; }
+        if (!telefone || telefone.length < 10) { document.getElementById('telefone').classList.add('error'); this.showNotification('Telefone deve ter pelo menos 10 dígitos', 'error'); return false; }
+        return true;
+    }
+
+    formatPhone(phone) {
+        if (!phone) return '';
+        const cleaned = phone.replace(/\D/g, '');
+        if (cleaned.length === 11) return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7)}`;
+        if (cleaned.length === 10) return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 6)}-${cleaned.slice(6)}`;
+        return phone;
+    }
+
+    openWhatsApp(phone) { const cleanPhone = phone.replace(/\D/g, ''); const formattedPhone = cleanPhone.startsWith('55') ? cleanPhone : '55' + cleanPhone; window.open(`https://web.whatsapp.com/send?phone=${formattedPhone}`, '_blank'); }
+    async viewClientFile(clientId) {
+        var c = this.clients.find(function(x){ return x.id === clientId; });
+        if(!c) return;
+        this.showLoading('Carregando ficha...');
+        try {
+            var sid = this.salaoInfo.id;
+            var results = await Promise.all([
+                supabase.from('mensalidades').select('*,planos(id,nome,tipo,valor,qtd_sessoes)').eq('salao_id',sid).eq('paciente_id',clientId).order('data_vencimento',{ascending:false}),
+                supabase.from('pagamentos_mensalidade').select('*,mensalidades(id,data_vencimento,planos(nome))').eq('salao_id',sid).eq('mensalidade_id',clientId),
+                supabase.from('sessoes').select('*,servicos(id,nome),profissionais(id,nome),planos(id,nome)').eq('salao_id',sid).eq('paciente_id',clientId).order('data_sessao',{ascending:false}),
+                supabase.from('dados_clinicos_paciente').select('*').eq('paciente_id',clientId).maybeSingle(),
+                supabase.from('anamneses').select('*,profissionais(nome)').eq('paciente_id',clientId).order('data_avaliacao',{ascending:false}),
+                supabase.from('observacoes_paciente').select('*').eq('paciente_id',clientId).order('created_at',{ascending:false})
+            ]);
+            var mens = results[0].data || [];
+            var pags = [];
+            if(mens.length > 0) {
+                var mids = mens.map(function(m){return m.id});
+                var pagRes = await supabase.from('pagamentos_mensalidade').select('*,mensalidades(id,data_vencimento,planos(nome))').eq('salao_id',sid).in('mensalidade_id',mids).order('data_pagamento',{ascending:false});
+                pags = pagRes.data || [];
+            }
+            var sess = results[2].data || [];
+            var dados = results[3].data || null;
+            var anam = results[4].data || [];
+            var obs = results[5].data || [];
+            this.hideLoading();
+            this.showFichaModal(c, mens, pags, sess, dados, anam, obs);
+        } catch(e) {
+            console.error(e);
+            this.hideLoading();
+            this.showNotification('Erro ao carregar ficha', 'error');
+        }
+    }
+
+    showFichaModal(c, mens, pags, sess, dados, anam, obs) {
+        var ini = (c.nome||'?').charAt(0).toUpperCase();
+        var fmtD = function(d){ if(!d)return'-'; return new Date(d+'T12:00:00').toLocaleDateString('pt-BR'); };
+        var fmtV = function(v){ return 'R$ '+(Number(v)||0).toFixed(2).replace('.',','); };
+        var fmtForma = function(f){ return {pix:'PIX',cartao_credito:'Cartao Credito',cartao_debito:'Cartao Debito',dinheiro:'Dinheiro',boleto:'Boleto'}[f]||f||'-'; };
+
+        var h = '<div style="max-height:85vh;overflow-y:auto">';
+
+        // HEADER
+        h += '<div style="background:linear-gradient(135deg,#2563EB,#1E40AF);padding:1.5rem;color:#fff;border-radius:16px 16px 0 0;display:flex;align-items:center;gap:1rem">';
+        h += '<div style="width:56px;height:56px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800">'+ini+'</div>';
+        h += '<div style="flex:1"><div style="font-size:1.2rem;font-weight:700">'+(c.nome||'-')+'</div>';
+        h += '<div style="font-size:.85rem;opacity:.8">'+(c.telefone||'')+' | '+(c.email||'')+'</div></div>';
+        h += '<button onclick="closeFichaModal()" style="background:rgba(255,255,255,.2);border:none;color:#fff;width:36px;height:36px;border-radius:10px;cursor:pointer;font-size:1.1rem"><i class="fas fa-times"></i></button></div>';
+
+        // DADOS PESSOAIS
+        h += '<div style="padding:1.25rem">';
+        h += '<div style="font-weight:700;font-size:.9rem;margin-bottom:.75rem;display:flex;align-items:center;gap:.4rem"><i class="fas fa-user" style="color:#2563EB"></i> Dados Pessoais</div>';
+        h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;font-size:.82rem">';
+        h += '<div style="background:#F8FAFC;padding:.6rem;border-radius:8px"><span style="color:#64748B;font-size:.72rem;display:block">Nascimento</span><b>'+fmtD(c.data_nascimento)+'</b></div>';
+        h += '<div style="background:#F8FAFC;padding:.6rem;border-radius:8px"><span style="color:#64748B;font-size:.72rem;display:block">Cidade</span><b>'+(c.endereco_cidade||'-')+'</b></div>';
+        h += '<div style="background:#F8FAFC;padding:.6rem;border-radius:8px"><span style="color:#64748B;font-size:.72rem;display:block">Endereco</span><b>'+(c.endereco_rua||'-')+'</b></div>';
+        if(dados) {
+            h += '<div style="background:#F8FAFC;padding:.6rem;border-radius:8px"><span style="color:#64748B;font-size:.72rem;display:block">CPF</span><b>'+(dados.cpf||'-')+'</b></div>';
+            h += '<div style="background:#F8FAFC;padding:.6rem;border-radius:8px"><span style="color:#64748B;font-size:.72rem;display:block">Convenio</span><b>'+(dados.convenio||'-')+'</b></div>';
+            h += '<div style="background:#F8FAFC;padding:.6rem;border-radius:8px"><span style="color:#64748B;font-size:.72rem;display:block">Responsavel</span><b>'+(dados.responsavel||'-')+'</b></div>';
+        }
+        h += '</div>';
+        if(c.observacoes){h += '<div style="margin-top:.5rem;font-size:.82rem;color:#334155;background:#FFFBEB;padding:.5rem .75rem;border-radius:8px;border-left:3px solid #F59E0B"><b>Obs:</b> '+c.observacoes+'</div>';}
+
+        // DADOS CLINICOS
+        if(dados && (dados.anamnese||dados.diagnostico||dados.medicamentos||dados.alergias)){
+            h += '<div style="font-weight:700;font-size:.9rem;margin:1.25rem 0 .75rem;display:flex;align-items:center;gap:.4rem"><i class="fas fa-notes-medical" style="color:#8B5CF6"></i> Dados Clinicos</div>';
+            h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;font-size:.82rem">';
+            if(dados.diagnostico){h+='<div style="background:#F5F3FF;padding:.6rem;border-radius:8px;grid-column:1/-1"><span style="color:#64748B;font-size:.72rem;display:block">Diagnostico</span>'+dados.diagnostico+'</div>';}
+            if(dados.anamnese){h+='<div style="background:#F5F3FF;padding:.6rem;border-radius:8px;grid-column:1/-1"><span style="color:#64748B;font-size:.72rem;display:block">Anamnese</span>'+dados.anamnese+'</div>';}
+            if(dados.medicamentos){h+='<div style="background:#F5F3FF;padding:.6rem;border-radius:8px"><span style="color:#64748B;font-size:.72rem;display:block">Medicamentos</span>'+dados.medicamentos+'</div>';}
+            if(dados.alergias){h+='<div style="background:#FEF2F2;padding:.6rem;border-radius:8px"><span style="color:#64748B;font-size:.72rem;display:block">Alergias</span><span style="color:#DC2626">'+dados.alergias+'</span></div>';}
+            h += '</div>';
+        }
+
+        // ANAMNESES
+        if(anam.length > 0){
+            h += '<div style="font-weight:700;font-size:.9rem;margin:1.25rem 0 .75rem;display:flex;align-items:center;gap:.4rem"><i class="fas fa-file-medical" style="color:#06B6D4"></i> Avaliacoes / Anamneses ('+anam.length+')</div>';
+            for(var ai=0;ai<Math.min(anam.length,5);ai++){
+                var an=anam[ai];
+                h+='<div style="background:#F0FDFA;padding:.6rem;border-radius:8px;margin-bottom:.4rem;border-left:3px solid #06B6D4;font-size:.82rem">';
+                h+='<div style="display:flex;justify-content:space-between"><b>'+fmtD(an.data_avaliacao)+'</b><span style="color:#64748B;font-size:.75rem">'+(an.profissionais?an.profissionais.nome:'')+'</span></div>';
+                if(an.queixa_principal)h+='<div style="margin-top:.3rem"><span style="color:#64748B">Queixa:</span> '+an.queixa_principal+'</div>';
+                if(an.plano_terapeutico)h+='<div style="margin-top:.2rem"><span style="color:#64748B">Plano:</span> '+an.plano_terapeutico+'</div>';
+                h+='</div>';
+            }
+        }
+
+        // MENSALIDADES
+        h += '<div style="font-weight:700;font-size:.9rem;margin:1.25rem 0 .75rem;display:flex;align-items:center;gap:.4rem"><i class="fas fa-file-invoice-dollar" style="color:#2563EB"></i> Mensalidades ('+mens.length+')</div>';
+        if(mens.length===0){h+='<div style="color:#64748B;font-size:.82rem">Nenhuma mensalidade cadastrada.</div>';}
+        else{
+            h+='<table style="width:100%;border-collapse:collapse;font-size:.8rem"><thead><tr style="background:#EFF6FF"><th style="padding:.5rem;text-align:left">Plano</th><th style="padding:.5rem">Vencimento</th><th style="padding:.5rem">Valor</th><th style="padding:.5rem">Status</th></tr></thead><tbody>';
+            for(var mi=0;mi<mens.length;mi++){
+                var m=mens[mi];
+                var hoje=new Date();hoje.setHours(0,0,0,0);
+                var venc=new Date(m.data_vencimento+'T00:00:00');
+                var st=m.status==='pago'?'<span style="background:#D1FAE5;color:#059669;padding:.15rem .5rem;border-radius:12px;font-size:.72rem;font-weight:600">Em Dia</span>':m.status==='cancelado'?'<span style="background:#F1F5F9;color:#64748B;padding:.15rem .5rem;border-radius:12px;font-size:.72rem">Cancelado</span>':venc<hoje?'<span style="background:#FEE2E2;color:#DC2626;padding:.15rem .5rem;border-radius:12px;font-size:.72rem;font-weight:600">Atrasado</span>':'<span style="background:#DBEAFE;color:#2563EB;padding:.15rem .5rem;border-radius:12px;font-size:.72rem">Futuro</span>';
+                h+='<tr style="border-top:1px solid #F1F5F9"><td style="padding:.5rem;font-weight:600">'+(m.planos?m.planos.nome:'-')+'</td><td style="padding:.5rem;text-align:center">'+fmtD(m.data_vencimento)+'</td><td style="padding:.5rem;text-align:center;font-weight:700">'+fmtV(m.valor)+'</td><td style="padding:.5rem;text-align:center">'+st+'</td></tr>';
+            }
+            h+='</tbody></table>';
+        }
+
+        // PAGAMENTOS
+        h += '<div style="font-weight:700;font-size:.9rem;margin:1.25rem 0 .75rem;display:flex;align-items:center;gap:.4rem"><i class="fas fa-money-bill-wave" style="color:#10B981"></i> Pagamentos ('+pags.length+')</div>';
+        if(pags.length===0){h+='<div style="color:#64748B;font-size:.82rem">Nenhum pagamento registrado.</div>';}
+        else{
+            var totalPago=pags.reduce(function(s,p){return s+(p.valor_pago||0)},0);
+            h+='<div style="background:#F0FDF4;padding:.5rem .75rem;border-radius:8px;font-size:.82rem;margin-bottom:.5rem">Total pago: <b style="color:#059669">'+fmtV(totalPago)+'</b></div>';
+            h+='<table style="width:100%;border-collapse:collapse;font-size:.8rem"><thead><tr style="background:#F0FDF4"><th style="padding:.5rem;text-align:left">Data</th><th style="padding:.5rem">Ref.</th><th style="padding:.5rem">Valor</th><th style="padding:.5rem">Forma</th></tr></thead><tbody>';
+            for(var pi=0;pi<pags.length;pi++){
+                var p=pags[pi];
+                h+='<tr style="border-top:1px solid #F1F5F9"><td style="padding:.5rem">'+fmtD(p.data_pagamento)+'</td><td style="padding:.5rem;text-align:center">'+(p.mensalidades&&p.mensalidades.planos?p.mensalidades.planos.nome:'-')+'</td><td style="padding:.5rem;text-align:center;font-weight:700;color:#059669">'+fmtV(p.valor_pago)+'</td><td style="padding:.5rem;text-align:center">'+fmtForma(p.forma_pagamento)+'</td></tr>';
+            }
+            h+='</tbody></table>';
+        }
+
+        // SESSOES / SERVICOS
+        h += '<div style="font-weight:700;font-size:.9rem;margin:1.25rem 0 .75rem;display:flex;align-items:center;gap:.4rem"><i class="fas fa-hand-holding-medical" style="color:#06B6D4"></i> Servicos Realizados ('+sess.length+')</div>';
+        if(sess.length===0){h+='<div style="color:#64748B;font-size:.82rem">Nenhum servico registrado.</div>';}
+        else{
+            var realizadas=sess.filter(function(s){return s.status==='realizada'}).length;
+            var faltas2=sess.filter(function(s){return s.status==='falta'}).length;
+            h+='<div style="display:flex;gap:.5rem;margin-bottom:.5rem;font-size:.82rem">';
+            h+='<span style="background:#D1FAE5;color:#059669;padding:.2rem .6rem;border-radius:8px">'+realizadas+' realizadas</span>';
+            if(faltas2>0)h+='<span style="background:#FEE2E2;color:#DC2626;padding:.2rem .6rem;border-radius:8px">'+faltas2+' faltas</span>';
+            h+='</div>';
+            h+='<table style="width:100%;border-collapse:collapse;font-size:.8rem"><thead><tr style="background:#F0FDFA"><th style="padding:.5rem;text-align:left">Data</th><th style="padding:.5rem">Servico</th><th style="padding:.5rem">Profissional</th><th style="padding:.5rem">Status</th><th style="padding:.5rem;text-align:left">Evolucao</th></tr></thead><tbody>';
+            for(var si=0;si<sess.length;si++){
+                var s=sess[si];
+                var stS=s.status==='realizada'?'<span style="background:#D1FAE5;color:#059669;padding:.15rem .4rem;border-radius:10px;font-size:.7rem">Realizada</span>':s.status==='falta'?'<span style="background:#FEE2E2;color:#DC2626;padding:.15rem .4rem;border-radius:10px;font-size:.7rem">Falta</span>':'<span style="background:#F1F5F9;color:#64748B;padding:.15rem .4rem;border-radius:10px;font-size:.7rem">'+s.status+'</span>';
+                var evo=s.evolucao?s.evolucao.substring(0,80)+(s.evolucao.length>80?'...':''):'<span style="color:#94A3B8">-</span>';
+                h+='<tr style="border-top:1px solid #F1F5F9"><td style="padding:.5rem">'+fmtD(s.data_sessao)+'</td><td style="padding:.5rem;font-weight:600">'+(s.servicos?s.servicos.nome:'-')+'</td><td style="padding:.5rem">'+(s.profissionais?s.profissionais.nome:'-')+'</td><td style="padding:.5rem;text-align:center">'+stS+'</td><td style="padding:.5rem;font-size:.77rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+evo+'</td></tr>';
+            }
+            h+='</tbody></table>';
+        }
+
+        // OBSERVACOES / EVOLUCAO
+        h += '<div style="font-weight:700;font-size:.9rem;margin:1.25rem 0 .75rem;display:flex;align-items:center;gap:.4rem;justify-content:space-between"><div style="display:flex;align-items:center;gap:.4rem"><i class="fas fa-comments" style="color:#F59E0B"></i> Observacoes e Evolucao ('+obs.length+')</div><button onclick="toggleAddObs()" style="background:#F59E0B;color:#fff;border:none;padding:.35rem .7rem;border-radius:8px;cursor:pointer;font-size:.78rem;font-weight:600;font-family:Poppins,sans-serif"><i class="fas fa-plus"></i> Nova Observacao</button></div>';
+
+        // Form pra adicionar
+        h += '<div id="addObsForm" style="display:none;background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;padding:.85rem;margin-bottom:.75rem">';
+        h += '<textarea id="obsTexto" placeholder="Digite a observacao..." style="width:100%;min-height:70px;border:1px solid #E2E8F0;border-radius:8px;padding:.6rem;font-family:Poppins,sans-serif;font-size:.82rem;resize:vertical"></textarea>';
+        h += '<div style="display:flex;gap:.4rem;margin-top:.5rem">';
+        h += '<select id="obsTipo" style="padding:.35rem .6rem;border:1px solid #E2E8F0;border-radius:8px;font-size:.78rem;font-family:Poppins,sans-serif"><option value="geral">Geral</option><option value="clinica">Clinica</option><option value="evolucao">Evolucao</option><option value="comportamento">Comportamento</option><option value="financeiro">Financeiro</option></select>';
+        h += '<button onclick="salvarObs(\''+c.id+'\',\''+this.salaoInfo.id+'\' )" style="background:#F59E0B;color:#fff;border:none;padding:.35rem .85rem;border-radius:8px;cursor:pointer;font-size:.78rem;font-weight:600;font-family:Poppins,sans-serif"><i class="fas fa-save"></i> Salvar</button>';
+        h += '<button onclick="toggleAddObs()" style="background:#F1F5F9;color:#334155;border:none;padding:.35rem .7rem;border-radius:8px;cursor:pointer;font-size:.78rem;font-family:Poppins,sans-serif">Cancelar</button>';
+        h += '</div></div>';
+
+        if(obs.length===0){h+='<div style="color:#64748B;font-size:.82rem">Nenhuma observacao registrada.</div>';}
+        else{
+            var tipoIcons={geral:'<i class="fas fa-comment" style="color:#F59E0B"></i>',clinica:'<i class="fas fa-stethoscope" style="color:#8B5CF6"></i>',evolucao:'<i class="fas fa-chart-line" style="color:#10B981"></i>',comportamento:'<i class="fas fa-brain" style="color:#EC4899"></i>',financeiro:'<i class="fas fa-dollar-sign" style="color:#2563EB"></i>'};
+            var tipoLabels={geral:'Geral',clinica:'Clinica',evolucao:'Evolucao',comportamento:'Comportamento',financeiro:'Financeiro'};
+            for(var oi=0;oi<obs.length;oi++){
+                var ob=obs[oi];
+                var dt=new Date(ob.created_at);
+                var dtStr=dt.toLocaleDateString('pt-BR')+' '+dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+                var tipoIcon=tipoIcons[ob.tipo]||tipoIcons.geral;
+                var tipoLabel=tipoLabels[ob.tipo]||'Geral';
+                h+='<div style="background:#FFFBEB;padding:.65rem .85rem;border-radius:8px;margin-bottom:.4rem;border-left:3px solid #F59E0B;font-size:.82rem">';
+                h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem">';
+                h+='<div style="display:flex;align-items:center;gap:.3rem">'+tipoIcon+' <span style="font-weight:600;font-size:.75rem;background:#FEF3C7;color:#92400E;padding:.1rem .4rem;border-radius:6px">'+tipoLabel+'</span></div>';
+                h+='<span style="color:#64748B;font-size:.72rem">'+dtStr+'</span></div>';
+                h+='<div style="color:#334155">'+ob.texto+'</div></div>';
+            }
+        }
+
+        h += '</div></div>';
+
+        // Show modal
+        var overlay = document.getElementById('fichaOverlay');
+        if(!overlay){
+            overlay = document.createElement('div');
+            overlay.id = 'fichaOverlay';
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:6000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);padding:1rem';
+            document.body.appendChild(overlay);
+        }
+        overlay.innerHTML = '<div style="background:#fff;border-radius:16px;width:100%;max-width:750px;max-height:90vh;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.2)">'+h+'</div>';
+        overlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+    openModal() { document.getElementById('clientModal').classList.add('show'); document.body.style.overflow = 'hidden'; }
+    closeModal() { document.getElementById('clientModal').classList.remove('show'); document.body.style.overflow = ''; document.getElementById('clientForm').reset(); this.editingClient = null; document.getElementById('modalTitle').textContent = 'Novo Paciente'; document.getElementById('nome').classList.remove('error'); document.getElementById('telefone').classList.remove('error'); }
+    showLoading(message) { document.getElementById('loadingText').textContent = message; document.getElementById('loadingOverlay').classList.add('show'); }
+    hideLoading() { document.getElementById('loadingOverlay').classList.remove('show'); }
+    showNotification(message, type) { const n = document.createElement('div'); n.className = `notification ${type}`; n.textContent = message; document.body.appendChild(n); setTimeout(() => n.remove(), 3000); }
+}
+
+let clientManager;
+function openModal() { if (clientManager) clientManager.openModal(); }
+function closeModal() { if (clientManager) clientManager.closeModal(); }
+function openImportModal() { document.getElementById('importModal').classList.add('show'); document.body.style.overflow = 'hidden'; document.getElementById('previewSection').style.display = 'none'; document.getElementById('importActions').style.display = 'none'; document.getElementById('excelFile').value = ''; }
+function closeImportModal() { document.getElementById('importModal').classList.remove('show'); document.body.style.overflow = ''; }
+function handleFileSelect(event) { const file = event.target.files[0]; if (file && clientManager) clientManager.handleFileSelect(file); }
+function startImport() { if (clientManager) clientManager.startImport(); }
+async function logout() { try { await supabase.auth.signOut(); window.location.href = 'login.html'; } catch (error) { console.error('Erro no logout:', error); } }
+
+function toggleAddObs(){ var f=document.getElementById('addObsForm'); if(f)f.style.display=f.style.display==='none'?'block':'none'; }
+
+async function salvarObs(pacienteId, salaoId){
+    var texto=document.getElementById('obsTexto').value.trim();
+    var tipo=document.getElementById('obsTipo').value;
+    if(!texto){alert('Digite a observacao');return}
+    try{
+        await supabase.from('observacoes_paciente').insert({paciente_id:pacienteId,salao_id:salaoId,texto:texto,tipo:tipo});
+        document.getElementById('obsTexto').value='';
+        toggleAddObs();
+        closeFichaModal();
+        if(clientManager)clientManager.viewClientFile(pacienteId);
+    }catch(e){console.error(e);alert('Erro ao salvar')}
+}
+
+function closeFichaModal(){ var o=document.getElementById('fichaOverlay'); if(o){o.style.display='none';} document.body.style.overflow=''; }
+document.addEventListener('DOMContentLoaded', () => { clientManager = new SecureClientManager(); });
+supabase.auth.onAuthStateChange((event) => { if (event === 'SIGNED_OUT') window.location.href = 'login.html'; });
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Materiais - OMG Saloon</title>
+    
+    <!-- Supabase -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #2563EB;
+            --primary-dark: #1E40AF;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --gray-50: #F9FAFB;
+            --gray-100: #F3F4F6;
+            --gray-200: #E5E7EB;
+            --gray-300: #D1D5DB;
+            --gray-400: #9CA3AF;
+            --gray-500: #6B7280;
+            --gray-600: #4B5563;
+            --gray-700: #374151;
+            --gray-800: #1F2937;
+            --gray-900: #111827;
+            --white: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-900);
+            line-height: 1.6;
+        }
+
+        /* ==========================================
+           SIDEBAR (MANTIDA IGUAL)
+           ========================================== */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: linear-gradient(180deg, #0F172A 0%, #1E293B 100%);
+            box-shadow: 4px 0 32px rgba(0, 0, 0, 0.12);
+            z-index: 1000;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-right: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-280px);
+        }
+
+        .logo-section {
+            padding: 2rem;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            background: rgba(15, 23, 42, 0.5);
+        }
+
+        .logo-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: 900;
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.25);
+            transition: transform 0.3s ease;
+        }
+
+        .logo-icon:hover {
+            transform: scale(1.05) rotate(-5deg);
+        }
+
+        .logo-text-wrapper {
+            flex: 1;
+        }
+
+        .logo-text {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: white;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+            line-height: 1;
+        }
+
+        .logo-subtitle {
+            font-size: 0.75rem;
+            color: #94A3B8;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 1.5rem 1rem;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            color: #94A3B8;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+
+        .sidebar-nav a::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 0;
+            background: linear-gradient(180deg, #3B82F6, #2563EB);
+            border-radius: 0 4px 4px 0;
+            transition: height 0.3s ease;
+        }
+
+        .sidebar-nav a:hover {
+            background: rgba(59, 130, 246, 0.08);
+            color: #E2E8F0;
+            transform: translateX(4px);
+        }
+
+        .sidebar-nav a:hover::before {
+            height: 70%;
+        }
+
+        .sidebar-nav a.active {
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.05) 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        }
+
+        .sidebar-nav a.active::before {
+            height: 70%;
+        }
+
+        .sidebar-nav i {
+            width: 22px;
+            text-align: center;
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-nav a:hover i,
+        .sidebar-nav a.active i {
+            transform: scale(1.1);
+        }
+
+        .sidebar-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            border-top: 1px solid rgba(148, 163, 184, 0.1);
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            background: rgba(59, 130, 246, 0.08);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .user-info:hover {
+            background: rgba(59, 130, 246, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .user-avatar {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .user-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .user-name {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: white;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 0.25rem;
+        }
+
+        .user-role {
+            font-size: 0.75rem;
+            color: #94A3B8;
+            font-weight: 500;
+        }
+
+        .logout-btn {
+            width: 36px;
+            height: 36px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 10px;
+            color: #94A3B8;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #EF4444;
+            transform: scale(1.05);
+        }
+
+        /* ==========================================
+           MAIN CONTENT
+           ========================================== */
+        .main-content {
+            margin-left: 280px;
+            min-height: 100vh;
+            padding: 0;
+            transition: margin-left 0.3s ease;
+        }
+
+        .sidebar.collapsed + .main-content {
+            margin-left: 0;
+        }
+
+        /* Header */
+        .page-header {
+            background: var(--white);
+            border-bottom: 1px solid var(--gray-200);
+            padding: 2rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-content h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 0.25rem;
+        }
+
+        .header-content p {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+            font-weight: 400;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: var(--gray-200);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .stat-item {
+            background: var(--white);
+            padding: 1.5rem 3rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 3rem;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .search-box {
+            flex: 1;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.75rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            font-size: 0.875rem;
+            background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'%3E%3C/path%3E%3C/svg%3E") no-repeat 0.875rem center;
+            background-size: 1.25rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Button */
+        .btn {
+            padding: 0.75rem 1.25rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--white);
+            color: var(--gray-700);
+            border: 1px solid var(--gray-300);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-50);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        .btn-danger:hover {
+            background: #DC2626;
+        }
+
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.8125rem;
+        }
+
+        /* Table */
+        .table-container {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table thead {
+            background: var(--gray-50);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .table th {
+            padding: 0.875rem 1rem;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table tbody tr {
+            border-bottom: 1px solid var(--gray-100);
+            transition: background 0.15s ease;
+        }
+
+        .table tbody tr:hover {
+            background: var(--gray-50);
+        }
+
+        .table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .table td {
+            padding: 1rem;
+            font-size: 0.875rem;
+            color: var(--gray-700);
+        }
+
+        .table td:first-child {
+            font-weight: 500;
+            color: var(--gray-900);
+        }
+
+        .category-badge {
+            display: inline-block;
+            padding: 0.25rem 0.625rem;
+            background: var(--gray-100);
+            color: var(--gray-600);
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .stock-badge {
+            display: inline-block;
+            padding: 0.25rem 0.625rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .stock-ok {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .stock-low {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .stock-out {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.show {
+            display: flex;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: 8px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: none;
+            color: var(--gray-400);
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background: var(--gray-100);
+            color: var(--gray-600);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+
+        /* Form */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.25rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .form-label.required::after {
+            content: '*';
+            color: var(--danger);
+            margin-left: 0.25rem;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            padding: 0.625rem 0.875rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-family: inherit;
+            color: var(--gray-900);
+            background: var(--white);
+            transition: all 0.15s ease;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.15s ease;
+        }
+
+        .loading-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--gray-200);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.875rem 1.25rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            z-index: 10001;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            animation: slideIn 0.2s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .notification.success {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .notification.error {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        .notification.info {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            color: var(--gray-300);
+            margin-bottom: 1rem;
+        }
+
+        .empty-state-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state-text {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+
+            .page-header,
+            .stat-item,
+            .container {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+            }
+
+            .stats-bar {
+                grid-template-columns: 1fr;
+            }
+
+            .toolbar {
+                flex-direction: column;
+            }
+
+            .search-box {
+                max-width: 100%;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+
+            .table {
+                min-width: 800px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text" id="loadingText">Carregando...</div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="logo-section" style="padding:1.5rem;border-bottom:1px solid rgba(148,163,184,.1);display:flex;align-items:center;gap:1rem">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjX3FIgwQ1yUrYjlzzlATIHy6w8gtyBGyYrv9UeDRnDgCYfvSzvXE8mySFxLQ45dut1UP_FD0Srttnd2kD6jf7VXIil6ZfJEUFchoazwH-ZP11gUsyt6zxgQ5K-aQ-76VXWOClTjSWmKxX8IKZI7uZEBZBKO7el9g9vj-sXRqRGrLxUYhLYNBdVDf_J9OuL/w200-h200/ChatGPT%20Image%2029%20de%20dez.%20de%202025,%2012_21_08.png" alt="Logo" class="logo-img" style="width:48px;height:48px;border-radius:12px">
+            <div class="logo-text" id="logoText" style="font-size:1.3rem;font-weight:800;color:#fff">VECXO</div>
+        </div>
+
+            <ul class="sidebar-nav">
+        <li><a href="index1.html">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a></li>
+        
+        <li><a href="cadastro-cliente.html">
+            <i class="fas fa-user-injured"></i>
+            <span>Pacientes</span>
+        </a></li>
+        
+        <li><a href="mensalidades.html">
+            <i class="fas fa-file-invoice-dollar"></i>
+            <span>Mensalidades</span>
+        </a></li>
+        
+        <li><a href="cadastro-servicos.html">
+            <i class="fas fa-hand-holding-medical"></i>
+            <span>Serviços</span>
+        </a></li>
+        
+        <li><a href="cadastro-produtos.html" class="active">
+            <i class="fas fa-box"></i>
+            <span>Materiais</span>
+        </a></li>
+        
+        <li><a href="finalizar-servico.html">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Vendas</span>
+        </a></li>
+        
+        <li><a href="profissionais.html">
+            <i class="fas fa-user-md"></i>
+            <span>Profissionais</span>
+        </a></li>
+        
+        <li><a href="ponto.html">
+            <i class="fas fa-clock"></i>
+            <span>Ponto</span>
+        </a></li>
+        
+        <li><a href="financeiro.html">
+            <i class="fas fa-chart-line"></i>
+            <span>Financeiro</span>
+        </a></li>
+    </ul>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">A</div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Administrador</div>
+                    <div class="user-role">Gerente</div>
+                </div>
+                <button class="logout-btn" onclick="logout()" title="Sair">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <div class="page-header">
+            <div class="header-content">
+                <h1>Materiais</h1>
+                <p>Gerencie materiais e insumos da clínica</p>
+            </div>
+            <button class="btn btn-primary" onclick="openModal()">
+                <i class="fas fa-plus"></i> Novo Material
+            </button>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-value" id="totalProducts">0</div>
+                <div class="stat-label">Total de Materiais</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="totalValue">R$ 0</div>
+                <div class="stat-label">Valor em Estoque</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="lowStockCount">0</div>
+                <div class="stat-label">Estoque Baixo</div>
+            </div>
+        </div>
+
+        <!-- Container -->
+        <div class="container">
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <div class="search-box">
+                    <input type="text" id="searchProducts" class="search-input" placeholder="Buscar materiais...">
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Categoria</th>
+                            <th>Marca</th>
+                            <th>Preço Venda</th>
+                            <th>Estoque</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTableBody">
+                        <!-- Produtos serão carregados aqui -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Novo Material</h2>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form id="productForm">
+                <input type="hidden" id="productId" name="id">
+                
+                <div class="modal-body">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label required" for="nome">Nome do Produto</label>
+                            <input type="text" id="nome" name="nome" class="form-input" placeholder="Ex: Luva Descartável" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label required" for="categoria">Categoria</label>
+                            <select id="categoria" name="categoria" class="form-select" required>
+                                <option value="">Selecione</option>
+                                <option value="maquiagem">Maquiagem</option>
+                                <option value="cabelo">Cabelo</option>
+                                <option value="pele">Cuidados com a Pele</option>
+                                <option value="unhas">Unhas</option>
+                                <option value="perfumaria">Perfumaria</option>
+                                <option value="acessorios">Acessórios</option>
+                                <option value="outros">Outros</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="marca">Marca</label>
+                            <input type="text" id="marca" name="marca" class="form-input" placeholder="Ex: Descarpack">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="codigo">Código/SKU</label>
+                            <input type="text" id="codigo" name="codigo" class="form-input" placeholder="Código">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="preco_custo">Preço de Custo</label>
+                            <input type="number" id="preco_custo" name="preco_custo" class="form-input" step="0.01" min="0" placeholder="0.00">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label required" for="preco_venda">Preço de Venda</label>
+                            <input type="number" id="preco_venda" name="preco_venda" class="form-input" step="0.01" min="0" placeholder="0.00" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label required" for="quantidade_estoque">Quantidade</label>
+                            <input type="number" id="quantidade_estoque" name="quantidade_estoque" class="form-input" min="0" placeholder="0" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="estoque_minimo">Estoque Mínimo</label>
+                            <input type="number" id="estoque_minimo" name="estoque_minimo" class="form-input" min="0" placeholder="5">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="fornecedor">Fornecedor</label>
+                            <input type="text" id="fornecedor" name="fornecedor" class="form-input" placeholder="Nome do fornecedor">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="localizacao">Localização</label>
+                            <input type="text" id="localizacao" name="localizacao" class="form-input" placeholder="Ex: Prateleira A3">
+                        </div>
+
+                        <div class="form-group full">
+                            <label class="form-label" for="descricao">Descrição</label>
+                            <textarea id="descricao" name="descricao" class="form-textarea" placeholder="Descrição do produto..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="submitButton">
+                        <i class="fas fa-check"></i> Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+     // SECURE PRODUCT MANAGER - OMG SALOON
+const SUPABASE_URL = 'https://rdfcosxyeqgbjdedargd.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkZmNvc3h5ZXFnYmpkZWRhcmdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDkxNTQsImV4cCI6MjA3NzA4NTE1NH0.wNx6jQAi9nn2K_E-40VuV6k0sWPoF5bWAw_si__aSyo';
+const EDGE_FUNCTIONS_URL = `${SUPABASE_URL}/functions/v1`;
+
+var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+class SecureProductManager {
+    constructor() {
+        this.products = [];
+        this.editingProduct = null;
+        this.currentUser = null;
+        this.currentSalaoId = null;
+        this.salaoInfo = null;
+        this.accessToken = null;
+        this.init();
+    }
+
+    async callEdgeFunction(functionName, data = {}) {
+        if (!this.accessToken) throw new Error('Token não disponível');
+        const response = await fetch(`${EDGE_FUNCTIONS_URL}/${functionName}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.accessToken}` },
+            body: JSON.stringify(data)
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Erro na requisição');
+        return result;
+    }
+
+    escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    async init() {
+        try {
+            await this.checkAuthentication();
+            this.setupEventListeners();
+            await this.loadProducts();
+            await this.loadStats();
+        } catch (error) {
+            console.error('Erro:', error);
+            this.showNotification('Erro de autenticação', 'error');
+            setTimeout(() => window.location.href = 'login.html', 2000);
+        }
+    }
+
+    async checkAuthentication() {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error || !session) throw new Error('Sessão não encontrada');
+        
+        this.accessToken = session.access_token;
+        this.currentUser = session.user;
+
+        const { data: salaoData } = await supabase.from('saloes').select('*').eq('usuario_id', this.currentUser.id).eq('ativo', true).single();
+        if (!salaoData) throw new Error('Salão não encontrado');
+
+        this.currentSalaoId = salaoData.id;
+        this.salaoInfo = salaoData;
+        // Logo fixo VECXO
+        document.getElementById('userName').textContent = this.currentUser.user_metadata?.full_name || 'Administrador';
+    }
+
+    setupEventListeners() {
+        document.getElementById('productForm').addEventListener('submit', (e) => { e.preventDefault(); this.saveProduct(); });
+        document.getElementById('searchProducts').addEventListener('input', (e) => this.searchProducts(e.target.value));
+        document.getElementById('productModal').addEventListener('click', (e) => { if (e.target.id === 'productModal') this.closeModal(); });
+    }
+
+    async loadProducts() {
+        try {
+            this.showLoading('Carregando produtos...');
+            const result = await this.callEdgeFunction('load-products');
+            this.products = result.data || [];
+            this.renderProducts();
+        } catch (error) {
+            console.error('Erro:', error);
+            this.showNotification('Erro ao carregar produtos', 'error');
+        } finally {
+            this.hideLoading();
+        }
+    }
+
+    renderProducts(productsToRender = this.products) {
+        const tbody = document.getElementById('productsTableBody');
+        if (productsToRender.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon">📦</div><h3 class="empty-state-title">Nenhum material cadastrado</h3><p class="empty-state-text">Clique em "Novo Material" para começar</p></div></td></tr>';
+            return;
+        }
+
+        const categoryTexts = { maquiagem: 'Maquiagem', cabelo: 'Cabelo', pele: 'Pele', unhas: 'Unhas', perfumaria: 'Perfumaria', acessorios: 'Acessórios', outros: 'Outros' };
+        
+        tbody.innerHTML = '';
+        productsToRender.forEach(product => {
+            const tr = document.createElement('tr');
+            
+            const tdNome = document.createElement('td');
+            tdNome.textContent = product.nome;
+            
+            const tdCategoria = document.createElement('td');
+            const spanCat = document.createElement('span');
+            spanCat.className = 'category-badge';
+            spanCat.textContent = categoryTexts[product.categoria] || product.categoria;
+            tdCategoria.appendChild(spanCat);
+            
+            const tdMarca = document.createElement('td');
+            tdMarca.textContent = product.marca || '-';
+            
+            const tdPreco = document.createElement('td');
+            tdPreco.textContent = `R$ ${parseFloat(product.preco_venda).toFixed(2)}`;
+            
+            const tdEstoque = document.createElement('td');
+            const qtd = product.quantidade_estoque;
+            const min = product.estoque_minimo || 5;
+            let stockClass = 'stock-ok';
+            if (qtd === 0) stockClass = 'stock-out';
+            else if (qtd <= min) stockClass = 'stock-low';
+            const spanStock = document.createElement('span');
+            spanStock.className = `stock-badge ${stockClass}`;
+            spanStock.textContent = qtd;
+            tdEstoque.appendChild(spanStock);
+            
+            const tdAcoes = document.createElement('td');
+            tdAcoes.innerHTML = `<div class="actions-cell"><button class="btn btn-sm btn-secondary" onclick="productManager.editProduct('${this.escapeHtml(product.id)}')"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-danger" onclick="productManager.deleteProduct('${this.escapeHtml(product.id)}')"><i class="fas fa-trash"></i></button></div>`;
+            
+            tr.appendChild(tdNome);
+            tr.appendChild(tdCategoria);
+            tr.appendChild(tdMarca);
+            tr.appendChild(tdPreco);
+            tr.appendChild(tdEstoque);
+            tr.appendChild(tdAcoes);
+            tbody.appendChild(tr);
+        });
+    }
+
+    async loadStats() {
+        try {
+            const result = await this.callEdgeFunction('load-products-stats');
+            document.getElementById('totalProducts').textContent = result.totalProducts || 0;
+            document.getElementById('totalValue').textContent = `R$ ${result.totalValue || '0.00'}`;
+            document.getElementById('lowStockCount').textContent = result.lowStockCount || 0;
+        } catch (error) {
+            console.error('Erro:', error);
+        }
+    }
+
+    openModal() {
+        document.getElementById('productModal').classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    closeModal() {
+        document.getElementById('productModal').classList.remove('show');
+        document.body.style.overflow = '';
+        this.clearForm();
+    }
+
+    async saveProduct() {
+        try {
+            const formData = new FormData(document.getElementById('productForm'));
+            const data = {
+                productId: this.editingProduct,
+                nome: formData.get('nome')?.trim(),
+                categoria: formData.get('categoria'),
+                marca: formData.get('marca')?.trim() || null,
+                codigo: formData.get('codigo')?.trim() || null,
+                preco_custo: parseFloat(formData.get('preco_custo')) || 0,
+                preco_venda: parseFloat(formData.get('preco_venda')),
+                quantidade_estoque: parseInt(formData.get('quantidade_estoque')),
+                estoque_minimo: parseInt(formData.get('estoque_minimo')) || 5,
+                fornecedor: formData.get('fornecedor')?.trim() || null,
+                localizacao: formData.get('localizacao')?.trim() || null,
+                descricao: formData.get('descricao')?.trim() || null
+            };
+
+            if (!data.nome || data.nome.length < 2) { this.showNotification('Nome obrigatório', 'error'); return; }
+            if (!data.categoria) { this.showNotification('Categoria obrigatória', 'error'); return; }
+            if (isNaN(data.preco_venda) || data.preco_venda < 0) { this.showNotification('Preço inválido', 'error'); return; }
+
+            this.showLoading(this.editingProduct ? 'Atualizando...' : 'Salvando...');
+            const result = await this.callEdgeFunction('save-product', data);
+            this.showNotification(result.message, 'success');
+            this.closeModal();
+            await this.loadProducts();
+            await this.loadStats();
+        } catch (error) {
+            console.error('Erro:', error);
+            this.showNotification(error.message || 'Erro ao salvar', 'error');
+        } finally {
+            this.hideLoading();
+        }
+    }
+
+    async editProduct(productId) {
+        try {
+            this.showLoading('Carregando...');
+            const result = await this.callEdgeFunction('edit-product', { productId });
+            const product = result.data;
+
+            Object.keys(product).forEach(key => {
+                const el = document.getElementById(key);
+                if (el) el.value = product[key] || '';
+            });
+
+            this.editingProduct = productId;
+            document.getElementById('modalTitle').textContent = 'Editar Material';
+            document.getElementById('submitButton').innerHTML = '<i class="fas fa-check"></i> Atualizar';
+            this.openModal();
+        } catch (error) {
+            console.error('Erro:', error);
+            this.showNotification(error.message || 'Erro ao carregar', 'error');
+        } finally {
+            this.hideLoading();
+        }
+    }
+
+    async deleteProduct(productId) {
+        const product = this.products.find(p => p.id === productId);
+        if (!product || !confirm(`Excluir "${product.nome}"?`)) return;
+
+        try {
+            this.showLoading('Excluindo...');
+            const result = await this.callEdgeFunction('delete-product', { productId });
+            this.showNotification(result.message || 'Produto excluído', 'success');
+            await this.loadProducts();
+            await this.loadStats();
+        } catch (error) {
+            console.error('Erro:', error);
+            this.showNotification(error.message || 'Erro ao excluir', 'error');
+        } finally {
+            this.hideLoading();
+        }
+    }
+
+    clearForm() {
+        document.getElementById('productForm').reset();
+        this.editingProduct = null;
+        document.getElementById('modalTitle').textContent = 'Novo Material';
+        document.getElementById('submitButton').innerHTML = '<i class="fas fa-check"></i> Salvar';
+    }
+
+    searchProducts(query) {
+        if (!query.trim()) { this.renderProducts(); return; }
+        const term = query.toLowerCase();
+        const filtered = this.products.filter(p =>
+            p.nome.toLowerCase().includes(term) ||
+            (p.marca && p.marca.toLowerCase().includes(term)) ||
+            (p.categoria && p.categoria.toLowerCase().includes(term)) ||
+            (p.codigo && p.codigo.toLowerCase().includes(term))
+        );
+        this.renderProducts(filtered);
+    }
+
+    showLoading(msg) { document.getElementById('loadingText').textContent = msg; document.getElementById('loadingOverlay').classList.add('show'); }
+    hideLoading() { document.getElementById('loadingOverlay').classList.remove('show'); }
+    showNotification(msg, type) { const n = document.createElement('div'); n.className = `notification ${type}`; n.textContent = msg; document.body.appendChild(n); setTimeout(() => n.remove(), 3000); }
+}
+
+let productManager;
+function openModal() { if (productManager) productManager.openModal(); }
+function closeModal() { if (productManager) productManager.closeModal(); }
+async function logout() { try { await supabase.auth.signOut(); window.location.href = 'login.html'; } catch (e) { console.error(e); } }
+
+document.addEventListener('DOMContentLoaded', () => { productManager = new SecureProductManager(); });
+supabase.auth.onAuthStateChange((event) => { if (event === 'SIGNED_OUT') window.location.href = 'login.html'; });
+
+    </script>
+</body>
+</html>

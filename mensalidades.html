@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vecxo - Mensalidades</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+:root{--primary:#2563EB;--primary-dark:#1E40AF;--green:#10B981;--red:#EF4444;--orange:#F59E0B;--purple:#8B5CF6;--cyan:#06B6D4;--bg:linear-gradient(135deg,#F0F9FF,#EFF6FF 50%,#DBEAFE);--card:#FFF;--text:#1E293B;--text2:#334155;--muted:#64748B;--border:#E2E8F0;--shadow:0 2px 8px rgba(37,99,235,.08);--shadow-md:0 4px 16px rgba(37,99,235,.12);--shadow-lg:0 8px 32px rgba(37,99,235,.16)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.sidebar{position:fixed;left:0;top:0;width:280px;height:100vh;background:linear-gradient(180deg,#0F172A,#1E293B);box-shadow:4px 0 32px rgba(0,0,0,.12);z-index:1000;transition:transform .3s;border-right:1px solid rgba(148,163,184,.1)}
+.sidebar.collapsed{transform:translateX(-280px)}
+.sidebar-logo{padding:1.5rem;border-bottom:1px solid rgba(148,163,184,.1);display:flex;align-items:center;gap:1rem}
+.sidebar-logo img{width:48px;height:48px;border-radius:12px}
+.logo-text{font-size:1.3rem;font-weight:800;color:#fff}
+.sidebar-nav{list-style:none;padding:1.2rem 1rem;overflow-y:auto;max-height:calc(100vh - 180px)}
+.sidebar-nav a{display:flex;align-items:center;gap:1rem;padding:.8rem 1.15rem;color:#94A3B8;text-decoration:none;font-size:.9rem;font-weight:600;border-radius:12px;transition:all .3s;margin-bottom:.3rem;position:relative}
+.sidebar-nav a::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:4px;height:0;background:linear-gradient(180deg,#3B82F6,#2563EB);border-radius:0 4px 4px 0;transition:height .3s}
+.sidebar-nav a:hover{background:rgba(59,130,246,.08);color:#E2E8F0}
+.sidebar-nav a:hover::before,.sidebar-nav a.active::before{height:70%}
+.sidebar-nav a.active{background:linear-gradient(90deg,rgba(59,130,246,.15),rgba(59,130,246,.05));color:#fff;box-shadow:0 4px 12px rgba(59,130,246,.15)}
+.sidebar-nav i{width:22px;text-align:center;font-size:1.05rem}
+.sidebar-footer{position:absolute;bottom:0;left:0;right:0;padding:1.15rem;border-top:1px solid rgba(148,163,184,.1);background:rgba(15,23,42,.8)}
+.user-info{display:flex;align-items:center;gap:.75rem;padding:.7rem;background:rgba(59,130,246,.08);border-radius:12px}
+.user-avatar{width:38px;height:38px;background:linear-gradient(135deg,#3B82F6,#2563EB);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.95rem}
+.user-details{flex:1}.user-name{font-size:.85rem;font-weight:700;color:#fff}.user-role{font-size:.7rem;color:#94A3B8}
+.logout-btn{width:34px;height:34px;border:1px solid rgba(148,163,184,.2);background:rgba(15,23,42,.5);border-radius:10px;color:#94A3B8;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s}
+.logout-btn:hover{background:rgba(239,68,68,.15);color:#EF4444}
+.main-content{margin-left:280px;min-height:100vh;transition:margin-left .3s}
+.sidebar.collapsed+.main-content{margin-left:0}
+.header{background:#fff;padding:1.15rem 1.75rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem}
+.header-left h1{font-size:1.3rem;font-weight:700}.header-left p{font-size:.82rem;color:var(--muted);margin-top:2px}
+.header-actions{display:flex;gap:.6rem;flex-wrap:wrap}
+.btn{padding:.55rem 1.1rem;border-radius:10px;font-size:.82rem;font-weight:600;cursor:pointer;border:none;transition:all .2s;display:flex;align-items:center;gap:.45rem;font-family:'Poppins',sans-serif}
+.btn-primary{background:var(--primary);color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.3)}.btn-primary:hover{background:var(--primary-dark)}
+.btn-secondary{background:#F1F5F9;color:var(--text2);border:1px solid var(--border)}.btn-secondary:hover{background:#E2E8F0}
+.btn-success{background:var(--green);color:#fff}.btn-success:hover{background:#059669}
+.btn-purple{background:var(--purple);color:#fff}.btn-purple:hover{background:#7C3AED}
+.btn-sm{padding:.35rem .7rem;font-size:.78rem}
+.content{padding:1.25rem 1.75rem}
+.stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.85rem;margin-bottom:1.25rem}
+.stat-card{background:#fff;border-radius:14px;padding:1.1rem;box-shadow:var(--shadow);border:1px solid var(--border);position:relative;overflow:hidden;transition:transform .2s}
+.stat-card:hover{transform:translateY(-2px)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.stat-card.green::before{background:var(--green)}.stat-card.red::before{background:var(--red)}.stat-card.orange::before{background:var(--orange)}.stat-card.blue::before{background:var(--primary)}.stat-card.purple::before{background:var(--purple)}
+.stat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.stat-icon.green{background:#D1FAE5;color:#059669}.stat-icon.red{background:#FEE2E2;color:#DC2626}.stat-icon.orange{background:#FEF3C7;color:#D97706}.stat-icon.blue{background:#DBEAFE;color:#2563EB}.stat-icon.purple{background:#EDE9FE;color:#7C3AED}
+.stat-value{font-size:1.5rem;font-weight:800;margin-top:.5rem}.stat-label{font-size:.75rem;color:var(--muted);font-weight:500}
+.stat-change{font-size:.7rem;font-weight:600;padding:.15rem .45rem;border-radius:10px;display:inline-flex;align-items:center;gap:.2rem}
+.stat-change.up{background:#D1FAE5;color:#059669}.stat-change.down{background:#FEE2E2;color:#DC2626}
+.stat-top{display:flex;justify-content:space-between;align-items:flex-start}
+.tabs{display:flex;gap:.2rem;background:#F1F5F9;padding:4px;border-radius:12px;margin-bottom:1.25rem;overflow-x:auto}
+.tab-btn{padding:.55rem 1rem;border:none;background:transparent;border-radius:10px;font-size:.82rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .2s;font-family:'Poppins',sans-serif;white-space:nowrap;display:flex;align-items:center;gap:.4rem}
+.tab-btn.active{background:#fff;color:var(--primary);box-shadow:var(--shadow)}.tab-btn:hover:not(.active){color:var(--text2)}
+.tab-content{display:none}.tab-content.active{display:block}
+.filters-bar{display:flex;gap:.6rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap}
+.filter-input,.filter-select{padding:.5rem .75rem;border:1px solid var(--border);border-radius:10px;font-size:.82rem;font-family:'Poppins',sans-serif;background:#fff;color:var(--text)}
+.filter-input:focus,.filter-select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.table-card{background:#fff;border-radius:14px;box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden}
+.table-header{padding:.85rem 1.15rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+.table-title{font-size:.95rem;font-weight:700}.table-count{font-size:.75rem;color:var(--muted);background:#F1F5F9;padding:.2rem .6rem;border-radius:20px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead{background:#F8FAFC}
+th{padding:.65rem .85rem;text-align:left;font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+td{padding:.75rem .85rem;font-size:.82rem;border-top:1px solid #F1F5F9;color:var(--text2)}
+tr:hover{background:#F8FAFC}
+.badge{padding:.25rem .6rem;border-radius:20px;font-size:.72rem;font-weight:600;display:inline-flex;align-items:center;gap:.3rem;white-space:nowrap}
+.badge i{font-size:.55rem}
+.badge-pago{background:#D1FAE5;color:#059669}.badge-pendente{background:#FEF3C7;color:#D97706}.badge-atrasado{background:#FEE2E2;color:#DC2626}.badge-cancelado{background:#F1F5F9;color:#64748B}.badge-vence-hoje{background:#DBEAFE;color:#2563EB}
+.plano-tag{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .55rem;border-radius:8px;font-size:.72rem;font-weight:600;background:#EDE9FE;color:#7C3AED}
+.inad-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.85rem;margin-bottom:1.25rem}
+.inad-card{background:#fff;border-radius:14px;padding:1.15rem;box-shadow:var(--shadow);border:2px solid transparent;cursor:pointer;transition:all .2s}
+.inad-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.inad-card.active{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.inad-icon{font-size:1.8rem;margin-bottom:.4rem}.inad-count{font-size:2rem;font-weight:800;line-height:1}.inad-label{font-size:.82rem;color:var(--muted);font-weight:500;margin-top:.2rem}
+.patient-info{display:flex;align-items:center;gap:.65rem}
+.patient-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#60A5FA);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.75rem;font-weight:700;flex-shrink:0}
+.patient-name{font-weight:600;color:var(--text);font-size:.83rem}.patient-phone{font-size:.72rem;color:var(--muted)}
+.action-btns{display:flex;gap:.3rem}
+.action-btn{width:30px;height:30px;border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.75rem;transition:all .2s}
+.action-btn.pay{background:#D1FAE5;color:#059669}.action-btn.pay:hover{background:#A7F3D0}
+.action-btn.whatsapp{background:#D1FAE5;color:#16A34A}.action-btn.whatsapp:hover{background:#BBF7D0}
+.action-btn.edit{background:#DBEAFE;color:#2563EB}.action-btn.edit:hover{background:#BFDBFE}
+.action-btn.receipt{background:#EDE9FE;color:#7C3AED}.action-btn.receipt:hover{background:#DDD6FE}
+.action-btn.delete{background:#FEE2E2;color:#DC2626}.action-btn.delete:hover{background:#FECACA}
+.action-btn.view{background:#F0FDFA;color:#0D9488}.action-btn.view:hover{background:#CCFBF1}
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:5000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);padding:1rem}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:720px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg)}
+.modal-header{padding:1.15rem 1.35rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;z-index:1;border-radius:16px 16px 0 0}
+.modal-header h2{font-size:1.05rem;font-weight:700;display:flex;align-items:center;gap:.5rem}
+.modal-close{width:34px;height:34px;border:none;background:#F1F5F9;border-radius:10px;cursor:pointer;font-size:1rem;color:var(--muted);display:flex;align-items:center;justify-content:center}
+.modal-close:hover{background:#FEE2E2;color:#EF4444}
+.modal-body{padding:1.35rem}
+.modal-footer{padding:.85rem 1.35rem;border-top:1px solid var(--border);display:flex;gap:.6rem;justify-content:flex-end;position:sticky;bottom:0;background:#fff;border-radius:0 0 16px 16px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:.85rem}
+.form-group{display:flex;flex-direction:column;gap:.3rem}.form-group.full{grid-column:1/-1}
+.form-label{font-size:.78rem;font-weight:600;color:var(--text2)}.form-label.required::after{content:' *';color:var(--red)}
+.form-input,.form-select,.form-textarea{padding:.55rem .75rem;border:1px solid var(--border);border-radius:10px;font-size:.82rem;font-family:'Poppins',sans-serif;background:#fff;color:var(--text)}
+.form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.form-textarea{resize:vertical;min-height:80px}
+.form-hint{font-size:.72rem;color:var(--muted)}
+.progress-bar{background:#E2E8F0;border-radius:10px;height:8px;overflow:hidden;flex:1}
+.progress-fill{height:100%;border-radius:10px;transition:width .5s}
+.alert-box{padding:.85rem 1rem;border-radius:10px;font-size:.82rem;display:flex;align-items:center;gap:.5rem;margin-bottom:1rem}
+.alert-box.danger{background:#FEF2F2;color:#991B1B;border:1px solid #FECACA}
+.toast{position:fixed;top:20px;right:20px;padding:.75rem 1.1rem;border-radius:12px;color:#fff;font-size:.82rem;font-weight:600;z-index:9999;transform:translateX(120%);transition:transform .3s;display:flex;align-items:center;gap:.45rem;box-shadow:var(--shadow-lg)}
+.toast.show{transform:translateX(0)}.toast.success{background:var(--green)}.toast.error{background:var(--red)}.toast.warning{background:var(--orange)}
+.loading-overlay{position:fixed;inset:0;background:rgba(37,99,235,.95);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10000;color:#fff}
+.loading-spinner{width:50px;height:50px;border:4px solid rgba(255,255,255,.3);border-top:4px solid #fff;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:1rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-state{text-align:center;padding:2.5rem 1rem}.empty-state-icon{font-size:2.5rem;margin-bottom:.75rem;opacity:.4}.empty-state h3{font-size:1rem;color:var(--text2)}.empty-state p{font-size:.82rem;color:var(--muted)}
+.hamburger{display:none;position:fixed;top:.85rem;left:.85rem;z-index:1100;width:38px;height:38px;border:none;background:#fff;border-radius:10px;box-shadow:var(--shadow-md);cursor:pointer;font-size:1.1rem;color:var(--text);align-items:center;justify-content:center}
+@media(max-width:1200px){.stats-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:768px){.sidebar{transform:translateX(-280px)}.sidebar.open{transform:translateX(0)}.main-content{margin-left:0!important}.hamburger{display:flex}.header{padding:.85rem;padding-left:3.5rem}.content{padding:.85rem}.stats-grid{grid-template-columns:1fr 1fr}.inad-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.filters-bar{flex-direction:column;align-items:stretch}}
+    </style>
+</head>
+<body>
+<div class="loading-overlay" id="loadingOverlay"><div class="loading-spinner"></div><span id="loadingText">Carregando...</span></div>
+<div class="toast" id="toast"></div>
+<button class="hamburger" onclick="document.getElementById('sidebar').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjX3FIgwQ1yUrYjlzzlATIHy6w8gtyBGyYrv9UeDRnDgCYfvSzvXE8mySFxLQ45dut1UP_FD0Srttnd2kD6jf7VXIil6ZfJEUFchoazwH-ZP11gUsyt6zxgQ5K-aQ-76VXWOClTjSWmKxX8IKZI7uZEBZBKO7el9g9vj-sXRqRGrLxUYhLYNBdVDf_J9OuL/w200-h200/ChatGPT%20Image%2029%20de%20dez.%20de%202025,%2012_21_08.png" alt="Logo" style="width:48px;height:48px;border-radius:12px">
+        <div class="logo-text" id="logoText">VECXO</div>
+    </div>
+    <ul class="sidebar-nav">
+        <li><a href="index1.html"><i class="fas fa-home"></i><span>Dashboard</span></a></li>
+        <li><a href="cadastro-cliente.html"><i class="fas fa-user-injured"></i><span>Pacientes</span></a></li>
+        <li><a href="mensalidades.html" class="active"><i class="fas fa-file-invoice-dollar"></i><span>Mensalidades</span></a></li>
+        <li><a href="cadastro-servicos.html"><i class="fas fa-hand-holding-medical"></i><span>Serviços</span></a></li>
+        <li><a href="cadastro-produtos.html"><i class="fas fa-box"></i><span>Materiais</span></a></li>
+        <li><a href="finalizar-servico.html"><i class="fas fa-shopping-cart"></i><span>Vendas</span></a></li>
+        <li><a href="profissionais.html"><i class="fas fa-user-md"></i><span>Profissionais</span></a></li>
+        <li><a href="ponto.html"><i class="fas fa-clock"></i><span>Ponto</span></a></li>
+        <li><a href="financeiro.html"><i class="fas fa-chart-line"></i><span>Financeiro</span></a></li>
+    </ul>
+    <div class="sidebar-footer"><div class="user-info"><div class="user-avatar" id="userAvatar">A</div><div class="user-details"><div class="user-name" id="userName">Admin</div><div class="user-role">Gerente</div></div><button class="logout-btn" onclick="handleLogout()" title="Sair"><i class="fas fa-sign-out-alt"></i></button></div></div>
+</aside>
+
+<main class="main-content">
+    <header class="header">
+        <div class="header-left"><h1><i class="fas fa-file-invoice-dollar" style="color:var(--primary);margin-right:.4rem"></i>Mensalidades</h1><p>Controle de planos, cobranças, inadimplência e sessões</p></div>
+        <div class="header-actions">
+            <button class="btn btn-secondary" onclick="exportarRelatorio()"><i class="fas fa-file-export"></i> Exportar</button>
+            <button class="btn btn-purple" onclick="openPlanoModal()"><i class="fas fa-layer-group"></i> Novo Plano</button>
+            <button class="btn btn-primary" onclick="openMensModal()"><i class="fas fa-plus"></i> Nova Mensalidade</button>
+            <button class="btn btn-success" onclick="dispararAlertas()"><i class="fab fa-whatsapp"></i> Alertas</button>
+        </div>
+    </header>
+    <div class="content">
+        <div class="stats-grid" id="statsGrid"></div>
+        <div class="tabs" id="tabsBar"></div>
+        <div id="tabContent"></div>
+    </div>
+</main>
+
+<div class="modal-overlay" id="modalOverlay"><div class="modal" id="modalContent"></div></div>
+
+<script>
+var SUPABASE_URL='https://rdfcosxyeqgbjdedargd.supabase.co';
+var SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkZmNvc3h5ZXFnYmpkZWRhcmdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDkxNTQsImV4cCI6MjA3NzA4NTE1NH0.wNx6jQAi9nn2K_E-40VuV6k0sWPoF5bWAw_si__aSyo';
+var sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+var user,salaoId,token;
+var planos=[],mensalidades=[],pagamentos=[],pacientes=[],servicos=[],profissionais=[],sessoes=[],parcelas=[];
+var inadFilter='todos',currentTab='inadimplencia';
+
+function $(id){return document.getElementById(id)}
+function showLoading(t){$('loadingText').textContent=t||'Carregando...';$('loadingOverlay').style.display='flex'}
+function hideLoading(){$('loadingOverlay').style.display='none'}
+function showToast(m,t){var el=$('toast');el.className='toast '+(t||'success')+' show';el.innerHTML='<i class="fas fa-'+(t==='error'?'times-circle':t==='warning'?'exclamation-circle':'check-circle')+'"></i> '+m;setTimeout(function(){el.classList.remove('show')},3500)}
+function fmt(v){return'R$ '+(Number(v)||0).toFixed(2).replace('.',',')}
+function fmtDate(d){if(!d)return'-';var dt=new Date(d+'T12:00:00');return dt.toLocaleDateString('pt-BR')}
+function fmtForma(f){return{pix:'PIX',cartao_credito:'Cartão Crédito',cartao_debito:'Cartão Débito',dinheiro:'Dinheiro',boleto:'Boleto'}[f]||f}
+function fmtTipo(t){return{mensal:'Mensal',trimestral:'Trimestral',semestral:'Semestral',anual:'Anual'}[t]||t}
+
+function getStatus(m){
+    if(m.status==='cancelado')return'cancelado';
+    if(m.status==='pago')return'pago';
+    var hoje=new Date();hoje.setHours(0,0,0,0);
+    var venc=new Date(m.data_vencimento+'T00:00:00');venc.setHours(0,0,0,0);
+    if(venc.getTime()===hoje.getTime())return'vence_hoje';
+    if(venc<hoje)return'atrasado';
+    return'futuro';
+}
+
+function getMesesDoPlano(tipo){
+    if(tipo==='trimestral')return 3;
+    if(tipo==='semestral')return 6;
+    if(tipo==='anual')return 12;
+    return 1;
+}
+
+function calcularParcelas(){
+    var hoje=new Date();hoje.setHours(0,0,0,0);
+    parcelas=[];
+    var ativas=mensalidades.filter(function(m){return m.status!=='cancelado'});
+    ativas.forEach(function(m){
+        var plano=planos.find(function(p){return p.id===m.plano_id});
+        if(!plano)return;
+        var mesesPlano=getMesesDoPlano(plano.tipo);
+        var diaVenc=m.dia_vencimento;
+        var inicio=m.data_inicio||m.data_vencimento;
+        var dtInicio=new Date(inicio+'T00:00:00');
+        var mesI=dtInicio.getMonth();
+        var anoI=dtInicio.getFullYear();
+        var cursor=new Date(anoI,mesI,diaVenc);
+        if(cursor<dtInicio){cursor.setMonth(cursor.getMonth()+mesesPlano)}
+        var proximoFuturo=false;
+        while(true){
+            var vencDate=new Date(cursor.getFullYear(),cursor.getMonth(),diaVenc);
+            vencDate.setHours(0,0,0,0);
+            if(vencDate>hoje&&proximoFuturo)break;
+            var ds=vencDate.getFullYear()+'-'+String(vencDate.getMonth()+1).padStart(2,'0')+'-'+String(diaVenc).padStart(2,'0');
+            var dsRef=ds.substring(0,7);
+            var pag=pagamentos.find(function(p){
+                if(p.mensalidade_id!==m.id)return false;
+                if(p.comprovante&&p.comprovante.indexOf(ds)===0)return true;
+                if(p.comprovante&&p.comprovante.substring(0,7)===dsRef)return true;
+                if(p.data_pagamento&&p.data_pagamento.substring(0,7)===dsRef)return true;
+                return false;
+            });
+            var status;
+            if(pag){status='pago'}
+            else if(vencDate.getTime()===hoje.getTime()){status='vence_hoje'}
+            else if(vencDate<hoje){status='atrasado'}
+            else{status='futuro';proximoFuturo=true}
+            parcelas.push({
+                id:m.id+'_'+ds,
+                mensalidade_id:m.id,
+                paciente_id:m.paciente_id,
+                plano_id:m.plano_id,
+                clientes:m.clientes,
+                planos:m.planos,
+                valor:m.valor,
+                data_vencimento:ds,
+                dia_vencimento:diaVenc,
+                _st:status,
+                pagamento:pag||null
+            });
+            if(vencDate>hoje)break;
+            cursor.setMonth(cursor.getMonth()+mesesPlano);
+        }
+    });
+    parcelas.sort(function(a,b){return a.data_vencimento>b.data_vencimento?1:-1});
+}
+function diasAtraso(d){var h=new Date();h.setHours(0,0,0,0);return Math.floor((h-new Date(d+'T00:00:00'))/864e5)}
+function badgeHTML(s){var map={pago:'<span class="badge badge-pago"><i class="fas fa-circle"></i> Em Dia</span>',atrasado:'<span class="badge badge-atrasado"><i class="fas fa-circle"></i> Atrasado</span>',vence_hoje:'<span class="badge badge-vence-hoje"><i class="fas fa-circle"></i> Vence Hoje</span>',futuro:'<span class="badge" style="background:#EDE9FE;color:#7C3AED"><i class="fas fa-circle"></i> Futuro</span>',cancelado:'<span class="badge badge-cancelado"><i class="fas fa-circle"></i> Cancelado</span>'};return map[s]||s}
+
+function openModal(html){$('modalContent').innerHTML=html;$('modalOverlay').classList.add('show')}
+function closeModal(){$('modalOverlay').classList.remove('show')}
+
+function switchTab(t){currentTab=t;renderTabs();renderTabContent()}
+
+// INIT
+async function init(){
+    try{
+        showLoading('Verificando...');
+        var sess=await sb.auth.getSession();
+        if(!sess.data.session){window.location.href='login.html';return}
+        token=sess.data.session.access_token;user=sess.data.session.user;
+        var sRes=await sb.from('saloes').select('*').eq('usuario_id',user.id).eq('ativo',true).single();
+        if(!sRes.data){alert('Nenhum estabelecimento');window.location.href='login.html';return}
+        salaoId=sRes.data.id;
+        // Logo fixo VECXO
+        $('userName').textContent=user.user_metadata&&user.user_metadata.nome?user.user_metadata.nome:'Admin';
+        $('userAvatar').textContent=(user.user_metadata&&user.user_metadata.nome?user.user_metadata.nome:'A').charAt(0).toUpperCase();
+        await loadAll();hideLoading();
+    }catch(e){console.error(e);hideLoading();showToast('Erro ao carregar','error')}
+}
+
+async function loadAll(){
+    showLoading('Carregando dados...');
+    try{
+        var r=await Promise.all([
+            sb.from('planos').select('*').eq('salao_id',salaoId).order('nome'),
+            sb.from('mensalidades').select('*,clientes(id,nome,telefone),planos(id,nome,tipo,valor,qtd_sessoes)').eq('salao_id',salaoId).order('data_vencimento'),
+            sb.from('pagamentos_mensalidade').select('*,mensalidades(*,clientes(id,nome,telefone),planos(id,nome))').eq('salao_id',salaoId).order('data_pagamento',{ascending:false}),
+            sb.from('clientes').select('id,nome,telefone').eq('salao_id',salaoId).eq('ativo',true).order('nome'),
+            sb.from('servicos').select('id,nome,preco,comissao').eq('salao_id',salaoId).eq('ativo',true).order('nome'),
+            sb.from('profissionais').select('id,nome').eq('salao_id',salaoId).eq('ativo',true).order('nome'),
+            sb.from('sessoes').select('*,clientes(id,nome),servicos(id,nome),profissionais(id,nome),planos(id,nome,qtd_sessoes)').eq('salao_id',salaoId).order('data_sessao',{ascending:false})
+        ]);
+        planos=r[0].data||[];mensalidades=r[1].data||[];pagamentos=r[2].data||[];pacientes=r[3].data||[];servicos=r[4].data||[];profissionais=r[5].data||[];sessoes=r[6].data||[];
+        mensalidades.forEach(function(m){m._st=getStatus(m)});
+        calcularParcelas();
+        renderStats();renderTabs();renderTabContent();
+    }catch(e){console.error(e);showToast('Erro ao carregar','error')}
+    hideLoading();
+}
+
+function renderStats(){
+    var act=parcelas.filter(function(m){return m._st!=='cancelado'});
+    var pg=act.filter(function(m){return m._st==='pago'}).length;
+    var vc=act.filter(function(m){return m._st==='vence_hoje'}).length;
+    var at=act.filter(function(m){return m._st==='atrasado'}).length;
+    var mesAtual=new Date().toISOString().substring(0,7);
+    var rec=pagamentos.filter(function(p){return p.data_pagamento&&p.data_pagamento.startsWith(mesAtual)}).reduce(function(s,p){return s+(p.valor_pago||0)},0);
+    var pctPg=act.length?Math.round(pg/act.length*100):0;
+    var pctAt=act.length?Math.round(at/act.length*100):0;
+    $('statsGrid').innerHTML='<div class="stat-card blue"><div class="stat-top"><div class="stat-icon blue"><i class="fas fa-file-invoice-dollar"></i></div></div><div class="stat-value">'+act.length+'</div><div class="stat-label">Total Ativas</div></div>'
+        +'<div class="stat-card green"><div class="stat-top"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><span class="stat-change up">'+pctPg+'%</span></div><div class="stat-value">'+pg+'</div><div class="stat-label">Em Dia</div></div>'
+        
+        +'<div class="stat-card orange"><div class="stat-top"><div class="stat-icon orange"><i class="fas fa-clock"></i></div></div><div class="stat-value">'+vc+'</div><div class="stat-label">Vencem Hoje</div></div>'
+        +'<div class="stat-card red"><div class="stat-top"><div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div><span class="stat-change down">'+pctAt+'%</span></div><div class="stat-value">'+at+'</div><div class="stat-label">Inadimplentes</div></div>'
+        +'<div class="stat-card purple"><div class="stat-top"><div class="stat-icon purple"><i class="fas fa-dollar-sign"></i></div></div><div class="stat-value" style="font-size:1.2rem">'+fmt(rec)+'</div><div class="stat-label">Receita Mensal</div></div>';
+}
+
+function renderTabs(){
+    var tabs=[{id:'inadimplencia',icon:'exclamation-circle',label:'Inadimplência'},{id:'mensalidades',icon:'list',label:'Mensalidades'},{id:'planos',icon:'layer-group',label:'Planos'},{id:'sessoes',icon:'hand-holding-medical',label:'Serviços'},{id:'historico',icon:'history',label:'Histórico'},{id:'relatorios',icon:'chart-bar',label:'Relatórios'}];
+    $('tabsBar').innerHTML=tabs.map(function(t){return'<button class="tab-btn'+(currentTab===t.id?' active':'')+'" onclick="switchTab(\''+t.id+'\')"><i class="fas fa-'+t.icon+'"></i> '+t.label+'</button>'}).join('');
+}
+
+function renderTabContent(){
+    if(currentTab==='inadimplencia')renderInad();
+    else if(currentTab==='mensalidades')renderMens();
+    else if(currentTab==='planos')renderPlanos();
+    else if(currentTab==='sessoes')renderSessoes();
+    else if(currentTab==='historico')renderHist();
+    else if(currentTab==='relatorios')renderRelatorios();
+}
+
+// INADIMPLENCIA
+function renderInad(){
+    var pend=parcelas.filter(function(m){return m._st==='atrasado'||m._st==='vence_hoje'});
+    
+    var atr=pend.filter(function(m){return m._st==='atrasado'}).length;
+    var h='<div class="inad-grid">';
+    h+='<div class="inad-card'+(inadFilter==='todos'?' active':'')+'" onclick="inadFilter=\'todos\';renderInad()"><div class="inad-icon">📊</div><div class="inad-count" style="color:var(--primary)">'+pend.length+'</div><div class="inad-label">Todos Pendentes</div></div>';
+    
+    var hj=pend.filter(function(m){return m._st==='vence_hoje'}).length;
+    h+='<div class="inad-card'+(inadFilter==='vence_hoje'?' active':'')+'" onclick="inadFilter=\'vence_hoje\';renderInad()"><div class="inad-icon">⏰</div><div class="inad-count" style="color:var(--orange)">'+hj+'</div><div class="inad-label">Vencem Hoje</div></div>';
+    h+='<div class="inad-card'+(inadFilter==='atrasado'?' active':'')+'" onclick="inadFilter=\'atrasado\';renderInad()"><div class="inad-icon">🚨</div><div class="inad-count" style="color:var(--red)">'+atr+'</div><div class="inad-label">Atrasados</div></div></div>';
+    var data=pend;
+    
+    if(inadFilter==='vence_hoje')data=data.filter(function(m){return m._st==='vence_hoje'});
+    if(inadFilter==='atrasado')data=data.filter(function(m){return m._st==='atrasado'});
+    data.sort(function(a,b){return diasAtraso(b.data_vencimento)-diasAtraso(a.data_vencimento)});
+    h+='<div class="table-card"><div class="table-header"><div class="table-title"><i class="fas fa-exclamation-triangle" style="color:var(--red);margin-right:.4rem"></i>Painel de Inadimplência</div><div class="table-count">'+data.length+' registros</div></div><div class="table-wrap"><table><thead><tr><th>Paciente</th><th>Plano</th><th>Vencimento</th><th>Valor</th><th>Status</th><th>Atraso</th><th>Ações</th></tr></thead><tbody>';
+    if(!data.length){h+='<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">✅</div><h3>Nenhum inadimplente!</h3></div></td></tr>'}
+    for(var i=0;i<data.length;i++){
+        var m=data[i],dias=diasAtraso(m.data_vencimento);
+        var diasLbl=dias>0?'<span style="color:var(--red);font-weight:700">'+dias+'d atraso</span>':dias===0?'<span style="color:var(--orange);font-weight:600">Hoje</span>':'<span style="color:var(--green)">'+Math.abs(dias)+'d</span>';
+        var ini=(m.clientes&&m.clientes.nome?m.clientes.nome:'?').charAt(0);
+        h+='<tr><td><div class="patient-info" style="cursor:pointer" onclick="abrirFichaPaciente(\''+m.paciente_id+'\')"><div class="patient-avatar">'+ini+'</div><div><div class="patient-name" style="color:var(--primary)">'+(m.clientes?m.clientes.nome:'-')+'</div><div class="patient-phone">'+(m.clientes?m.clientes.telefone||'':'')+'</div></div></div></td>';
+        h+='<td><span class="plano-tag"><i class="fas fa-layer-group"></i> '+(m.planos?m.planos.nome:'-')+'</span></td>';
+        h+='<td>'+fmtDate(m.data_vencimento)+'</td><td style="font-weight:700">'+fmt(m.valor)+'</td>';
+        h+='<td>'+badgeHTML(m._st)+'</td><td>'+diasLbl+'</td>';
+        h+='<td><div class="action-btns"><button class="action-btn pay" title="Pagar" onclick="openPagModal(\''+m.id+'\')"><i class="fas fa-dollar-sign"></i></button><button class="action-btn whatsapp" title="WhatsApp" onclick="enviarCobranca(\''+m.id+'\')"><i class="fab fa-whatsapp"></i></button><button class="action-btn edit" onclick="openMensModal(\''+m.id+'\')"><i class="fas fa-edit"></i></button></div></td></tr>';
+    }
+    h+='</tbody></table></div></div>';
+    $('tabContent').innerHTML=h;
+}
+
+// MENSALIDADES
+function renderMens(){
+    var grouped={};
+    mensalidades.filter(function(m){return m.status!=='cancelado'}).forEach(function(m){
+        var chave=m.paciente_id+'_'+m.plano_id;
+        if(!grouped[chave])grouped[chave]={mens:m,parcelas:[]};
+    });
+    parcelas.forEach(function(p){
+        var chave=p.paciente_id+'_'+p.plano_id;
+        if(grouped[chave])grouped[chave].parcelas.push(p);
+    });
+    var lista=Object.values(grouped);
+    var h='<div class="table-card"><div class="table-header"><div class="table-title">Mensalidades por Paciente</div><div class="table-count">'+lista.length+' pacientes</div></div><div class="table-wrap"><table><thead><tr><th>Paciente</th><th>Plano</th><th>Valor</th><th>Sessões</th><th>Em Dia</th><th>Atrasados</th><th>Situação</th><th></th></tr></thead><tbody>';
+    if(!lista.length){h+='<tr><td colspan="8"><div class="empty-state"><div class="empty-state-icon">📋</div><h3>Nenhuma mensalidade</h3></div></td></tr>'}
+    for(var i=0;i<lista.length;i++){
+        var g=lista[i],m=g.mens,ps=g.parcelas;
+        var ini=(m.clientes&&m.clientes.nome||'?').charAt(0);
+        var pagos=ps.filter(function(p){return p._st==='pago'}).length;
+        var atrasados=ps.filter(function(p){return p._st==='atrasado'}).length;
+        var venceHoje=ps.filter(function(p){return p._st==='vence_hoje'}).length;
+        var total=ps.filter(function(p){return p._st!=='futuro'}).length;
+        var sessReal=sessoes.filter(function(s){return s.plano_id===m.plano_id&&s.paciente_id===m.paciente_id&&s.status==='realizada'}).length;
+        var sessT=m.planos&&m.planos.qtd_sessoes?m.planos.qtd_sessoes:0;
+        var sessTxt=sessT?sessReal+'/'+sessT:sessReal+'/∞';
+        var pct=sessT?Math.min(100,Math.round(sessReal/sessT*100)):0;
+        var barCor=sessT&&sessReal>=sessT?'var(--red)':pct>70?'var(--orange)':'var(--green)';
+        var situacao=atrasados>0?'<span class="badge badge-atrasado"><i class="fas fa-circle"></i> Devedor ('+atrasados+')</span>':venceHoje>0?'<span class="badge badge-vence-hoje"><i class="fas fa-circle"></i> Vence Hoje</span>':'<span class="badge badge-pago"><i class="fas fa-circle"></i> Em Dia</span>';
+        var rowId='detail_'+i;
+        h+='<tr style="cursor:pointer" onclick="toggleDetail(\''+rowId+'\')">';
+        h+='<td><div class="patient-info"><div class="patient-avatar">'+ini+'</div><div><div class="patient-name" style="cursor:pointer;color:var(--primary)" onclick="event.stopPropagation();abrirFichaPaciente(\''+m.paciente_id+'\')">'+(m.clientes?m.clientes.nome:'-')+'</div><div class="patient-phone">'+(m.clientes?m.clientes.telefone||'':'')+'</div></div></div></td>';
+        h+='<td><span class="plano-tag"><i class="fas fa-layer-group"></i> '+(m.planos?m.planos.nome:'-')+'</span></td>';
+        h+='<td style="font-weight:700">'+fmt(m.valor)+'/mês</td>';
+        h+='<td><div style="display:flex;align-items:center;gap:.35rem"><span style="font-size:.75rem;font-weight:600;min-width:35px">'+sessTxt+'</span>'+(sessT?'<div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%;background:'+barCor+'"></div></div>':'')+'</div></td>';
+        h+='<td><span style="color:var(--green);font-weight:700">'+pagos+'/'+total+'</span></td>';
+        h+='<td>'+(atrasados>0?'<span style="color:var(--red);font-weight:700">'+atrasados+'</span>':'<span style="color:var(--muted)">0</span>')+'</td>';
+        h+='<td>'+situacao+'</td>';
+        h+='<td><i class="fas fa-chevron-down" style="color:var(--muted);font-size:.8rem"></i></td></tr>';
+        h+='<tr id="'+rowId+'" style="display:none"><td colspan="8" style="padding:0;background:#F8FAFC">';
+        h+='<div style="padding:.75rem 1rem">';
+        h+='<table style="width:100%;font-size:.8rem"><thead><tr style="background:#EFF6FF"><th>Ref. Mês</th><th>Vencimento</th><th>Valor</th><th>Status</th><th>Ações</th></tr></thead><tbody>';
+        for(var j=0;j<ps.length;j++){
+            var p=ps[j];
+            h+='<tr><td style="font-weight:600">'+fmtDate(p.data_vencimento).substring(3)+'</td>';
+            h+='<td>'+fmtDate(p.data_vencimento)+'</td>';
+            h+='<td style="font-weight:600">'+fmt(p.valor)+'</td>';
+            h+='<td>'+badgeHTML(p._st)+'</td>';
+            h+='<td><div class="action-btns">';
+            if(p._st==='atrasado'||p._st==='vence_hoje'){
+                h+='<button class="action-btn pay" onclick="event.stopPropagation();openPagModal(\''+p.id+'\')" title="Pagar"><i class="fas fa-dollar-sign"></i></button>';
+                h+='<button class="action-btn whatsapp" onclick="event.stopPropagation();enviarCobranca(\''+p.id+'\')" title="Cobrar"><i class="fab fa-whatsapp"></i></button>';
+            }else if(p._st==='pago'){
+                h+='<button class="action-btn receipt" onclick="event.stopPropagation();gerarRecibo(\''+p.id+'\')" title="Recibo"><i class="fas fa-receipt"></i></button>';
+            }
+            h+='</div></td></tr>';
+        }
+        h+='</tbody></table></div></td></tr>';
+    }
+    h+='</tbody></table></div></div>';
+    $('tabContent').innerHTML=h;
+}
+
+function toggleDetail(id){
+    var row=document.getElementById(id);
+    if(!row)return;
+    var isOpen=row.style.display!=='none';
+    row.style.display=isOpen?'none':'table-row';
+    var prev=row.previousElementSibling;
+    if(prev){
+        var icon=prev.querySelector('.fa-chevron-down,.fa-chevron-up');
+        if(icon){icon.className=isOpen?'fas fa-chevron-down':'fas fa-chevron-up'}
+    }
+}
+
+// PLANOS
+function renderPlanos(){
+    var h='<div class="table-card"><div class="table-header"><div class="table-title">Planos Cadastrados</div><button class="btn btn-purple btn-sm" onclick="openPlanoModal()"><i class="fas fa-plus"></i> Novo Plano</button></div><div class="table-wrap"><table><thead><tr><th>Plano</th><th>Tipo</th><th>Valor</th><th>Sessões</th><th>Serviços</th><th>Pacientes</th><th>Status</th><th>Ações</th></tr></thead><tbody>';
+    if(!planos.length){h+='<tr><td colspan="8"><div class="empty-state"><div class="empty-state-icon">📦</div><h3>Nenhum plano</h3></div></td></tr>'}
+    for(var i=0;i<planos.length;i++){
+        var p=planos[i];
+        var pids={};mensalidades.filter(function(m){return m.plano_id===p.id&&m.status!=='cancelado'}).forEach(function(m){pids[m.paciente_id]=true});var pc=Object.keys(pids).length;
+        var sn=(p.servicos_inclusos||[]).map(function(sid){var s=servicos.find(function(x){return x.id===sid});return s?s.nome:''}).filter(Boolean).join(', ')||'-';
+        h+='<tr><td style="font-weight:600">'+p.nome+'</td><td><span class="plano-tag">'+fmtTipo(p.tipo)+'</span></td><td style="font-weight:700">'+fmt(p.valor)+'</td><td>'+(p.qtd_sessoes||'∞')+'</td>';
+        h+='<td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+sn+'">'+sn+'</td>';
+        h+='<td><span style="font-weight:700;color:var(--primary)">'+pc+'</span></td>';
+        h+='<td>'+(p.ativo!==false?'<span class="badge badge-pago">Ativo</span>':'<span class="badge badge-cancelado">Inativo</span>')+'</td>';
+        h+='<td><div class="action-btns"><button class="action-btn edit" onclick="openPlanoModal(\''+p.id+'\')"><i class="fas fa-edit"></i></button><button class="action-btn delete" onclick="togglePlano(\''+p.id+'\')"><i class="fas fa-power-off"></i></button></div></td></tr>';
+    }
+    h+='</tbody></table></div></div>';
+    $('tabContent').innerHTML=h;
+}
+
+// SESSOES
+function renderSessoes(){
+    var hoje=new Date();
+    var mesAtual=hoje.getFullYear()+'-'+String(hoje.getMonth()+1).padStart(2,'0');
+    if(!window._sessFiltroMes)window._sessFiltroMes='atual';
+    var fm=window._sessFiltroMes;
+    var h='<div style="display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap">';
+    h+='<button class="btn btn-sm '+(fm==='atual'?'btn-primary':'btn-secondary')+'" onclick="window._sessFiltroMes=\'atual\';renderSessoes()"><i class="fas fa-calendar-day"></i> Mes Atual</button>';
+    h+='<button class="btn btn-sm '+(fm==='anteriores'?'btn-primary':'btn-secondary')+'" onclick="window._sessFiltroMes=\'anteriores\';renderSessoes()"><i class="fas fa-calendar-alt"></i> Meses Anteriores</button>';
+    h+='<button class="btn btn-sm '+(fm==='todos'?'btn-primary':'btn-secondary')+'" onclick="window._sessFiltroMes=\'todos\';renderSessoes()"><i class="fas fa-calendar"></i> Todos</button>';
+    h+='<div style="flex:1"></div><button class="btn btn-primary btn-sm" onclick="openSessaoModal()"><i class="fas fa-plus"></i> Registrar Sessao</button></div>';
+    var filtradas=sessoes;
+    if(fm==='atual')filtradas=sessoes.filter(function(s){return s.data_sessao&&s.data_sessao.substring(0,7)===mesAtual});
+    else if(fm==='anteriores')filtradas=sessoes.filter(function(s){return s.data_sessao&&s.data_sessao.substring(0,7)<mesAtual});
+    var porPac={};
+    filtradas.forEach(function(s){
+        var pid=s.paciente_id;
+        if(!porPac[pid])porPac[pid]={nome:s.clientes?s.clientes.nome:'?',telefone:s.clientes?s.clientes.telefone||'':'',sessoes:[],totalServicos:0};
+        porPac[pid].sessoes.push(s);
+        porPac[pid].totalServicos++;
+    });
+    var lista=Object.keys(porPac).map(function(pid){return{pid:pid,data:porPac[pid]}});
+    lista.sort(function(a,b){return a.data.nome>b.data.nome?1:-1});
+    h+='<div class="table-card"><div class="table-header"><div class="table-title"><i class="fas fa-clipboard-check" style="color:var(--cyan);margin-right:.4rem"></i>Servicos por Paciente</div><div class="table-count">'+lista.length+' pacientes</div></div>';
+    h+='<div class="table-wrap"><table><thead><tr><th>Paciente</th><th>Sessoes Realizadas</th><th>Faltas</th><th>Plano</th><th>Progresso</th><th>Periodo</th><th></th></tr></thead><tbody>';
+    if(!lista.length){h+='<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">📋</div><h3>Nenhuma sessao encontrada</h3></div></td></tr>'}
+    for(var i=0;i<lista.length;i++){
+        var g=lista[i],d=g.data;
+        var realizadas=d.sessoes.filter(function(s){return s.status==='realizada'}).length;
+        var faltas=d.sessoes.filter(function(s){return s.status==='falta'}).length;
+        var ini=d.nome.charAt(0).toUpperCase();
+        var planoRef=d.sessoes[0]&&d.sessoes[0].planos?d.sessoes[0].planos:null;
+        var planoNome=planoRef?planoRef.nome:'Avulso';
+        var progH='-';
+        if(planoRef&&planoRef.qtd_sessoes){
+            var allReal=sessoes.filter(function(x){return x.paciente_id===g.pid&&x.plano_id===d.sessoes[0].plano_id&&x.status==='realizada'}).length;
+            var tot=planoRef.qtd_sessoes,pct=Math.min(100,Math.round(allReal/tot*100));
+            var cor=allReal>=tot?'var(--red)':pct>70?'var(--orange)':'var(--green)';
+            progH='<div style="display:flex;align-items:center;gap:.3rem"><span style="font-size:.73rem;font-weight:600">'+allReal+'/'+tot+'</span><div class="progress-bar" style="width:60px"><div class="progress-fill" style="width:'+pct+'%;background:'+cor+'"></div></div></div>';
+        }
+        var meses={};d.sessoes.forEach(function(s){var m=s.data_sessao?s.data_sessao.substring(0,7):'?';meses[m]=true});
+        var periodoTxt=Object.keys(meses).sort().map(function(m){var pts=m.split('-');return pts[1]+'/'+pts[0]}).join(', ');
+        var rowId='sess_'+i;
+        h+='<tr style="cursor:pointer" onclick="toggleDetail(\''+rowId+'\')">';
+        h+='<td><div class="patient-info"><div class="patient-avatar">'+ini+'</div><div><div class="patient-name" style="cursor:pointer;color:var(--primary)" onclick="event.stopPropagation();abrirFichaPaciente(\''+g.pid+'\')">'+d.nome+'</div><div class="patient-phone">'+d.telefone+'</div></div></div></td>';
+        h+='<td><span style="font-weight:700;color:var(--green)">'+realizadas+'</span></td>';
+        h+='<td>'+(faltas>0?'<span style="font-weight:700;color:var(--red)">'+faltas+'</span>':'<span style="color:var(--muted)">0</span>')+'</td>';
+        h+='<td>'+(planoRef?'<span class="plano-tag"><i class="fas fa-layer-group"></i> '+planoNome+'</span>':'<span style="color:var(--muted)">Avulso</span>')+'</td>';
+        h+='<td>'+progH+'</td>';
+        h+='<td style="font-size:.78rem;color:var(--muted)">'+periodoTxt+'</td>';
+        h+='<td><i class="fas fa-chevron-down" style="color:var(--muted);font-size:.8rem"></i></td></tr>';
+        h+='<tr id="'+rowId+'" style="display:none"><td colspan="7" style="padding:0;background:#F8FAFC"><div style="padding:.75rem 1rem">';
+        h+='<div style="font-weight:700;font-size:.82rem;margin-bottom:.5rem;color:var(--primary)"><i class="fas fa-list"></i> Detalhes - '+d.nome+'</div>';
+        h+='<table style="width:100%;font-size:.8rem"><thead><tr style="background:#EFF6FF"><th>Data</th><th>Servico</th><th>Profissional</th><th>Status</th><th>Evolucao</th><th>Acoes</th></tr></thead><tbody>';
+        var sorted=d.sessoes.sort(function(a,b){return a.data_sessao>b.data_sessao?-1:1});
+        for(var j=0;j<sorted.length;j++){
+            var s=sorted[j];
+            var stB2={realizada:'<span class="badge badge-pago">Realizada</span>',agendada:'<span class="badge badge-vence-hoje">Agendada</span>',falta:'<span class="badge badge-atrasado">Falta</span>',cancelada:'<span class="badge badge-cancelado">Cancelada</span>'}[s.status]||s.status;
+            var evoTxt=s.evolucao?s.evolucao.substring(0,60)+(s.evolucao.length>60?'...':''):'<span style="color:var(--muted)">-</span>';
+            h+='<tr><td>'+fmtDate(s.data_sessao)+'</td>';
+            h+='<td style="font-weight:600">'+(s.servicos?s.servicos.nome:'-')+'</td>';
+            h+='<td>'+(s.profissionais?s.profissionais.nome:'-')+'</td>';
+            h+='<td>'+stB2+'</td>';
+            h+='<td style="font-size:.77rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+evoTxt+'</td>';
+            h+='<td><div class="action-btns"><button class="action-btn view" title="Ver Evolucao" onclick="event.stopPropagation();verEvolucao(\''+s.id+'\')"><i class="fas fa-eye"></i></button><button class="action-btn edit" onclick="event.stopPropagation();openSessaoModal(\''+s.id+'\')"><i class="fas fa-edit"></i></button></div></td></tr>';
+        }
+        h+='</tbody></table></div></td></tr>';
+    }
+    h+='</tbody></table></div></div>';
+    $('tabContent').innerHTML=h;
+}
+
+// HISTORICO
+function renderHist(){
+    var h='<div class="table-card"><div class="table-header"><div class="table-title"><i class="fas fa-history" style="color:var(--green);margin-right:.4rem"></i>Histórico de Pagamentos</div><div class="table-count">'+pagamentos.length+'</div></div><div class="table-wrap"><table><thead><tr><th>Data</th><th>Paciente</th><th>Plano</th><th>Valor</th><th>Forma</th><th>Recibo</th></tr></thead><tbody>';
+    if(!pagamentos.length){h+='<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon">📜</div><h3>Nenhum pagamento</h3></div></td></tr>'}
+    for(var i=0;i<pagamentos.length;i++){
+        var p=pagamentos[i];
+        h+='<tr><td>'+fmtDate(p.data_pagamento)+'</td><td style="font-weight:600">'+(p.mensalidades&&p.mensalidades.clientes?p.mensalidades.clientes.nome:'-')+'</td>';
+        h+='<td><span class="plano-tag">'+(p.mensalidades&&p.mensalidades.planos?p.mensalidades.planos.nome:'-')+'</span></td>';
+        h+='<td style="font-weight:700;color:var(--green)">'+fmt(p.valor_pago)+'</td><td>'+fmtForma(p.forma_pagamento)+'</td>';
+        h+='<td><button class="action-btn receipt" onclick="gerarRecibo(\''+p.mensalidade_id+'\')"><i class="fas fa-receipt"></i></button></td></tr>';
+    }
+    h+='</tbody></table></div></div>';
+    $('tabContent').innerHTML=h;
+}
+
+// RELATORIOS
+function renderRelatorios(){
+    var h='<div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:1.5rem">';
+    h+='<div class="stat-card green" style="cursor:pointer" onclick="gerarRelatorio(\'receitas\')"><div class="stat-icon green"><i class="fas fa-chart-line"></i></div><div style="font-weight:700;margin-top:.5rem">Receitas por Período</div><div style="font-size:.78rem;color:var(--muted)">Total recebido, formas de pagamento</div></div>';
+    h+='<div class="stat-card purple" style="cursor:pointer" onclick="gerarRelatorio(\'servicos\')"><div class="stat-icon purple"><i class="fas fa-chart-pie"></i></div><div style="font-weight:700;margin-top:.5rem">Serviços mais Procurados</div><div style="font-size:.78rem;color:var(--muted)">Ranking, sessões, rentabilidade</div></div>';
+    h+='<div class="stat-card red" style="cursor:pointer" onclick="gerarRelatorio(\'inadimplencia\')"><div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div><div style="font-weight:700;margin-top:.5rem">Inadimplência</div><div style="font-size:.78rem;color:var(--muted)">Devedores, dias atraso, valores</div></div></div>';
+    h+='<div id="relContent"></div>';
+    $('tabContent').innerHTML=h;
+}
+
+function gerarRelatorio(tipo){
+    var h='';
+    if(tipo==='receitas'){
+        var porForma={};pagamentos.forEach(function(p){var f=fmtForma(p.forma_pagamento);porForma[f]=(porForma[f]||0)+(p.valor_pago||0)});
+        var total=pagamentos.reduce(function(s,p){return s+(p.valor_pago||0)},0);
+        h+='<div class="table-card"><div class="table-header"><div class="table-title">Receitas por Forma</div><button class="btn btn-secondary btn-sm" onclick="exportarCSV(\'receitas\')"><i class="fas fa-download"></i> CSV</button></div><div class="table-wrap"><table><thead><tr><th>Forma</th><th>Total</th><th>%</th><th>Qtd</th></tr></thead><tbody>';
+        Object.keys(porForma).sort(function(a,b){return porForma[b]-porForma[a]}).forEach(function(f){h+='<tr><td style="font-weight:600">'+f+'</td><td style="font-weight:700;color:var(--green)">'+fmt(porForma[f])+'</td><td>'+(total?Math.round(porForma[f]/total*100):0)+'%</td><td>'+pagamentos.filter(function(p){return fmtForma(p.forma_pagamento)===f}).length+'</td></tr>'});
+        h+='<tr style="background:#F0FDF4;font-weight:700"><td>TOTAL</td><td style="color:var(--green)">'+fmt(total)+'</td><td>100%</td><td>'+pagamentos.length+'</td></tr></tbody></table></div></div>';
+    }else if(tipo==='servicos'){
+        var ps={};
+        sessoes.filter(function(s){return s.status==='realizada'}).forEach(function(s){
+            var n=s.servicos?s.servicos.nome:'?';
+            var sid=s.servico_id||'?';
+            if(!ps[sid])ps[sid]={nome:n,qtd:0,receita:0};
+            ps[sid].qtd++;
+            var srv=servicos.find(function(x){return x.id===sid});
+            if(srv)ps[sid].receita+=Number(srv.preco)||0;
+        });
+        var sorted=Object.values(ps).sort(function(a,b){return b.receita-a.receita});
+        var totalS=sessoes.filter(function(s){return s.status==='realizada'}).length;
+        var totalR=sorted.reduce(function(s,x){return s+x.receita},0);
+        h+='<div class="table-card"><div class="table-header"><div class="table-title">Serviços — Ranking e Rentabilidade</div><button class="btn btn-secondary btn-sm" onclick="exportarCSV(\'servicos\')"><i class="fas fa-download"></i> CSV</button></div><div class="table-wrap"><table><thead><tr><th>#</th><th>Serviço</th><th>Sessões</th><th>% Sessões</th><th>Receita Gerada</th><th>% Receita</th><th>Ticket Médio</th></tr></thead><tbody>';
+        for(var si=0;si<sorted.length;si++){
+            var sv=sorted[si];
+            var pctS=totalS?Math.round(sv.qtd/totalS*100):0;
+            var pctR=totalR?Math.round(sv.receita/totalR*100):0;
+            var ticket=sv.qtd?sv.receita/sv.qtd:0;
+            h+='<tr><td style="font-weight:700;color:var(--purple)">'+(si+1)+'</td><td style="font-weight:600">'+sv.nome+'</td>';
+            h+='<td>'+sv.qtd+'</td><td>'+pctS+'%</td>';
+            h+='<td style="font-weight:700;color:var(--green)">'+fmt(sv.receita)+'</td><td>'+pctR+'%</td>';
+            h+='<td>'+fmt(ticket)+'</td></tr>';
+        }
+        h+='<tr style="background:#F0FDF4;font-weight:700"><td></td><td>TOTAL</td><td>'+totalS+'</td><td>100%</td><td style="color:var(--green)">'+fmt(totalR)+'</td><td>100%</td><td>'+fmt(totalS?totalR/totalS:0)+'</td></tr>';
+        h+='</tbody></table></div></div>';
+    }else if(tipo==='inadimplencia'){
+        var atr=parcelas.filter(function(m){return m._st==='atrasado'});
+        var dev=atr.reduce(function(s,m){return s+(m.valor||0)},0);
+        atr.sort(function(a,b){return diasAtraso(b.data_vencimento)-diasAtraso(a.data_vencimento)});
+        h+='<div class="alert-box danger"><i class="fas fa-exclamation-triangle"></i> '+atr.length+' inadimplentes - Total: '+fmt(dev)+'</div>';
+        h+='<div class="table-card"><div class="table-header"><div class="table-title">Inadimplência</div><button class="btn btn-secondary btn-sm" onclick="exportarCSV(\'inadimplencia\')"><i class="fas fa-download"></i> CSV</button></div><div class="table-wrap"><table><thead><tr><th>Paciente</th><th>Plano</th><th>Vencimento</th><th>Valor</th><th>Dias</th></tr></thead><tbody>';
+        atr.forEach(function(m){h+='<tr><td style="font-weight:600">'+(m.clientes?m.clientes.nome:'-')+'</td><td><span class="plano-tag">'+(m.planos?m.planos.nome:'-')+'</span></td><td>'+fmtDate(m.data_vencimento)+'</td><td style="font-weight:700;color:var(--red)">'+fmt(m.valor)+'</td><td style="color:var(--red);font-weight:700">'+diasAtraso(m.data_vencimento)+'d</td></tr>'});
+        h+='</tbody></table></div></div>';
+    }
+    var rc=document.getElementById('relContent');
+    if(rc)rc.innerHTML=h;
+}
+
+// MODALS - PLANO
+function openPlanoModal(editId){
+    var p=editId?planos.find(function(x){return x.id===editId}):null;
+    var sIncl=p?(p.servicos_inclusos||[]):[];
+    var srvHtml=servicos.map(function(s){return'<label style="display:flex;align-items:center;gap:.3rem;font-size:.78rem;cursor:pointer"><input type="checkbox" value="'+s.id+'" class="srv-chk" style="accent-color:var(--purple)"'+(sIncl.indexOf(s.id)>=0?' checked':'')+'>'+s.nome+'</label>'}).join('');
+    openModal('<div class="modal-header"><h2><i class="fas fa-layer-group" style="color:var(--purple)"></i> '+(p?'Editar':'Novo')+' Plano</h2><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div>'
+        +'<div class="modal-body"><input type="hidden" id="planoId" value="'+(p?p.id:'')+'"><div class="form-grid">'
+        +'<div class="form-group full"><label class="form-label required">Nome</label><input type="text" class="form-input" id="planoNome" value="'+(p?p.nome:'')+'" placeholder="Ex: Fisioterapia Mensal"></div>'
+        +'<div class="form-group"><label class="form-label required">Recorrência</label><select class="form-select" id="planoTipo"><option value="mensal"'+(p&&p.tipo==='mensal'?' selected':'')+'>Mensal</option><option value="trimestral"'+(p&&p.tipo==='trimestral'?' selected':'')+'>Trimestral</option><option value="semestral"'+(p&&p.tipo==='semestral'?' selected':'')+'>Semestral</option><option value="anual"'+(p&&p.tipo==='anual'?' selected':'')+'>Anual</option></select></div>'
+        +'<div class="form-group"><label class="form-label required">Valor (R$)</label><input type="number" class="form-input" id="planoValor" step="0.01" value="'+(p?p.valor:'')+'"></div>'
+        +'<div class="form-group"><label class="form-label">Sessões</label><input type="number" class="form-input" id="planoSessoes" value="'+(p&&p.qtd_sessoes?p.qtd_sessoes:'')+'"><div class="form-hint">Vazio = ilimitado</div></div>'
+        +'<div class="form-group"><label class="form-label">Validade (dias)</label><input type="number" class="form-input" id="planoValidade" value="'+(p&&p.validade_dias?p.validade_dias:'')+'"></div>'
+        +'<div class="form-group full"><label class="form-label">Serviços Inclusos</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;max-height:130px;overflow-y:auto;padding:.5rem;border:1px solid var(--border);border-radius:10px">'+(srvHtml||'<span style="color:var(--muted);font-size:.8rem">Nenhum serviço</span>')+'</div></div>'
+        +'<div class="form-group full"><label class="form-label">Descrição</label><textarea class="form-textarea" id="planoDesc">'+(p&&p.descricao?p.descricao:'')+'</textarea></div>'
+        +'</div></div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-purple" onclick="savePlano()"><i class="fas fa-save"></i> Salvar</button></div>');
+}
+
+async function savePlano(){
+    var id=$('planoId').value,nome=$('planoNome').value.trim(),tipo=$('planoTipo').value,valor=parseFloat($('planoValor').value);
+    var sess=parseInt($('planoSessoes').value)||null,val=parseInt($('planoValidade').value)||null,desc=$('planoDesc').value.trim();
+    var si=[];document.querySelectorAll('.srv-chk:checked').forEach(function(c){si.push(c.value)});
+    if(!nome||!valor){showToast('Preencha nome e valor','error');return}
+    var data={nome:nome,tipo:tipo,valor:valor,qtd_sessoes:sess,validade_dias:val,descricao:desc,servicos_inclusos:si,salao_id:salaoId,ativo:true};
+    try{showLoading('Salvando...');if(id)await sb.from('planos').update(data).eq('id',id);else await sb.from('planos').insert(data);closeModal();await loadAll();showToast(id?'Atualizado!':'Plano criado!')}catch(e){hideLoading();showToast('Erro','error')}
+}
+async function togglePlano(id){var p=planos.find(function(x){return x.id===id});if(!p||!confirm((p.ativo!==false?'Desativar':'Reativar')+' "'+p.nome+'"?'))return;await sb.from('planos').update({ativo:p.ativo===false}).eq('id',id);await loadAll();showToast('Atualizado!')}
+
+// MODALS - MENSALIDADE
+function openMensModal(editId){
+    var m=editId?mensalidades.find(function(x){return x.id===editId}):null;
+    var pacOpts=pacientes.map(function(p){return'<option value="'+p.id+'"'+(m&&m.paciente_id===p.id?' selected':'')+'>'+p.nome+'</option>'}).join('');
+    var plOpts=planos.filter(function(p){return p.ativo!==false}).map(function(p){return'<option value="'+p.id+'" data-valor="'+p.valor+'"'+(m&&m.plano_id===p.id?' selected':'')+'>'+p.nome+' - '+fmt(p.valor)+'</option>'}).join('');
+    var hoje=new Date().toISOString().split('T')[0];
+    openModal('<div class="modal-header"><h2><i class="fas fa-file-invoice-dollar" style="color:var(--primary)"></i> '+(m?'Editar':'Nova')+' Mensalidade</h2><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div>'
+        +'<div class="modal-body"><input type="hidden" id="mensId" value="'+(m?m.id:'')+'"><div class="form-grid">'
+        +'<div class="form-group full"><label class="form-label required">Paciente</label><div style="display:flex;gap:.5rem;align-items:center"><select class="form-select" id="mensPac" style="flex:1"><option value="">Selecione...</option>'+pacOpts+'</select><div onclick="toggleNovoPac()" style="min-width:42px;height:42px;border:none;background-color:#2563EB;color:white;border-radius:10px;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(37,99,235,.3)" title="Cadastrar novo paciente"><i class="fas fa-user-plus"></i></div></div><div id="novoPacForm" style="display:none;margin-top:.6rem;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:.75rem"><div style="font-size:.8rem;font-weight:700;color:#2563EB;margin-bottom:.5rem"><i class="fas fa-user-plus"></i> Cadastro Rapido</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem"><div><label class="form-label required" style="font-size:.72rem">Nome</label><input type="text" class="form-input" id="novoPacNome" placeholder="Nome completo" style="font-size:.8rem;padding:.4rem .6rem"></div><div><label class="form-label required" style="font-size:.72rem">Telefone</label><input type="text" class="form-input" id="novoPacTel" placeholder="(00) 00000-0000" style="font-size:.8rem;padding:.4rem .6rem"></div></div><div style="display:flex;gap:.4rem;margin-top:.5rem;justify-content:flex-end"><button class="btn btn-sm btn-s" onclick="toggleNovoPac()">Cancelar</button><button class="btn btn-sm btn-p" onclick="salvarNovoPac()"><i class="fas fa-check"></i> Salvar</button></div></div></div>'
+        +'<div class="form-group"><label class="form-label required">Plano</label><select class="form-select" id="mensPlan" onchange="var o=this.selectedOptions[0];if(o&&o.dataset.valor)document.getElementById(\'mensVal\').value=o.dataset.valor"><option value="">Selecione...</option>'+plOpts+'</select></div>'
+        +'<div class="form-group"><label class="form-label required">Valor (R$)</label><input type="number" class="form-input" id="mensVal" step="0.01" value="'+(m?m.valor:'')+'"></div>'
+        +'<div class="form-group"><label class="form-label required">Data Início</label><input type="date" class="form-input" id="mensIni" value="'+(m&&m.data_inicio?m.data_inicio:hoje)+'"></div>'
+        +'<div class="form-group"><label class="form-label required">Dia Vencimento (1-28)</label><input type="number" class="form-input" id="mensDia" min="1" max="28" value="'+(m&&m.dia_vencimento?m.dia_vencimento:'')+'"></div>'
+        +'<div class="form-group full"><label class="form-label">Observações</label><textarea class="form-textarea" id="mensObs">'+(m&&m.observacoes?m.observacoes:'')+'</textarea></div>'
+        +'</div></div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveMens()"><i class="fas fa-save"></i> Salvar</button></div>');
+}
+
+async function saveMens(){
+    var id=$('mensId').value,pid=$('mensPac').value,plid=$('mensPlan').value,valor=parseFloat($('mensVal').value),ini=$('mensIni').value,dia=parseInt($('mensDia').value),obs=$('mensObs').value.trim();
+    if(!pid||!plid||!valor||!ini||!dia){showToast('Preencha todos','error');return}
+    var dtIni=new Date(ini+'T00:00:00');
+    var dv=dtIni.getFullYear()+'-'+String(dtIni.getMonth()+1).padStart(2,'0')+'-'+String(dia).padStart(2,'0');
+    var vencDate=new Date(dv+'T00:00:00');var hj=new Date();hj.setHours(0,0,0,0);
+    var st=vencDate<hj?'atrasado':(vencDate.getTime()===hj.getTime()?'pendente':'pendente');
+    var data={paciente_id:pid,plano_id:plid,valor:valor,data_inicio:ini,dia_vencimento:dia,data_vencimento:dv,observacoes:obs,salao_id:salaoId,status:st};
+    try{showLoading('Salvando...');if(id)await sb.from('mensalidades').update(data).eq('id',id);else await sb.from('mensalidades').insert(data);closeModal();await loadAll();showToast(id?'Atualizado!':'Mensalidade criada!')}catch(e){hideLoading();showToast('Erro','error')}
+}
+async function cancelarMens(id){if(!confirm('Cancelar mensalidade?'))return;await sb.from('mensalidades').update({status:'cancelado'}).eq('id',id);await loadAll();showToast('Cancelada')}
+
+// MODALS - PAGAMENTO
+function openPagModal(mid){
+    var m=parcelas.find(function(x){return x.id===mid})||mensalidades.find(function(x){return x.id===mid});if(!m)return;
+    var realMid=m.mensalidade_id||m.id;
+    var hoje=new Date().toISOString().split('T')[0];
+    openModal('<div class="modal-header"><h2><i class="fas fa-money-bill-wave" style="color:var(--green)"></i> Registrar Pagamento</h2><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div>'
+        +'<div class="modal-body"><input type="hidden" id="pagMid" value="'+realMid+'"><input type="hidden" id="pagRef" value="'+m.data_vencimento+'">'
+        +'<div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:.85rem;margin-bottom:1rem"><div style="font-size:.78rem;color:#16A34A;font-weight:600">Paciente</div><div style="font-size:1rem;font-weight:700;color:#15803D">'+(m.clientes?m.clientes.nome:'-')+'</div><div style="font-size:.82rem;color:#16A34A;margin-top:.15rem">'+(m.planos?m.planos.nome:'-')+' - Venc: '+fmtDate(m.data_vencimento)+'</div></div>'
+        +'<div class="form-grid"><div class="form-group"><label class="form-label required">Valor (R$)</label><input type="number" class="form-input" id="pagVal" step="0.01" value="'+m.valor+'"></div>'
+        +'<div class="form-group"><label class="form-label required">Forma</label><select class="form-select" id="pagFor"><option value="pix">PIX</option><option value="cartao_credito">Cartão Crédito</option><option value="cartao_debito">Cartão Débito</option><option value="dinheiro">Dinheiro</option><option value="boleto">Boleto</option></select></div>'
+        +'<div class="form-group"><label class="form-label required">Data</label><input type="date" class="form-input" id="pagDat" value="'+hoje+'"></div>'
+        +'<div class="form-group"><label class="form-label">Comprovante</label><input type="text" class="form-input" id="pagComp" placeholder="Nº ref"></div></div>'
+        +'<label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.82rem;margin-top:.85rem"><input type="checkbox" id="pagRec" checked style="accent-color:var(--primary)"> Gerar recibo</label>'
+        +'</div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-success" onclick="registrarPag()"><i class="fas fa-check"></i> Confirmar</button></div>');
+}
+
+async function registrarPag(){
+    var mid=$('pagMid').value,val=parseFloat($('pagVal').value),forma=$('pagFor').value,data=$('pagDat').value,comp=$('pagComp').value,rec=$('pagRec').checked;
+    var ref=$('pagRef').value;
+    if(!val||!data){showToast('Preencha valor e data','error');return}
+    var compFinal=ref;
+    if(comp)compFinal=ref+'|'+comp;
+    try{showLoading('Registrando...');
+        await sb.from('pagamentos_mensalidade').insert({mensalidade_id:mid,valor_pago:val,forma_pagamento:forma,data_pagamento:data,comprovante:compFinal,recibo_gerado:rec,salao_id:salaoId});
+        closeModal();await loadAll();showToast('Pagamento registrado!');
+    }catch(e){hideLoading();showToast('Erro','error')}
+}
+
+// MODALS - SESSAO
+function openSessaoModal(editId){
+    var s=editId?sessoes.find(function(x){return x.id===editId}):null;
+    var hoje=new Date().toISOString().split('T')[0];
+    var pacOpts=pacientes.map(function(p){return'<option value="'+p.id+'"'+(s&&s.paciente_id===p.id?' selected':'')+'>'+p.nome+'</option>'}).join('');
+    var srvOpts=servicos.map(function(sv){return'<option value="'+sv.id+'"'+(s&&s.servico_id===sv.id?' selected':'')+'>'+sv.nome+'</option>'}).join('');
+    var profOpts=profissionais.map(function(p){return'<option value="'+p.id+'"'+(s&&s.profissional_id===p.id?' selected':'')+'>'+p.nome+'</option>'}).join('');
+    var plOpts=planos.map(function(p){return'<option value="'+p.id+'"'+(s&&s.plano_id===p.id?' selected':'')+'>'+p.nome+'</option>'}).join('');
+    openModal('<div class="modal-header"><h2><i class="fas fa-clipboard-check" style="color:var(--cyan)"></i> '+(s?'Editar':'Registrar')+' Sessão</h2><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div>'
+        +'<div class="modal-body"><input type="hidden" id="sessId" value="'+(s?s.id:'')+'"><div class="form-grid">'
+        +'<div class="form-group"><label class="form-label required">Paciente</label><select class="form-select" id="sessPac"><option value="">Selecione...</option>'+pacOpts+'</select></div>'
+        +'<div class="form-group"><label class="form-label required">Serviço</label><select class="form-select" id="sessSrv"><option value="">Selecione...</option>'+srvOpts+'</select></div>'
+        +'<div class="form-group"><label class="form-label required">Profissional</label><select class="form-select" id="sessProf"><option value="">Selecione...</option>'+profOpts+'</select></div>'
+        +'<div class="form-group"><label class="form-label">Plano</label><select class="form-select" id="sessPlan"><option value="">Avulso</option>'+plOpts+'</select></div>'
+        +'<div class="form-group"><label class="form-label required">Data</label><input type="date" class="form-input" id="sessData" value="'+(s?s.data_sessao:hoje)+'"></div>'
+        +'<div class="form-group"><label class="form-label">Status</label><select class="form-select" id="sessSt"><option value="realizada"'+(s&&s.status==='realizada'?' selected':'')+'>Realizada</option><option value="agendada"'+(s&&s.status==='agendada'?' selected':'')+'>Agendada</option><option value="falta"'+(s&&s.status==='falta'?' selected':'')+'>Falta</option><option value="cancelada"'+(s&&s.status==='cancelada'?' selected':'')+'>Cancelada</option></select></div>'
+        +'<div class="form-group full"><label class="form-label">Evolução / Anotações</label><textarea class="form-textarea" id="sessEvo" style="min-height:100px" placeholder="Registro da evolução...">'+(s&&s.evolucao?s.evolucao:'')+'</textarea></div>'
+        +'</div></div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveSessao()"><i class="fas fa-save"></i> Salvar</button></div>');
+}
+
+async function saveSessao(){
+    var id=$('sessId').value,pid=$('sessPac').value,sid=$('sessSrv').value,prid=$('sessProf').value,plid=$('sessPlan').value||null,data=$('sessData').value,st=$('sessSt').value,evo=$('sessEvo').value;
+    if(!pid||!sid||!data){showToast('Preencha paciente, serviço e data','error');return}
+    var d={paciente_id:pid,servico_id:sid,profissional_id:prid||null,plano_id:plid,data_sessao:data,status:st,evolucao:evo,salao_id:salaoId};
+    try{showLoading('Salvando...');if(id)await sb.from('sessoes').update(d).eq('id',id);else await sb.from('sessoes').insert(d);closeModal();await loadAll();showToast(id?'Atualizado!':'Sessão registrada!')}catch(e){hideLoading();showToast('Erro','error')}
+}
+
+function abrirFichaPaciente(pid){
+    var pac=pacientes.find(function(p){return p.id===pid});
+    if(!pac){showToast('Paciente nao encontrado','error');return}
+    var nome=pac.nome||'-';
+    var tel=pac.telefone||'-';
+    var ini=nome.charAt(0).toUpperCase();
+
+    // Mensalidades do paciente
+    var mensPac=mensalidades.filter(function(m){return m.paciente_id===pid&&m.status!=='cancelado'});
+    var parcelasPac=parcelas.filter(function(p){return p.paciente_id===pid});
+    var pagasPac=parcelasPac.filter(function(p){return p._st==='pago'}).length;
+    var atrasadasPac=parcelasPac.filter(function(p){return p._st==='atrasado'}).length;
+    var totalDevido=parcelasPac.filter(function(p){return p._st==='atrasado'}).reduce(function(s,p){return s+(p.valor||0)},0);
+
+    // Sessoes do paciente
+    var sessPac=sessoes.filter(function(s){return s.paciente_id===pid});
+    var sessRealizadas=sessPac.filter(function(s){return s.status==='realizada'}).length;
+    var sessFaltas=sessPac.filter(function(s){return s.status==='falta'}).length;
+
+    // Pagamentos do paciente
+    var pagsPac=pagamentos.filter(function(p){return p.mensalidades&&p.mensalidades.paciente_id===pid||mensPac.some(function(m){return m.id===p.mensalidade_id})});
+    var totalPago=pagsPac.reduce(function(s,p){return s+(p.valor_pago||0)},0);
+
+    // Plano ativo
+    var planoAtivo=mensPac.length>0&&mensPac[0].planos?mensPac[0].planos.nome:'Nenhum';
+
+    var h='<div class="modal-header" style="background:linear-gradient(135deg,#2563EB,#1E40AF);border-radius:16px 16px 0 0">';
+    h+='<h2 style="color:#fff"><i class="fas fa-user-injured"></i> Ficha do Paciente</h2>';
+    h+='<button class="modal-close" onclick="closeModal()" style="background:rgba(255,255,255,.2);color:#fff"><i class="fas fa-times"></i></button></div>';
+    h+='<div class="modal-body" style="padding:0;max-height:75vh;overflow-y:auto">';
+
+    // Header do paciente
+    h+='<div style="padding:1.25rem;background:linear-gradient(135deg,#EFF6FF,#DBEAFE);display:flex;align-items:center;gap:1rem">';
+    h+='<div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#2563EB);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.4rem;font-weight:700">'+ini+'</div>';
+    h+='<div><div style="font-size:1.15rem;font-weight:700">'+nome+'</div>';
+    h+='<div style="font-size:.82rem;color:var(--muted)"><i class="fas fa-phone" style="margin-right:.3rem"></i>'+tel+'</div>';
+    h+='<div style="margin-top:.3rem"><span class="plano-tag"><i class="fas fa-layer-group"></i> '+planoAtivo+'</span></div>';
+    h+='</div></div>';
+
+    // Cards resumo
+    h+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;padding:1rem">';
+    h+='<div style="background:#D1FAE5;padding:.7rem;border-radius:10px;text-align:center"><div style="font-size:1.2rem;font-weight:800;color:#059669">'+pagasPac+'</div><div style="font-size:.7rem;color:#059669">Mensalidades Pagas</div></div>';
+    h+='<div style="background:'+(atrasadasPac>0?'#FEE2E2':'#F1F5F9')+';padding:.7rem;border-radius:10px;text-align:center"><div style="font-size:1.2rem;font-weight:800;color:'+(atrasadasPac>0?'#DC2626':'var(--muted)')+'">'+atrasadasPac+'</div><div style="font-size:.7rem;color:'+(atrasadasPac>0?'#DC2626':'var(--muted)')+'">Atrasadas</div></div>';
+    h+='<div style="background:#DBEAFE;padding:.7rem;border-radius:10px;text-align:center"><div style="font-size:1.2rem;font-weight:800;color:#2563EB">'+sessRealizadas+'</div><div style="font-size:.7rem;color:#2563EB">Sessoes</div></div>';
+    h+='<div style="background:#EDE9FE;padding:.7rem;border-radius:10px;text-align:center"><div style="font-size:1.2rem;font-weight:800;color:#7C3AED">'+fmt(totalPago)+'</div><div style="font-size:.7rem;color:#7C3AED">Total Pago</div></div>';
+    h+='</div>';
+
+    if(atrasadasPac>0){
+        h+='<div style="margin:0 1rem .75rem;padding:.6rem .85rem;background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;font-size:.82rem;color:#991B1B;display:flex;align-items:center;gap:.4rem"><i class="fas fa-exclamation-triangle"></i> Devendo '+fmt(totalDevido)+' ('+atrasadasPac+' parcelas atrasadas)</div>';
+    }
+
+    // SECAO: Mensalidades
+    h+='<div style="padding:0 1rem .75rem"><div style="font-weight:700;font-size:.88rem;margin-bottom:.5rem;display:flex;align-items:center;gap:.4rem"><i class="fas fa-file-invoice-dollar" style="color:var(--primary)"></i> Mensalidades</div>';
+    h+='<table style="width:100%;font-size:.78rem;border-collapse:collapse"><thead><tr style="background:#F8FAFC"><th style="padding:.45rem .5rem;text-align:left;font-size:.7rem;color:var(--muted)">Ref.</th><th style="padding:.45rem .5rem;text-align:left;font-size:.7rem;color:var(--muted)">Vencimento</th><th style="padding:.45rem .5rem;text-align:left;font-size:.7rem;color:var(--muted)">Valor</th><th style="padding:.45rem .5rem;text-align:left;font-size:.7rem;color:var(--muted)">Status</th></tr></thead><tbody>';
+    parcelasPac.sort(function(a,b){return a.data_vencimento>b.data_vencimento?-1:1});
+    for(var mi=0;mi<parcelasPac.length;mi++){
+        var mp=parcelasPac[mi];
+        h+='<tr style="border-top:1px solid #F1F5F9"><td style="padding:.4rem .5rem">'+fmtDate(mp.data_vencimento).substring(3)+'</td>';
+        h+='<td style="padding:.4rem .5rem">'+fmtDate(mp.data_vencimento)+'</td>';
+        h+='<td style="padding:.4rem .5rem;font-weight:600">'+fmt(mp.valor)+'</td>';
+        h+='<td style="padding:.4rem .5rem">'+badgeHTML(mp._st)+'</td></tr>';
+    }
+    if(!parcelasPac.length)h+='<tr><td colspan="4" style="padding:.5rem;color:var(--muted);text-align:center">Nenhuma mensalidade</td></tr>';
+    h+='</tbody></table></div>';
+
+    // SECAO: Sessoes / Servicos
+    h+='<div style="padding:0 1rem .75rem"><div style="font-weight:700;font-size:.88rem;margin-bottom:.5rem;display:flex;align-items:center;gap:.4rem"><i class="fas fa-hand-holding-medical" style="color:var(--cyan)"></i> Servicos Realizados <span style="font-weight:400;color:var(--muted);font-size:.78rem">('+sessRealizadas+' sessoes, '+sessFaltas+' faltas)</span></div>';
+    h+='<table style="width:100%;font-size:.78rem;border-collapse:collapse"><thead><tr style="background:#F8FAFC"><th style="padding:.45rem .5rem;text-align:left;font-size:.7rem;color:var(--muted)">Data</th><th style="padding:.45rem .5rem;text-align:left;font-size:.7rem;color:var(--muted)">Servico</th><th style="padding:.45rem .5rem;text-align:left;font-size:.7rem;color:var(--muted)">Profissional</th><th style="padding:.45rem .5rem;text-align:left;font-size:.7rem;color:var(--muted)">Status</th><th style="padding:.45rem .5rem;text-align:left;font-size:.7rem;color:var(--muted)">Evolucao</th></tr></thead><tbody>';
+    var sessSorted=sessPac.sort(function(a,b){return a.data_sessao>b.data_sessao?-1:1});
+    for(var si=0;si<sessSorted.length;si++){
+        var ss=sessSorted[si];
+        var stB3={realizada:'<span class="badge badge-pago">OK</span>',falta:'<span class="badge badge-atrasado">Falta</span>',agendada:'<span class="badge badge-vence-hoje">Agend.</span>',cancelada:'<span class="badge badge-cancelado">Canc.</span>'}[ss.status]||ss.status;
+        var evoShort=ss.evolucao?ss.evolucao.substring(0,40)+(ss.evolucao.length>40?'...':''):'<span style="color:var(--muted)">-</span>';
+        h+='<tr style="border-top:1px solid #F1F5F9"><td style="padding:.4rem .5rem">'+fmtDate(ss.data_sessao)+'</td>';
+        h+='<td style="padding:.4rem .5rem;font-weight:600">'+(ss.servicos?ss.servicos.nome:'-')+'</td>';
+        h+='<td style="padding:.4rem .5rem">'+(ss.profissionais?ss.profissionais.nome:'-')+'</td>';
+        h+='<td style="padding:.4rem .5rem">'+stB3+'</td>';
+        h+='<td style="padding:.4rem .5rem;font-size:.75rem;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+evoShort+'</td></tr>';
+    }
+    if(!sessSorted.length)h+='<tr><td colspan="5" style="padding:.5rem;color:var(--muted);text-align:center">Nenhuma sessao</td></tr>';
+    h+='</tbody></table></div>';
+
+    // SECAO: Pagamentos
+    h+='<div style="padding:0 1rem .75rem"><div style="font-weight:700;font-size:.88rem;margin-bottom:.5rem;display:flex;align-items:center;gap:.4rem"><i class="fas fa-money-bill-wave" style="color:var(--green)"></i> Historico de Pagamentos <span style="font-weight:400;color:var(--muted);font-size:.78rem">('+fmt(totalPago)+' total)</span></div>';
+    h+='<table style="width:100%;font-size:.78rem;border-collapse:collapse"><thead><tr style="background:#F8FAFC"><th style="padding:.45rem .5rem;text-align:left;font-size:.7rem;color:var(--muted)">Data</th><th style="padding:.45rem .5rem;text-align:left;font-size:.7rem;color:var(--muted)">Valor</th><th style="padding:.45rem .5rem;text-align:left;font-size:.7rem;color:var(--muted)">Forma</th><th style="padding:.45rem .5rem;text-align:left;font-size:.7rem;color:var(--muted)">Ref.</th></tr></thead><tbody>';
+    for(var pi=0;pi<pagsPac.length;pi++){
+        var pp=pagsPac[pi];
+        var refTxt=pp.comprovante?pp.comprovante.split('|')[0]:'-';
+        h+='<tr style="border-top:1px solid #F1F5F9"><td style="padding:.4rem .5rem">'+fmtDate(pp.data_pagamento)+'</td>';
+        h+='<td style="padding:.4rem .5rem;font-weight:700;color:var(--green)">'+fmt(pp.valor_pago)+'</td>';
+        h+='<td style="padding:.4rem .5rem">'+fmtForma(pp.forma_pagamento)+'</td>';
+        h+='<td style="padding:.4rem .5rem;font-size:.75rem;color:var(--muted)">'+refTxt+'</td></tr>';
+    }
+    if(!pagsPac.length)h+='<tr><td colspan="4" style="padding:.5rem;color:var(--muted);text-align:center">Nenhum pagamento</td></tr>';
+    h+='</tbody></table></div>';
+
+    h+='</div>';
+    h+='<div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal()">Fechar</button>';
+    if(atrasadasPac>0){var atrP=parcelasPac.filter(function(p){return p._st==="atrasado"});if(atrP.length)h+='<button class="btn btn-success" onclick="closeModal()"><i class="fab fa-whatsapp"></i> Cobrar</button>';}
+    h+='</div>';
+    openModal(h);
+}
+
+function verEvolucao(id){
+    var s=sessoes.find(function(x){return x.id===id});if(!s)return;
+    var nome=s.clientes?s.clientes.nome:'-';
+    var srv=s.servicos?s.servicos.nome:'-';
+    var prof=s.profissionais?s.profissionais.nome:'-';
+    var stB={realizada:'Realizada',agendada:'Agendada',falta:'Falta',cancelada:'Cancelada'}[s.status]||s.status;
+    var hist=sessoes.filter(function(x){return x.paciente_id===s.paciente_id&&x.servico_id===s.servico_id&&x.status==='realizada'}).sort(function(a,b){return a.data_sessao>b.data_sessao?1:-1});
+    var histH='';
+    for(var hi=0;hi<hist.length;hi++){
+        var h2=hist[hi];
+        var cur=h2.id===id;
+        histH+='<div style="padding:.6rem;border-left:3px solid '+(cur?'var(--primary)':'var(--border)')+';margin-bottom:.5rem;background:'+(cur?'#EFF6FF':'#FAFAFA')+';border-radius:0 8px 8px 0">';
+        histH+='<div style="display:flex;justify-content:space-between"><span style="font-weight:600;font-size:.8rem">'+fmtDate(h2.data_sessao)+'</span><span style="font-size:.75rem;color:var(--muted)">'+(h2.profissionais?h2.profissionais.nome:'')+'</span></div>';
+        histH+='<div style="font-size:.8rem;color:var(--text2);margin-top:.3rem">'+(h2.evolucao||'<i style="color:var(--muted)">Sem registro</i>')+'</div></div>';
+    }
+    openModal('<div class="modal-header"><h2><i class="fas fa-notes-medical" style="color:var(--cyan)"></i> Evolucao</h2><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div>'
+        +'<div class="modal-body">'
+        +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:1rem">'
+        +'<div style="background:#F8FAFC;padding:.65rem;border-radius:10px"><div style="font-size:.7rem;color:var(--muted)">Paciente</div><div style="font-weight:700">'+nome+'</div></div>'
+        +'<div style="background:#F8FAFC;padding:.65rem;border-radius:10px"><div style="font-size:.7rem;color:var(--muted)">Servico</div><div style="font-weight:700">'+srv+'</div></div>'
+        +'<div style="background:#F8FAFC;padding:.65rem;border-radius:10px"><div style="font-size:.7rem;color:var(--muted)">Profissional</div><div style="font-weight:700">'+prof+'</div></div>'
+        +'<div style="background:#F8FAFC;padding:.65rem;border-radius:10px"><div style="font-size:.7rem;color:var(--muted)">Data</div><div style="font-weight:700">'+fmtDate(s.data_sessao)+' - '+stB+'</div></div>'
+        +'</div>'
+        +'<div style="font-weight:700;font-size:.85rem;margin-bottom:.5rem">Historico ('+hist.length+' sessoes)</div>'
+        +(histH||'<p style="color:var(--muted)">Nenhuma sessao.</p>')
+        +'</div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal()">Fechar</button><button class="btn btn-primary" onclick="closeModal();openSessaoModal(\''+id+'\')"><i class="fas fa-edit"></i> Editar</button></div>');
+}
+
+// RECIBO - using string concat to avoid script tag issue
+function gerarRecibo(mid){
+    var m=parcelas.find(function(x){return x.id===mid})||mensalidades.find(function(x){return x.id===mid});
+    var pag=pagamentos.find(function(p){return p.mensalidade_id===mid});
+    if(!m)return;
+    var nome=m.clientes?m.clientes.nome:'-';
+    var plano=m.planos?m.planos.nome:'-';
+    var venc=fmtDate(m.data_vencimento);
+    var val=fmt(pag?pag.valor_pago:m.valor);
+    var frm=pag?fmtForma(pag.forma_pagamento):'-';
+    var dpg=pag?fmtDate(pag.data_pagamento):'-';
+    var txt='RECIBO DE PAGAMENTO\n\n';
+    txt+='Paciente: '+nome+'\n';
+    txt+='Plano: '+plano+'\n';
+    txt+='Referencia: '+venc+'\n';
+    txt+='Valor: '+val+'\n';
+    txt+='Forma: '+frm+'\n';
+    txt+='Data Pgto: '+dpg+'\n\n';
+    txt+='Gerado em '+new Date().toLocaleString('pt-BR');
+    var w=window.open('about:blank','_blank');
+    if(w){w.document.title='Recibo';w.document.body.innerText=txt;w.print()}
+    else{alert(txt)}
+}
+
+// WHATSAPP
+function enviarCobranca(mid){
+    var m=parcelas.find(function(x){return x.id===mid})||mensalidades.find(function(x){return x.id===mid});
+    if(!m||!m.clientes||!m.clientes.telefone){showToast('Sem telefone','error');return}
+    var tel=m.clientes.telefone.replace(/\D/g,'');if(!tel.startsWith('55'))tel='55'+tel;
+    var dias=diasAtraso(m.data_vencimento),msg;
+    if(dias>0)msg='Olá '+m.clientes.nome+'! 😊\n\nSua mensalidade do plano *'+(m.planos?m.planos.nome:'')+' * no valor de *'+fmt(m.valor)+'* está com *'+dias+' dias de atraso* (vencimento: '+fmtDate(m.data_vencimento)+').\n\nPor favor, regularize seu pagamento.\nQualquer dúvida estamos à disposição! 🙏';
+    else msg='Olá '+m.clientes.nome+'! 😊\n\nLembramos que sua mensalidade do plano *'+(m.planos?m.planos.nome:'')+' * no valor de *'+fmt(m.valor)+'* vence *hoje* ('+fmtDate(m.data_vencimento)+').\n\nRealize o pagamento para manter seu plano em dia! ✅';
+    window.open('https://wa.me/'+tel+'?text='+encodeURIComponent(msg),'_blank');
+}
+function dispararAlertas(){
+    var p=parcelas.filter(function(m){return m._st==='atrasado'||m._st==='vence_hoje'});
+    if(!p.length){showToast('Nenhum alerta','warning');return}
+    if(!confirm('Enviar alertas para '+p.length+' pacientes?'))return;
+    p.forEach(function(m,i){setTimeout(function(){enviarCobranca(m.id)},i*1500)});
+    showToast('Abrindo '+p.length+' alertas...');
+}
+
+// EXPORTAR
+function exportarRelatorio(){if(confirm('Exportar CSV de inadimplência?'))exportarCSV('inadimplencia')}
+function exportarCSV(tipo){
+    var csv='',fn='';
+    if(tipo==='inadimplencia'){
+        csv='Paciente,Plano,Vencimento,Valor,Dias Atraso,Telefone\n';
+        mensalidades.filter(function(m){return m._st==='atrasado'}).forEach(function(m){csv+='"'+(m.clientes?m.clientes.nome:'')+'" ,"'+(m.planos?m.planos.nome:'')+'","'+fmtDate(m.data_vencimento)+'","'+fmt(m.valor)+'","'+diasAtraso(m.data_vencimento)+'","'+(m.clientes?m.clientes.telefone:'')+'"\n'});
+        fn='inadimplencia.csv';
+    }else if(tipo==='receitas'){
+        csv='Data,Paciente,Plano,Valor,Forma\n';
+        pagamentos.forEach(function(p){csv+='"'+fmtDate(p.data_pagamento)+'","'+(p.mensalidades&&p.mensalidades.clientes?p.mensalidades.clientes.nome:'')+'","'+(p.mensalidades&&p.mensalidades.planos?p.mensalidades.planos.nome:'')+'","'+fmt(p.valor_pago)+'","'+fmtForma(p.forma_pagamento)+'"\n'});
+        fn='receitas.csv';
+    }else if(tipo==='servicos'){
+        csv='Data,Paciente,Serviço,Profissional,Status\n';
+        sessoes.forEach(function(s){csv+='"'+fmtDate(s.data_sessao)+'","'+(s.clientes?s.clientes.nome:'')+'","'+(s.servicos?s.servicos.nome:'')+'","'+(s.profissionais?s.profissionais.nome:'')+'","'+s.status+'"\n'});
+        fn='servicos.csv';
+    }
+    var blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+    var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;a.click();
+    showToast('Exportado!');
+}
+
+function toggleNovoPac(){var f=$('novoPacForm');if(f)f.style.display=f.style.display==='none'?'block':'none'}
+
+async function salvarNovoPac(){
+var nome=$('novoPacNome').value.trim();
+var tel=$('novoPacTel').value.trim();
+if(!nome||!tel){sT('Preencha nome e telefone','err');return}
+try{
+sL('Salvando paciente...');
+var r=await sb.from('clientes').insert({salao_id:sid,nome:nome,telefone:tel,ativo:true}).select().single();
+if(r.error)throw r.error;
+pacientes.push(r.data);
+var sel=$('mensPac');
+if(sel){
+var opt=document.createElement('option');opt.value=r.data.id;opt.textContent=r.data.nome;opt.selected=true;
+sel.appendChild(opt);
+}
+toggleNovoPac();
+$('novoPacNome').value='';$('novoPacTel').value='';
+hL();sT('Paciente cadastrado!');
+}catch(e){console.error(e);hL();sT('Erro ao cadastrar','err')}
+}
+
+async function handleLogout(){await sb.auth.signOut();window.location.href='login.html'}
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
