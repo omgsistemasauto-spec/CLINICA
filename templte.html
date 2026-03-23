@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>VEXCO</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:"Inter",sans-serif;
+}
+body{
+  background:#efecf0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+/* ✨ IMAGEM NASCENDO SUAVE */
+.intro-img{
+  width:560px;
+  opacity:0;
+  transform:scale(.6);
+  filter:blur(8px);
+  animation:surgir 3.3s ease-out forwards;
+}
+
+@keyframes surgir{
+  0%{opacity:0;transform:scale(.6);filter:blur(10px);}
+  60%{opacity:.95;transform:scale(1.05);filter:blur(3px);}
+  100%{opacity:1;transform:scale(1);filter:blur(0);}
+}
+</style>
+</head>
+
+<body>
+
+<img class="intro-img" 
+src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh89nKgpu6u6Z5uZwD2rTDKgsnYezle7ZclkNlfwdJ_v-2fTuiVcu6jVQldUI1N3qdqOH74MbQBcuqclj2qVQGbv9qp1t0ObX_EMswPBLWlYNEm64rLFxo2_FOlzbsLUGMCziunBt_3zUq-dys-Wj1iuRyS5bDfUom6RG_WawNMCx9QHs3MV-tJvAugcP2e/s16000/vecxo_transparent%20(2).png">
+
+<script>
+  setTimeout(() => {
+    window.location.href = "index.html";
+  }, 2000); // 2 segundos
+</script>
+
+</body>
+</html>
