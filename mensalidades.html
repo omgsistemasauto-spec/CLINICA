@@ -521,7 +521,15 @@ function openMensModal(editId) {
     openModal(
         '<div class="modal-header"><h2><i class="fas fa-file-invoice-dollar" style="color:var(--primary)"></i> ' + (m ? 'Editar' : 'Nova') + ' Mensalidade</h2><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div>' +
         '<div class="modal-body"><input type="hidden" id="mensId" value="' + (m ? m.id : '') + '"><div class="form-grid">' +
-        '<div class="form-group full"><label class="form-label required">Paciente</label><select class="form-select" id="mensPac"><option value="">Selecione...</option>' + pacOpts + '</select></div>' +
+        '<div class="form-group full"><label class="form-label required">Paciente</label><div style="display:flex;gap:.5rem;align-items:center"><select class="form-select" id="mensPac" style="flex:1"><option value="">Selecione...</option>' + pacOpts + '</select><button type="button" onclick="toggleNovoPacMens()" style="min-width:38px;height:38px;background:var(--primary);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0" title="Novo paciente"><i class="fas fa-user-plus"></i></button></div>' +
+        '<div id="novoPacGrp" style="display:none;grid-column:1/-1;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:.75rem">' +
+        '<div style="font-size:.8rem;font-weight:700;color:var(--primary);margin-bottom:.5rem"><i class="fas fa-user-plus"></i> Cadastro Rapido</div>' +
+        '<div style="display:flex;gap:.5rem;align-items:flex-end">' +
+        '<div style="flex:1"><label class="form-label required" style="font-size:.72rem">Nome do Paciente</label><input type="text" class="form-input" id="novoPacNome" placeholder="Nome completo" style="font-size:.82rem"></div>' +
+        '<div><label class="form-label" style="font-size:.72rem">Telefone</label><input type="text" class="form-input" id="novoPacTel" placeholder="(00) 00000-0000" style="font-size:.82rem;width:160px"></div>' +
+        '<button type="button" class="btn btn-primary btn-sm" onclick="salvarNovoPacMens()"><i class="fas fa-check"></i> Salvar</button>' +
+        '<button type="button" class="btn btn-secondary btn-sm" onclick="toggleNovoPacMens()">Cancelar</button>' +
+        '</div></div>' +
         '<div class="form-group"><label class="form-label required">Plano</label><select class="form-select" id="mensPlan" onchange="onPlanoChange(this)"><option value="">Selecione...</option>' + plOpts + '</select></div>' +
         '<div class="form-group"><label class="form-label required">Valor (R$)</label><input type="number" class="form-input" id="mensVal" step="0.01" value="' + (m ? m.valor : '') + '"></div>' +
         '<div class="form-group"><label class="form-label required">Data Inicio</label><input type="date" class="form-input" id="mensIni" value="' + (m && m.data_inicio ? m.data_inicio : hoje) + '" onchange="onDataIniChange(this.value)"></div>' +
@@ -626,6 +634,41 @@ function dispararAlertas() {
     if (!confirm('Enviar alertas para ' + pend.length + ' pacientes?')) return;
     pend.forEach(function(p, i) { setTimeout(function() { enviarCobranca(p.id); }, i * 1500); });
     sT('Abrindo ' + pend.length + ' alertas...');
+}
+
+function toggleNovoPacMens() {
+    var grp = el('novoPacGrp');
+    if (grp) grp.style.display = grp.style.display === 'none' ? 'block' : 'none';
+    var nomeEl = el('novoPacNome');
+    if (nomeEl) nomeEl.value = '';
+    var telEl = el('novoPacTel');
+    if (telEl) telEl.value = '';
+}
+
+async function salvarNovoPacMens() {
+    var nome = (el('novoPacNome') || {}).value;
+    if (!nome || !nome.trim()) { sT('Informe o nome do paciente', 'error'); return; }
+    var tel = ((el('novoPacTel') || {}).value || '').trim();
+    try {
+        sL('Salvando paciente...');
+        var data = { salao_id: salaoId, nome: nome.trim(), ativo: true, status: 'ativo', permite_sms: true, permite_email: true, permite_whatsapp: true };
+        if (tel) data.telefone = tel;
+        var res = await sb.from('clientes').insert(data).select('id,nome').single();
+        if (res.error) throw res.error;
+        // Adicionar ao select e selecionar
+        var sel = el('mensPac');
+        if (sel) {
+            var opt = document.createElement('option');
+            opt.value = res.data.id;
+            opt.textContent = res.data.nome;
+            opt.selected = true;
+            sel.appendChild(opt);
+        }
+        pacientes.push(res.data);
+        toggleNovoPacMens();
+        hL();
+        sT('Paciente cadastrado!');
+    } catch (e) { hL(); sT('Erro ao cadastrar', 'error'); }
 }
 
 async function handleLogout() { await sb.auth.signOut(); window.location.href = 'login.html'; }
