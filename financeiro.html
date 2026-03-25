@@ -142,7 +142,7 @@ async function loadAll(){
 sL('Carregando...');var p=gP(),ini=p+'-01';
 var d=new Date(p+'-01T00:00:00');d.setMonth(d.getMonth()+1);var fim=d.toISOString().split('T')[0];
 try{var r=await Promise.all([
-db.from('transacoes_financeiras').select('*').eq('salao_id',sid).gte('data',ini).lt('data',fim).order('data',{ascending:false}),
+db.from('transacoes_financeiras').select('*').eq('salao_id',sid).gte('data_transacao',ini).lt('data_transacao',fim).order('data_transacao',{ascending:false}),
 db.from('pagamentos_mensalidade').select('*,mensalidades(*,clientes(id,nome,telefone),planos(id,nome,valor))').eq('salao_id',sid).gte('data_pagamento',ini).lt('data_pagamento',fim).order('data_pagamento',{ascending:false}),
 db.from('mensalidades').select('*,clientes(id,nome),planos(id,nome,valor)').eq('salao_id',sid),
 db.from('sessoes').select('*,clientes(id,nome),servicos(id,nome,preco),profissionais(id,nome)').eq('salao_id',sid).gte('data_sessao',ini).lt('data_sessao',fim).order('data_sessao',{ascending:false}),
@@ -159,8 +159,8 @@ function cDesp(){return trans.filter(function(t){return t.tipo==='saida'}).reduc
 function cCaixaHoje(){
 var hj=hoje();
 var entH=pags.filter(function(p){return p.data_pagamento===hj}).reduce(function(s,p){return s+(p.valor_pago||0)},0);
-entH+=trans.filter(function(t){return t.tipo==='entrada'&&t.data===hj}).reduce(function(s,t){return s+(t.valor||0)},0);
-var saiH=trans.filter(function(t){return t.tipo==='saida'&&t.data===hj}).reduce(function(s,t){return s+(t.valor||0)},0);
+entH+=trans.filter(function(t){return t.tipo==='entrada'&&t.data_transacao===hj}).reduce(function(s,t){return s+(t.valor||0)},0);
+var saiH=trans.filter(function(t){return t.tipo==='saida'&&t.data_transacao===hj}).reduce(function(s,t){return s+(t.valor||0)},0);
 return{ent:entH,sai:saiH,saldo:entH-saiH};
 }
 
@@ -190,8 +190,8 @@ function rCaixa(){
 var hj=hoje(),cx=cCaixaHoje();
 var entHoje=[];var saiHoje=[];
 pags.filter(function(p){return p.data_pagamento===hj}).forEach(function(p){entHoje.push({desc:'Mensalidade - '+(p.mensalidades&&p.mensalidades.clientes?p.mensalidades.clientes.nome:''),val:p.valor_pago,forma:ff(p.forma_pagamento),tipo:'Mensalidade'})});
-trans.filter(function(t){return t.data===hj&&t.tipo==='entrada'}).forEach(function(t){entHoje.push({desc:t.descricao||t.categoria,val:t.valor,forma:ff(t.forma_pagamento),tipo:t.categoria})});
-trans.filter(function(t){return t.data===hj&&t.tipo==='saida'}).forEach(function(t){saiHoje.push({desc:t.descricao||t.categoria,val:t.valor,forma:ff(t.forma_pagamento),tipo:t.categoria})});
+trans.filter(function(t){return t.data_transacao===hj&&t.tipo==='entrada'}).forEach(function(t){entHoje.push({desc:t.descricao||t.categoria,val:t.valor,forma:ff(t.forma_pagamento),tipo:t.categoria})});
+trans.filter(function(t){return t.data_transacao===hj&&t.tipo==='saida'}).forEach(function(t){saiHoje.push({desc:t.descricao||t.categoria,val:t.valor,forma:ff(t.forma_pagamento),tipo:t.categoria})});
 
 var h='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin-bottom:1rem">';
 h+='<div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:12px;padding:1rem;text-align:center"><div style="font-size:.75rem;color:#059669;font-weight:600">Entradas Hoje</div><div style="font-size:1.5rem;font-weight:800;color:#059669">'+fm(cx.ent)+'</div></div>';
@@ -242,7 +242,7 @@ function rEnt(){
 var ent=trans.filter(function(t){return t.tipo==='entrada'});
 var h='<div class="tc"><div class="th2"><div class="tt">Entradas Avulsas</div><span style="font-size:.72rem;color:#64748B">'+ent.length+'</span></div><div style="overflow-x:auto"><table><thead><tr><th>Data</th><th>Descricao</th><th>Categoria</th><th>Valor</th><th>Forma</th><th></th></tr></thead><tbody>';
 if(!ent.length)h+='<tr><td colspan="6"><div class="es"><h3>Nenhuma entrada avulsa</h3></div></td></tr>';
-for(var i=0;i<ent.length;i++){var t=ent[i];h+='<tr><td>'+fd(t.data)+'</td><td style="font-weight:600">'+(t.descricao||'-')+'</td><td><span class="bg bg-g">'+(t.categoria||'-')+'</span></td><td style="font-weight:700;color:var(--g)">'+fm(t.valor)+'</td><td>'+ff(t.forma_pagamento)+'</td><td><button class="btn btn-sm btn-s" onclick="delTrans(\''+t.id+'\')"><i class="fas fa-trash"></i></button></td></tr>'}
+for(var i=0;i<ent.length;i++){var t=ent[i];h+='<tr><td>'+fd(t.data_transacao)+'</td><td style="font-weight:600">'+(t.descricao||'-')+'</td><td><span class="bg bg-g">'+(t.categoria||'-')+'</span></td><td style="font-weight:700;color:var(--g)">'+fm(t.valor)+'</td><td>'+ff(t.forma_pagamento)+'</td><td><button class="btn btn-sm btn-s" onclick="delTrans(\''+t.id+'\')"><i class="fas fa-trash"></i></button></td></tr>'}
 h+='</tbody></table></div></div>';$('tab').innerHTML=h;
 }
 
@@ -251,7 +251,7 @@ function rSai(){
 var sai=trans.filter(function(t){return t.tipo==='saida'});var tot=sai.reduce(function(s,t){return s+(t.valor||0)},0);
 var h='<div class="tc"><div class="th2"><div class="tt">Despesas</div><span style="font-size:.72rem;color:#64748B">'+sai.length+' - Total: '+fm(tot)+'</span></div><div style="overflow-x:auto"><table><thead><tr><th>Data</th><th>Descricao</th><th>Categoria</th><th>Valor</th><th>Forma</th><th></th></tr></thead><tbody>';
 if(!sai.length)h+='<tr><td colspan="6"><div class="es"><h3>Nenhuma despesa</h3></div></td></tr>';
-for(var i=0;i<sai.length;i++){var t=sai[i];h+='<tr><td>'+fd(t.data)+'</td><td style="font-weight:600">'+(t.descricao||'-')+'</td><td><span class="bg bg-r">'+(t.categoria||'-')+'</span></td><td style="font-weight:700;color:var(--r)">'+fm(t.valor)+'</td><td>'+ff(t.forma_pagamento)+'</td><td><button class="btn btn-sm btn-s" onclick="delTrans(\''+t.id+'\')"><i class="fas fa-trash"></i></button></td></tr>'}
+for(var i=0;i<sai.length;i++){var t=sai[i];h+='<tr><td>'+fd(t.data_transacao)+'</td><td style="font-weight:600">'+(t.descricao||'-')+'</td><td><span class="bg bg-r">'+(t.categoria||'-')+'</span></td><td style="font-weight:700;color:var(--r)">'+fm(t.valor)+'</td><td>'+ff(t.forma_pagamento)+'</td><td><button class="btn btn-sm btn-s" onclick="delTrans(\''+t.id+'\')"><i class="fas fa-trash"></i></button></td></tr>'}
 h+='</tbody></table></div></div>';$('tab').innerHTML=h;
 }
 
@@ -273,7 +273,7 @@ h+='</tbody></table></div></div>';$('tab').innerHTML=h;
 function rFlx(){
 var items=[];
 pags.forEach(function(p){items.push({dt:p.data_pagamento,ds:'Mensalidade - '+(p.mensalidades&&p.mensalidades.clientes?p.mensalidades.clientes.nome:''),tp:'entrada',vl:p.valor_pago||0,fr:ff(p.forma_pagamento),cat:'Mensalidade'})});
-trans.forEach(function(t){items.push({dt:t.data,ds:t.descricao||t.categoria||'-',tp:t.tipo,vl:t.valor||0,fr:ff(t.forma_pagamento),cat:t.categoria||'-'})});
+trans.forEach(function(t){items.push({dt:t.data_transacao,ds:t.descricao||t.categoria||'-',tp:t.tipo,vl:t.valor||0,fr:ff(t.forma_pagamento),cat:t.categoria||'-'})});
 items.sort(function(a,b){return a.dt>b.dt?1:-1});
 var saldo=0;for(var i=0;i<items.length;i++){saldo+=items[i].tp==='entrada'?items[i].vl:-items[i].vl;items[i].sd=saldo}
 items.reverse();
@@ -316,7 +316,7 @@ var ms=[];var hj2=new Date();for(var i=5;i>=0;i--){var d=new Date(hj2.getFullYea
 var h='<table style="width:100%;font-size:.78rem"><thead><tr><th>Mes</th><th>Receitas</th><th>Despesas</th><th>Resultado</th></tr></thead><tbody>';
 for(var i=0;i<ms.length;i++){
 var p2=ms[i],ini2=p2+'-01';var d2=new Date(p2+'-01T00:00:00');d2.setMonth(d2.getMonth()+1);var fim2=d2.toISOString().split('T')[0];
-var rr=await Promise.all([db.from('transacoes_financeiras').select('tipo,valor').eq('salao_id',sid).gte('data',ini2).lt('data',fim2),db.from('pagamentos_mensalidade').select('valor_pago').eq('salao_id',sid).gte('data_pagamento',ini2).lt('data_pagamento',fim2)]);
+var rr=await Promise.all([db.from('transacoes_financeiras').select('tipo,valor').eq('salao_id',sid).gte('data_transacao',ini2).lt('data_transacao',fim2),db.from('pagamentos_mensalidade').select('valor_pago').eq('salao_id',sid).gte('data_pagamento',ini2).lt('data_pagamento',fim2)]);
 var rM2=(rr[1].data||[]).reduce(function(s,x){return s+(x.valor_pago||0)},0);var rO2=(rr[0].data||[]).filter(function(t){return t.tipo==='entrada'}).reduce(function(s,t){return s+(t.valor||0)},0);
 var dM2=(rr[0].data||[]).filter(function(t){return t.tipo==='saida'}).reduce(function(s,t){return s+(t.valor||0)},0);var rT2=rM2+rO2,lM2=rT2-dM2;
 h+='<tr><td style="font-weight:600">'+p2.split('-')[1]+'/'+p2.split('-')[0]+'</td><td style="color:var(--g);font-weight:700">'+fm(rT2)+'</td><td style="color:var(--r);font-weight:700">'+fm(dM2)+'</td><td style="font-weight:700;color:var('+(lM2>=0?'--p':'--r')+')">'+fm(lM2)+'</td></tr>'}
@@ -341,7 +341,7 @@ oM('<div class="mh"><h2><i class="fas fa-'+(tipo==='saida'?'arrow-up':'arrow-dow
 async function saveTrans(){
 var tipo=$('tTipo').value,desc=$('tDesc').value.trim(),val=parseFloat($('tVal').value),dt=$('tDat').value,cat=$('tCat').value,fr=$('tFor').value,obs=$('tObs').value.trim();
 if(!desc||!val||!dt){sT('Preencha todos','err');return}
-try{sL('Salvando...');await db.from('transacoes_financeiras').insert({salao_id:sid,tipo:tipo,descricao:desc,valor:val,data:dt,categoria:cat,forma_pagamento:fr,observacoes:obs});cM();await loadAll();sT(tipo==='saida'?'Despesa registrada!':'Entrada registrada!')}catch(e){hL();sT('Erro','err')}
+try{sL('Salvando...');await db.from('transacoes_financeiras').insert({salao_id:sid,tipo:tipo,descricao:desc,valor:val,valor_final:val,data_transacao:dt,categoria:cat,forma_pagamento:fr,observacoes:obs,status:'pago',ativo:true});cM();await loadAll();sT(tipo==='saida'?'Despesa registrada!':'Entrada registrada!')}catch(e){hL();sT('Erro','err')}
 }
 async function delTrans(id){if(!confirm('Excluir?'))return;try{await db.from('transacoes_financeiras').delete().eq('id',id);await loadAll();sT('Excluida!')}catch(e){sT('Erro','err')}}
 
@@ -378,19 +378,19 @@ var ws3=XLSX.utils.aoa_to_sheet(sessData);XLSX.utils.book_append_sheet(wb,ws3,'S
 
 // ABA 4: Despesas
 var despData=[['Data','Descricao','Categoria','Valor','Forma Pagamento','Observacoes']];
-trans.filter(function(t){return t.tipo==='saida'}).forEach(function(t){despData.push([fd(t.data),t.descricao||'',t.categoria||'',t.valor,ff(t.forma_pagamento),t.observacoes||''])});
+trans.filter(function(t){return t.tipo==='saida'}).forEach(function(t){despData.push([fd(t.data_transacao),t.descricao||'',t.categoria||'',t.valor,ff(t.forma_pagamento),t.observacoes||''])});
 var ws4=XLSX.utils.aoa_to_sheet(despData);XLSX.utils.book_append_sheet(wb,ws4,'Despesas');
 
 // ABA 5: Entradas Avulsas
 var entData=[['Data','Descricao','Categoria','Valor','Forma Pagamento','Observacoes']];
-trans.filter(function(t){return t.tipo==='entrada'}).forEach(function(t){entData.push([fd(t.data),t.descricao||'',t.categoria||'',t.valor,ff(t.forma_pagamento),t.observacoes||''])});
+trans.filter(function(t){return t.tipo==='entrada'}).forEach(function(t){entData.push([fd(t.data_transacao),t.descricao||'',t.categoria||'',t.valor,ff(t.forma_pagamento),t.observacoes||''])});
 var ws5=XLSX.utils.aoa_to_sheet(entData);XLSX.utils.book_append_sheet(wb,ws5,'Entradas Avulsas');
 
 // ABA 6: Fluxo de Caixa completo
 var flxData=[['Data','Descricao','Tipo','Categoria','Entrada','Saida','Forma']];
 var items=[];
 pags.forEach(function(p){items.push({dt:p.data_pagamento,ds:'Mensalidade - '+(p.mensalidades&&p.mensalidades.clientes?p.mensalidades.clientes.nome:''),tp:'entrada',vl:p.valor_pago||0,fr:ff(p.forma_pagamento),cat:'Mensalidade'})});
-trans.forEach(function(t){items.push({dt:t.data,ds:t.descricao||'',tp:t.tipo,vl:t.valor||0,fr:ff(t.forma_pagamento),cat:t.categoria||''})});
+trans.forEach(function(t){items.push({dt:t.data_transacao,ds:t.descricao||'',tp:t.tipo,vl:t.valor||0,fr:ff(t.forma_pagamento),cat:t.categoria||''})});
 items.sort(function(a,b){return a.dt>b.dt?1:-1});
 items.forEach(function(i){flxData.push([fd(i.dt),i.ds,i.tp==='entrada'?'Entrada':'Saida',i.cat,i.tp==='entrada'?i.vl:'',i.tp==='saida'?i.vl:'',i.fr])});
 var ws6=XLSX.utils.aoa_to_sheet(flxData);XLSX.utils.book_append_sheet(wb,ws6,'Fluxo de Caixa');
@@ -425,10 +425,10 @@ if(!tipo||tipo==='entrada'||tipo==='saida'){
 var tr2=trans;
 if(tipo==='entrada'||tipo==='saida')tr2=tr2.filter(function(t){return t.tipo===tipo});
 if(forma)tr2=tr2.filter(function(t){return t.forma_pagamento===forma});
-if(de)tr2=tr2.filter(function(t){return t.data>=de});
-if(ate)tr2=tr2.filter(function(t){return t.data<=ate});
+if(de)tr2=tr2.filter(function(t){return t.data_transacao>=de});
+if(ate)tr2=tr2.filter(function(t){return t.data_transacao<=ate});
 tr2.forEach(function(t){
-data.push([fd(t.data),t.descricao||'',t.tipo==='entrada'?'Entrada':'Saida',t.categoria||'','','','','',t.valor,ff(t.forma_pagamento)]);
+data.push([fd(t.data_transacao),t.descricao||'',t.tipo==='entrada'?'Entrada':'Saida',t.categoria||'','','','','',t.valor,ff(t.forma_pagamento)]);
 });
 }
 
@@ -441,10 +441,10 @@ function exportCSV(tipo){
 var csv='',fn='';
 if(tipo==='fluxo'){csv='Data,Descricao,Tipo,Valor,Forma\n';
 var items=[];pags.forEach(function(p){items.push({dt:p.data_pagamento,ds:'Mensalidade',tp:'Entrada',vl:p.valor_pago,fr:ff(p.forma_pagamento)})});
-trans.forEach(function(t){items.push({dt:t.data,ds:t.descricao||'',tp:t.tipo==='entrada'?'Entrada':'Saida',vl:t.valor,fr:ff(t.forma_pagamento)})});
+trans.forEach(function(t){items.push({dt:t.data_transacao,ds:t.descricao||'',tp:t.tipo==='entrada'?'Entrada':'Saida',vl:t.valor,fr:ff(t.forma_pagamento)})});
 items.forEach(function(i){csv+=fd(i.dt)+','+i.ds+','+i.tp+','+i.vl+','+i.fr+'\n'});fn='fluxo_'+gP()+'.csv';
 }else{csv='Data,Descricao,Categoria,Valor,Forma\n';
-trans.filter(function(t){return t.tipo==='saida'}).forEach(function(t){csv+=fd(t.data)+','+(t.descricao||'')+','+(t.categoria||'')+','+t.valor+','+ff(t.forma_pagamento)+'\n'});fn='despesas_'+gP()+'.csv';}
+trans.filter(function(t){return t.tipo==='saida'}).forEach(function(t){csv+=fd(t.data_transacao)+','+(t.descricao||'')+','+(t.categoria||'')+','+t.valor+','+ff(t.forma_pagamento)+'\n'});fn='despesas_'+gP()+'.csv';}
 var blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;a.click();sT('Exportado!');
 }
 
