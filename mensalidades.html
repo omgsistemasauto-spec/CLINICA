@@ -386,7 +386,18 @@ function renderMens() {
                 '<td style="font-weight:700">' + fmt(p.valor) + '/mes</td>' +
                 '<td style="color:var(--green);font-weight:700">' + pagas + '/' + g.lista.length + '</td>' +
                 '<td>' + (atrasadas > 0 ? '<span style="color:var(--red);font-weight:700">' + atrasadas + '</span>' : '<span style="color:var(--muted)">0</span>') + '</td>' +
-                '<td>' + sit + '</td><td><i class="fas fa-chevron-down" style="color:var(--muted);font-size:.8rem"></i></td>';
+                '<td>' + sit + '</td><td></td>';
+            var acoesTd = tr.querySelector('td:last-child');
+            var acoesDiv = document.createElement('div'); acoesDiv.className = 'action-btns'; acoesDiv.style.alignItems = 'center';
+            var chevron = document.createElement('i'); chevron.className = 'fas fa-chevron-down'; chevron.style.cssText = 'color:var(--muted);font-size:.8rem;margin-right:.4rem';
+            acoesDiv.appendChild(chevron);
+            var btnAtv = document.createElement('button');
+            btnAtv.className = 'btn btn-sm'; btnAtv.style.cssText = 'background:#DBEAFE;color:#2563EB;border:none;font-size:.75rem;padding:.3rem .6rem;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:.3rem';
+            btnAtv.innerHTML = '<i class="fas fa-dollar-sign"></i> Atualizar';
+            btnAtv.title = 'Atualizar Valor';
+            btnAtv.addEventListener('click', (function(mid, pnome, pval) { return function(e) { e.stopPropagation(); openAtualizarValorModal(mid, pnome, pval); }; })(p.mensalidade_id, p.clientes ? p.clientes.nome : '-', p.valor));
+            acoesDiv.appendChild(btnAtv);
+            acoesTd.appendChild(acoesDiv);
             tr.addEventListener('click', function() {
                 var det = document.getElementById(rowId);
                 if (det) det.style.display = det.style.display === 'none' ? 'table-row' : 'none';
@@ -669,6 +680,40 @@ async function salvarNovoPacMens() {
         hL();
         sT('Paciente cadastrado!');
     } catch (e) { hL(); sT('Erro ao cadastrar', 'error'); }
+}
+
+function openAtualizarValorModal(mensalidadeId, nomePaciente, valorAtual) {
+    openModal(
+        '<div class="modal-header"><h2><i class="fas fa-dollar-sign" style="color:var(--green)"></i> Atualizar Valor da Mensalidade</h2><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div>' +
+        '<div class="modal-body">' +
+        '<input type="hidden" id="atvMid" value="' + mensalidadeId + '">' +
+        '<div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:.85rem;margin-bottom:1.1rem">' +
+        '<div style="font-size:.75rem;color:#16A34A;font-weight:600">Paciente</div>' +
+        '<div style="font-size:1rem;font-weight:700;color:#15803D">' + nomePaciente + '</div>' +
+        '<div style="font-size:.82rem;color:#16A34A;margin-top:.2rem">Valor atual: <strong>' + fmt(valorAtual) + '/mês</strong></div>' +
+        '</div>' +
+        '<div class="form-grid">' +
+        '<div class="form-group full"><label class="form-label required">Novo Valor (R$)</label><input type="number" class="form-input" id="atvVal" step="0.01" placeholder="Ex: 350.00" style="font-size:1.1rem;font-weight:700" autofocus></div>' +
+        '</div>' +
+        '<div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;padding:.7rem;font-size:.78rem;color:#92400E;margin-top:.75rem"><i class="fas fa-info-circle"></i> O novo valor será aplicado a todas as parcelas futuras desta mensalidade.</div>' +
+        '</div>' +
+        '<div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-success" onclick="salvarNovoValor()"><i class="fas fa-check"></i> Atualizar</button></div>'
+    );
+    setTimeout(function() { var v = el('atvVal'); if (v) v.focus(); }, 100);
+}
+
+async function salvarNovoValor() {
+    var mid = el('atvMid').value;
+    var novoValor = parseFloat(el('atvVal').value);
+    if (!novoValor || novoValor <= 0) { sT('Informe um valor válido', 'error'); return; }
+    try {
+        sL('Atualizando valor...');
+        var res = await sb.from('mensalidades').update({ valor: novoValor }).eq('id', mid);
+        if (res.error) throw res.error;
+        closeModal();
+        await loadAll();
+        sT('Valor atualizado com sucesso!');
+    } catch (e) { hL(); sT('Erro ao atualizar valor', 'error'); console.error(e); }
 }
 
 async function handleLogout() { await sb.auth.signOut(); window.location.href = 'login.html'; }
