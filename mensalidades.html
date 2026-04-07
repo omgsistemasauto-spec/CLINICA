@@ -110,15 +110,15 @@ tr:hover{background:#F8FAFC}
     <div class="logo-text" id="logoText">VECXO</div>
   </div>
   <ul class="sidebar-nav">
-    <li><a href="index1.html"><i class="fas fa-home"></i><span>Dashboard</span></a></li>
-    <li><a href="cadastro-cliente.html"><i class="fas fa-user-injured"></i><span>Pacientes</span></a></li>
-    <li><a href="mensalidades.html" class="active"><i class="fas fa-file-invoice-dollar"></i><span>Mensalidades</span></a></li>
-    <li><a href="cadastro-servicos.html"><i class="fas fa-hand-holding-medical"></i><span>Servicos</span></a></li>
-    <li><a href="cadastro-produtos.html"><i class="fas fa-box"></i><span>Materiais</span></a></li>
-    <li><a href="finalizar-servico.html"><i class="fas fa-shopping-cart"></i><span>Vendas</span></a></li>
+    <li><a href='/index1'><i class="fas fa-home"></i><span>Dashboard</span></a></li>
+    <li><a href='/cadastro-cliente'><i class="fas fa-user-injured"></i><span>Pacientes</span></a></li>
+    <li><a class='active' href='/mensalidades'><i class="fas fa-file-invoice-dollar"></i><span>Mensalidades</span></a></li>
+    <li><a href='/cadastro-servicos'><i class="fas fa-hand-holding-medical"></i><span>Servicos</span></a></li>
+    <li><a href='/cadastro-produtos'><i class="fas fa-box"></i><span>Materiais</span></a></li>
+    <li><a href='/finalizar-servico'><i class="fas fa-shopping-cart"></i><span>Vendas</span></a></li>
     <li><a href="profissionais.html"><i class="fas fa-user-md"></i><span>Profissionais</span></a></li>
     <li><a href="ponto.html"><i class="fas fa-clock"></i><span>Ponto</span></a></li>
-    <li><a href="financeiro.html"><i class="fas fa-chart-line"></i><span>Financeiro</span></a></li>
+    <li><a href='/financeiro'><i class="fas fa-chart-line"></i><span>Financeiro</span></a></li>
   </ul>
   <div class="sidebar-footer"><div class="user-info"><div class="user-avatar" id="userAvatar">A</div><div class="user-details"><div class="user-name" id="userName">Admin</div><div class="user-role">Gerente</div></div><button class="logout-btn" onclick="handleLogout()" title="Sair"><i class="fas fa-sign-out-alt"></i></button></div></div>
 </aside>
@@ -201,6 +201,9 @@ function calcularParcelas() {
         var dtIni = new Date((m.data_inicio || m.data_vencimento) + 'T00:00:00');
         var pags = pagamentos.filter(function(p) { return p.mensalidade_id === m.id; });
 
+        var overrides = {};
+        try { var oi = (m.observacoes || '').indexOf('|overrides:'); if (oi !== -1) overrides = JSON.parse((m.observacoes).slice(oi + 11)); } catch(oe) {}
+
         for (var i = 0; i < total; i++) {
             var ano = dtIni.getFullYear();
             // Primeiro vencimento = mes SEGUINTE ao da chegada
@@ -209,13 +212,17 @@ function calcularParcelas() {
             var vd = new Date(ano, mes, dia); vd.setHours(0, 0, 0, 0);
             var ds = vd.getFullYear() + '-' + String(vd.getMonth() + 1).padStart(2, '0') + '-' + String(dia).padStart(2, '0');
             var r7 = ds.substring(0, 7);
+            var ov = overrides[r7] || {};
+            var dsEf = ov.vencimento || ds;
+            var valEf = ov.valor || m.valor;
+            var vdEf = new Date(dsEf + 'T00:00:00'); vdEf.setHours(0, 0, 0, 0);
             var pag = pags.find(function(p) {
                 // Usa APENAS o comprovante para identificar o mes de referencia
                 // data_pagamento nao serve pois pode ser pago em mes diferente
                 return p.comprovante && p.comprovante.substring(0, 7) === r7;
             }) || null;
-            var st = pag ? 'pago' : vd.getTime() === hoje.getTime() ? 'vence_hoje' : vd < hoje ? 'atrasado' : 'futuro';
-            parcelas.push({ id: m.id + '_' + ds, mensalidade_id: m.id, paciente_id: m.paciente_id, plano_id: m.plano_id, clientes: m.clientes, planos: m.planos, valor: m.valor, data_vencimento: ds, _st: st, pagamento: pag });
+            var st = pag ? 'pago' : vdEf.getTime() === hoje.getTime() ? 'vence_hoje' : vdEf < hoje ? 'atrasado' : 'futuro';
+            parcelas.push({ id: m.id + '_' + r7, mensalidade_id: m.id, paciente_id: m.paciente_id, plano_id: m.plano_id, clientes: m.clientes, planos: m.planos, valor: valEf, data_vencimento: dsEf, _st: st, pagamento: pag, _mesRef: r7 });
         }
     });
     parcelas.sort(function(a, b) { return a.data_vencimento > b.data_vencimento ? 1 : -1; });
@@ -426,6 +433,7 @@ function renderMens() {
                 if (parc._st === 'pago') {
                     bDiv.appendChild(mkBtn('receipt', 'fas fa-receipt', 'Recibo', (function(pid) { return function(e) { e.stopPropagation(); gerarRecibo(pid); }; })(parc.id)));
                 }
+                bDiv.appendChild(mkBtn('edit', 'fas fa-pencil-alt', 'Editar Parcela', (function(pc) { return function(e) { e.stopPropagation(); openEditarParcelaModal(pc); }; })(parc)));
                 subAcoes.appendChild(bDiv);
                 subTbody.appendChild(subTr);
             });
@@ -714,6 +722,52 @@ async function salvarNovoValor() {
         await loadAll();
         sT('Valor atualizado com sucesso!');
     } catch (e) { hL(); sT('Erro ao atualizar valor', 'error'); console.error(e); }
+}
+
+function openEditarParcelaModal(parc) {
+    var mesRef = parc._mesRef || parc.data_vencimento.substring(0, 7);
+    openModal(
+        '<div class="modal-header"><h2><i class="fas fa-pencil-alt" style="color:var(--primary)"></i> Editar Parcela</h2><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div>' +
+        '<div class="modal-body">' +
+        '<input type="hidden" id="epMensId" value="' + parc.mensalidade_id + '">' +
+        '<input type="hidden" id="epMesRef" value="' + mesRef + '">' +
+        '<div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:.85rem;margin-bottom:1.1rem">' +
+        '<div style="font-size:.75rem;color:#2563EB;font-weight:600">Paciente</div>' +
+        '<div style="font-size:1rem;font-weight:700;color:#1E40AF">' + (parc.clientes ? parc.clientes.nome : '-') + '</div>' +
+        '<div style="font-size:.82rem;color:#3B82F6;margin-top:.2rem">Ref: ' + mesRef + ' — Venc. atual: ' + fmtD(parc.data_vencimento) + '</div>' +
+        '</div>' +
+        '<div class="form-grid">' +
+        '<div class="form-group"><label class="form-label required">Vencimento</label><input type="date" class="form-input" id="epVenc" value="' + parc.data_vencimento + '"></div>' +
+        '<div class="form-group"><label class="form-label required">Valor (R$)</label><input type="number" class="form-input" id="epValor" step="0.01" value="' + parc.valor + '"></div>' +
+        '</div>' +
+        '</div>' +
+        '<div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarEdicaoParcela()"><i class="fas fa-save"></i> Salvar</button></div>'
+    );
+}
+
+async function salvarEdicaoParcela() {
+    var mid = el('epMensId').value;
+    var mesRef = el('epMesRef').value;
+    var novoVenc = el('epVenc').value;
+    var novoValor = parseFloat(el('epValor').value);
+    if (!novoVenc) { sT('Informe a data de vencimento', 'error'); return; }
+    if (!novoValor || novoValor <= 0) { sT('Informe um valor válido', 'error'); return; }
+    try {
+        sL('Salvando...');
+        // Busca observacoes atual direto do banco para nao depender do cache local
+        var cur = await sb.from('mensalidades').select('observacoes').eq('id', mid).single();
+        if (cur.error) throw cur.error;
+        var obsStr = cur.data.observacoes || '';
+        var overrides = {};
+        var oi = obsStr.indexOf('|overrides:');
+        try { if (oi !== -1) overrides = JSON.parse(obsStr.slice(oi + 11)); } catch(pe) {}
+        overrides[mesRef] = { vencimento: novoVenc, valor: novoValor };
+        var obsBase = oi !== -1 ? obsStr.slice(0, oi) : obsStr;
+        var novaObs = obsBase + '|overrides:' + JSON.stringify(overrides);
+        var res = await sb.from('mensalidades').update({ observacoes: novaObs }).eq('id', mid);
+        if (res.error) throw res.error;
+        closeModal(); await loadAll(); sT('Parcela atualizada!');
+    } catch(e) { hL(); sT('Erro ao salvar', 'error'); console.error(e); }
 }
 
 async function handleLogout() { await sb.auth.signOut(); window.location.href = 'login.html'; }
