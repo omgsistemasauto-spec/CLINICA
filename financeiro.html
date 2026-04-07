@@ -110,7 +110,7 @@ td{padding:.65rem .75rem;font-size:.8rem;border-top:1px solid #F1F5F9;color:#334
 <script>
 var SU='https://rdfcosxyeqgbjdedargd.supabase.co',SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkZmNvc3h5ZXFnYmpkZWRhcmdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDkxNTQsImV4cCI6MjA3NzA4NTE1NH0.wNx6jQAi9nn2K_E-40VuV6k0sWPoF5bWAw_si__aSyo';
 var db=window.supabase.createClient(SU,SK);
-var user,sid,trans=[],pags=[],mens=[],sess=[],profs=[],srvs=[],curTab='caixa';
+var user,sid,trans=[],pags=[],mens=[],sess=[],profs=[],srvs=[],todosOsPags=[],planos=[],parcelas=[],curTab='caixa';
 function $(i){return document.getElementById(i)}
 function sL(t){$('lt').textContent=t||'Carregando...';$('lo').style.display='flex'}
 function hL(){$('lo').style.display='none'}
@@ -144,16 +144,53 @@ var d=new Date(p+'-01T00:00:00');d.setMonth(d.getMonth()+1);var fim=d.toISOStrin
 try{var r=await Promise.all([
 db.from('transacoes_financeiras').select('*').eq('salao_id',sid).gte('data_transacao',ini).lt('data_transacao',fim).order('data_transacao',{ascending:false}),
 db.from('pagamentos_mensalidade').select('*,mensalidades(*,clientes(id,nome,telefone),planos(id,nome,valor))').eq('salao_id',sid).gte('data_pagamento',ini).lt('data_pagamento',fim).order('data_pagamento',{ascending:false}),
-db.from('mensalidades').select('*,clientes(id,nome),planos(id,nome,valor)').eq('salao_id',sid),
+db.from('mensalidades').select('*,clientes(id,nome),planos(id,nome,tipo,valor)').eq('salao_id',sid),
+db.from('pagamentos_mensalidade').select('mensalidade_id,comprovante').eq('salao_id',sid),
+db.from('planos').select('*').eq('salao_id',sid),
 db.from('sessoes').select('*,clientes(id,nome),servicos(id,nome,preco),profissionais(id,nome)').eq('salao_id',sid).gte('data_sessao',ini).lt('data_sessao',fim).order('data_sessao',{ascending:false}),
 db.from('profissionais').select('id,nome').eq('salao_id',sid).eq('ativo',true),
 db.from('servicos').select('id,nome,preco,comissao').eq('salao_id',sid).eq('ativo',true)
 ]);
-trans=r[0].data||[];pags=r[1].data||[];mens=r[2].data||[];sess=r[3].data||[];profs=r[4].data||[];srvs=r[5].data||[];
+trans=r[0].data||[];pags=r[1].data||[];mens=r[2].data||[];todosOsPags=r[3].data||[];planos=r[4].data||[];sess=r[5].data||[];profs=r[6].data||[];srvs=r[7].data||[];calcularParcelas();
 rStats();rTabs();rTab();
 }catch(e){console.error(e);sT('Erro','err')}hL();
 }
 
+
+function calcularParcelas(){
+    var hoje=new Date();hoje.setHours(0,0,0,0);
+    parcelas=[];
+    mens.filter(function(m){return m.status!=='cancelado';}).forEach(function(m){
+        var plano=planos.find(function(p){return p.id===m.plano_id;});
+        if(!plano)return;
+        var total;
+        if(plano.tipo==='trimestral')total=3;
+        else if(plano.tipo==='semestral')total=6;
+        else if(plano.tipo==='anual')total=12;
+        else{var mt=m.observacoes?m.observacoes.match(/(\d+)_meses/):null;total=mt?parseInt(mt[1]):1;}
+        var dia=m.dia_vencimento;
+        var dtIni=new Date((m.data_inicio||m.data_vencimento)+'T00:00:00');
+        var pags2=todosOsPags.filter(function(p){return p.mensalidade_id===m.id;});
+        var overrides={};
+        var oi=(m.observacoes||'').indexOf('|overrides:');
+        try{if(oi!==-1)overrides=JSON.parse(m.observacoes.slice(oi+11));}catch(oe){}
+        for(var i=0;i<total;i++){
+            var ano=dtIni.getFullYear();
+            var mes=dtIni.getMonth()+1+i;
+            ano+=Math.floor(mes/12);mes=mes%12;
+            var vd=new Date(ano,mes,dia);vd.setHours(0,0,0,0);
+            var ds=vd.getFullYear()+'-'+String(vd.getMonth()+1).padStart(2,'0')+'-'+String(dia).padStart(2,'0');
+            var r7=ds.substring(0,7);
+            var ov=overrides[r7]||{};
+            var dsEf=ov.vencimento||ds;
+            var valEf=ov.valor||m.valor;
+            var vdEf=new Date(dsEf+'T00:00:00');vdEf.setHours(0,0,0,0);
+            var pag=pags2.find(function(p){return p.comprovante&&p.comprovante.substring(0,7)===r7;})||null;
+            var st=pag?'pago':vdEf.getTime()===hoje.getTime()?'vence_hoje':vdEf<hoje?'atrasado':'futuro';
+            parcelas.push({id:m.id+'_'+r7,mensalidade_id:m.id,valor:valEf,data_vencimento:dsEf,_st:st,_mesRef:r7});
+        }
+    });
+}
 function cRec(){var rm=pags.reduce(function(s,p){return s+(p.valor_pago||0)},0);var ro=trans.filter(function(t){return t.tipo==='entrada'}).reduce(function(s,t){return s+(t.valor||0)},0);return{mens:rm,outras:ro,total:rm+ro}}
 function cDesp(){return trans.filter(function(t){return t.tipo==='saida'}).reduce(function(s,t){return s+(t.valor||0)},0)}
 function cCaixaHoje(){
@@ -166,8 +203,7 @@ return{ent:entH,sai:saiH,saldo:entH-saiH};
 
 function rStats(){
 var rec=cRec(),dsp=cDesp(),luc=rec.total-dsp,cx=cCaixaHoje();
-var inad=0;var hj2=new Date();hj2.setHours(0,0,0,0);
-mens.forEach(function(m){if(m.status!=='pago'&&m.status!=='cancelado'){var v=new Date(m.data_vencimento+'T00:00:00');if(v<hj2)inad+=m.valor||0}});
+var inad=parcelas.filter(function(p){return p._st==='atrasado';}).reduce(function(s,p){return s+(p.valor||0);},0);
 $('stats').innerHTML=
 '<div class="sc o"><div class="si o"><i class="fas fa-cash-register"></i></div><div class="sv" style="color:var(--o)">'+fm(cx.saldo)+'</div><div class="sl">Caixa Hoje</div></div>'
 +'<div class="sc g"><div class="si g"><i class="fas fa-arrow-down"></i></div><div class="sv" style="color:var(--g)">'+fm(rec.total)+'</div><div class="sl">Receitas Mes</div></div>'
