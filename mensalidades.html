@@ -8,98 +8,217 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--primary:#2563EB;--primary-dark:#1E40AF;--green:#10B981;--red:#EF4444;--orange:#F59E0B;--purple:#8B5CF6;--bg:linear-gradient(135deg,#F0F9FF,#EFF6FF 50%,#DBEAFE);--text:#1E293B;--text2:#334155;--muted:#64748B;--border:#E2E8F0;--shadow:0 2px 8px rgba(37,99,235,.08);--shadow-md:0 4px 16px rgba(37,99,235,.12);--shadow-lg:0 8px 32px rgba(37,99,235,.16)}
+:root{--primary:#5b0082;--primary-dark:#3d0058;--primary-light:#f3e8ff;--green:#10B981;--green-light:#D1FAE5;--red:#EF4444;--red-light:#FEE2E2;--orange:#F59E0B;--orange-light:#FEF3C7;--bg:#F5F0FA;--text:#1E293B;--text2:#334155;--muted:#64748B;--border:#E9D5FF;--shadow:0 2px 12px rgba(91,0,130,.08);--shadow-md:0 4px 20px rgba(91,0,130,.13);--shadow-lg:0 8px 40px rgba(91,0,130,.18);--radius:16px}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-.sidebar{position:fixed;left:0;top:0;width:280px;height:100vh;background:linear-gradient(180deg,#0F172A,#1E293B);box-shadow:4px 0 32px rgba(0,0,0,.12);z-index:1000;border-right:1px solid rgba(148,163,184,.1)}
-.sidebar-logo{padding:1.5rem;border-bottom:1px solid rgba(148,163,184,.1);display:flex;align-items:center;gap:1rem}
-.sidebar-logo img{width:48px;height:48px;border-radius:12px}
-.logo-text{font-size:1.3rem;font-weight:800;color:#fff}
-.sidebar-nav{list-style:none;padding:1.2rem 1rem;overflow-y:auto;max-height:calc(100vh - 180px)}
-.sidebar-nav a{display:flex;align-items:center;gap:1rem;padding:.8rem 1.15rem;color:#94A3B8;text-decoration:none;font-size:.9rem;font-weight:600;border-radius:12px;transition:all .3s;margin-bottom:.3rem;position:relative}
-.sidebar-nav a::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:4px;height:0;background:linear-gradient(180deg,#3B82F6,#2563EB);border-radius:0 4px 4px 0;transition:height .3s}
-.sidebar-nav a:hover{background:rgba(59,130,246,.08);color:#E2E8F0}.sidebar-nav a:hover::before,.sidebar-nav a.active::before{height:70%}
-.sidebar-nav a.active{background:linear-gradient(90deg,rgba(59,130,246,.15),rgba(59,130,246,.05));color:#fff}.sidebar-nav i{width:22px;text-align:center;font-size:1.05rem}
-.sidebar-footer{position:absolute;bottom:0;left:0;right:0;padding:1.15rem;border-top:1px solid rgba(148,163,184,.1);background:rgba(15,23,42,.8)}
-.user-info{display:flex;align-items:center;gap:.75rem;padding:.7rem;background:rgba(59,130,246,.08);border-radius:12px}
-.user-avatar{width:38px;height:38px;background:linear-gradient(135deg,#3B82F6,#2563EB);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.95rem}
-.user-details{flex:1}.user-name{font-size:.85rem;font-weight:700;color:#fff}.user-role{font-size:.7rem;color:#94A3B8}
-.logout-btn{width:34px;height:34px;border:1px solid rgba(148,163,184,.2);background:rgba(15,23,42,.5);border-radius:10px;color:#94A3B8;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s}
-.logout-btn:hover{background:rgba(239,68,68,.15);color:#EF4444}
-.main-content{margin-left:280px;min-height:100vh}
-.header{background:#fff;padding:1.15rem 1.75rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem}
-.header-left h1{font-size:1.3rem;font-weight:700}.header-left p{font-size:.82rem;color:var(--muted);margin-top:2px}
-.header-actions{display:flex;gap:.6rem;flex-wrap:wrap}
-.btn{padding:.55rem 1.1rem;border-radius:10px;font-size:.82rem;font-weight:600;cursor:pointer;border:none;transition:all .2s;display:flex;align-items:center;gap:.45rem;font-family:'Poppins',sans-serif}
-.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-dark)}
-.btn-secondary{background:#F1F5F9;color:var(--text2);border:1px solid var(--border)}.btn-secondary:hover{background:#E2E8F0}
-.btn-success{background:var(--green);color:#fff}.btn-success:hover{background:#059669}
-.btn-purple{background:var(--purple);color:#fff}.btn-purple:hover{background:#7C3AED}
-.btn-sm{padding:.35rem .7rem;font-size:.78rem}
-.content{padding:1.25rem 1.75rem}
-.stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.85rem;margin-bottom:1.25rem}
-.stat-card{background:#fff;border-radius:14px;padding:1.1rem;box-shadow:var(--shadow);border:1px solid var(--border);position:relative;overflow:hidden;transition:transform .2s}
-.stat-card:hover{transform:translateY(-2px)}
-.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
-.stat-card.green::before{background:var(--green)}.stat-card.red::before{background:var(--red)}.stat-card.orange::before{background:var(--orange)}.stat-card.blue::before{background:var(--primary)}.stat-card.purple::before{background:var(--purple)}
-.stat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
-.stat-icon.green{background:#D1FAE5;color:#059669}.stat-icon.red{background:#FEE2E2;color:#DC2626}.stat-icon.orange{background:#FEF3C7;color:#D97706}.stat-icon.blue{background:#DBEAFE;color:#2563EB}.stat-icon.purple{background:#EDE9FE;color:#7C3AED}
-.stat-value{font-size:1.5rem;font-weight:800;margin-top:.5rem}.stat-label{font-size:.75rem;color:var(--muted);font-weight:500}
-.stat-top{display:flex;justify-content:space-between;align-items:flex-start}
-.tabs{display:flex;gap:.2rem;background:#F1F5F9;padding:4px;border-radius:12px;margin-bottom:1.25rem;overflow-x:auto}
-.tab-btn{padding:.55rem 1rem;border:none;background:transparent;border-radius:10px;font-size:.82rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .2s;font-family:'Poppins',sans-serif;white-space:nowrap;display:flex;align-items:center;gap:.4rem}
-.tab-btn.active{background:#fff;color:var(--primary);box-shadow:var(--shadow)}.tab-btn:hover:not(.active){color:var(--text2)}
-.table-card{background:#fff;border-radius:14px;box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden}
-.table-header{padding:.85rem 1.15rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
-.table-title{font-size:.95rem;font-weight:700}.table-count{font-size:.75rem;color:var(--muted);background:#F1F5F9;padding:.2rem .6rem;border-radius:20px}
+.sidebar{position:fixed;left:0;top:0;width:260px;height:100vh;background:linear-gradient(180deg,#1a0030,#2d0050);box-shadow:4px 0 32px rgba(0,0,0,.18);z-index:1000}
+.sidebar-logo{padding:1.4rem 1.2rem;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:.9rem}
+.sidebar-logo img{width:44px;height:44px;border-radius:12px}
+.logo-text{font-size:1.2rem;font-weight:800;color:#fff}
+.sidebar-nav{list-style:none;padding:1rem .8rem}
+.sidebar-nav a{display:flex;align-items:center;gap:.85rem;padding:.75rem 1rem;color:#c4b5d4;text-decoration:none;font-size:.875rem;font-weight:600;border-radius:12px;transition:all .25s;margin-bottom:.25rem}
+.sidebar-nav a:hover{background:rgba(255,255,255,.07);color:#fff}
+.sidebar-nav a.active{background:linear-gradient(90deg,rgba(255,255,255,.15),rgba(255,255,255,.05));color:#fff;border-left:3px solid #c084fc;padding-left:calc(1rem - 3px)}
+.sidebar-nav i{width:20px;text-align:center}
+.sidebar-footer{position:absolute;bottom:0;left:0;right:0;padding:1rem;border-top:1px solid rgba(255,255,255,.08)}
+.user-info{display:flex;align-items:center;gap:.7rem;padding:.65rem .8rem;background:rgba(255,255,255,.07);border-radius:12px}
+.user-avatar{width:36px;height:36px;background:linear-gradient(135deg,#9333ea,#5b0082);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.9rem;flex-shrink:0}
+.user-details{flex:1}.user-name{font-size:.82rem;font-weight:700;color:#fff}.user-role{font-size:.7rem;color:#a78bca}
+.logout-btn{width:32px;height:32px;border:1px solid rgba(255,255,255,.15);background:transparent;border-radius:8px;color:#a78bca;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .25s}
+.logout-btn:hover{background:rgba(239,68,68,.2);color:#fca5a5}
+.main-content{margin-left:260px;min-height:100vh;display:flex;flex-direction:column}
+.alert-banner{background:linear-gradient(90deg,#B91C1C,#DC2626);color:#fff;padding:.65rem 1.5rem;display:none;align-items:center;gap:.75rem;font-size:.82rem;font-weight:600}
+.alert-banner.show{display:flex}
+.header{background:#fff;padding:1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem}
+.header-left h1{font-size:1.2rem;font-weight:700;display:flex;align-items:center;gap:.5rem}
+.header-left p{font-size:.78rem;color:var(--muted);margin-top:2px}
+.header-actions{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.content{padding:1.25rem 1.5rem;flex:1}
+
+/* BOTAO GIGANTE — dentro do grid de 4 */
+.btn-giant{display:flex;align-items:center;justify-content:center;gap:.6rem;width:100%;padding:1.2rem .75rem;background:linear-gradient(135deg,#059669,#10B981);color:#fff;border:none;border-radius:16px;font-family:'Poppins',sans-serif;font-size:.88rem;font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(16,185,129,.4);transition:all .25s;letter-spacing:.1px;flex-direction:column;gap:.4rem}
+.btn-giant:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(16,185,129,.5)}
+.btn-giant i{font-size:1.6rem}
+
+.btn{padding:.6rem 1.2rem;border-radius:12px;font-size:.84rem;font-weight:600;cursor:pointer;border:none;transition:all .2s;display:inline-flex;align-items:center;gap:.5rem;font-family:'Poppins',sans-serif;white-space:nowrap}
+.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-dark);transform:translateY(-1px)}
+.btn-success{background:var(--green);color:#fff}.btn-success:hover{background:#059669;transform:translateY(-1px)}
+.btn-ghost{background:#F1F5F9;color:var(--text2);border:1px solid #E2E8F0}.btn-ghost:hover{background:#E2E8F0}
+.btn-sm{padding:.4rem .8rem;font-size:.78rem;border-radius:9px}
+.btn-lg{padding:.8rem 1.6rem;font-size:.95rem;font-weight:700;border-radius:14px}
+
+.tip{position:relative;display:inline-flex;align-items:center}
+.tip .tip-icon{width:17px;height:17px;background:#EDE9FE;color:#7C3AED;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.6rem;cursor:help;margin-left:.3rem;flex-shrink:0;border:none}
+.tip .tip-text{position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;font-size:.71rem;font-weight:500;padding:.45rem .75rem;border-radius:8px;z-index:9999;opacity:0;pointer-events:none;transition:opacity .2s;max-width:240px;white-space:normal;text-align:center;line-height:1.45;min-width:120px}
+.tip:hover .tip-text{opacity:1}
+.tip .tip-text::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#1e293b}
+
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:.85rem;margin-bottom:1.5rem}
+.stat-card{background:#fff;border-radius:var(--radius);padding:1.1rem 1.25rem;box-shadow:var(--shadow);border:1px solid var(--border);display:flex;align-items:center;gap:1rem}
+.stat-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.stat-icon.purple{background:var(--primary-light);color:var(--primary)}
+.stat-icon.green{background:var(--green-light);color:#059669}
+.stat-icon.orange{background:var(--orange-light);color:#D97706}
+.stat-icon.red{background:var(--red-light);color:#DC2626}
+.stat-body{flex:1}.stat-value{font-size:1.6rem;font-weight:800;line-height:1}.stat-label{font-size:.73rem;color:var(--muted);font-weight:500;margin-top:3px}
+.stat-value.green{color:#059669}.stat-value.orange{color:#D97706}.stat-value.red{color:#DC2626}.stat-value.purple{color:var(--primary)}
+
+/* NAVEGACAO + BOTAO GIGANTE — 4 na mesma linha */
+.nav-row{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1.5rem}
+.nav-pills{display:contents}
+.pill-btn{padding:1.2rem .75rem;border:none;border-radius:16px;font-size:.88rem;font-weight:800;cursor:pointer;transition:all .25s;font-family:'Poppins',sans-serif;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.4rem;color:#fff;opacity:.5;box-shadow:0 4px 14px rgba(0,0,0,.1)}
+.pill-btn i{font-size:1.6rem}
+.pill-btn .pill-label{font-size:.82rem;font-weight:800}
+.pill-btn.active{opacity:1;transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.22)}
+.pill-btn:hover{opacity:.85;transform:translateY(-2px)}
+#pill-painel{background:linear-gradient(135deg,#5b0082,#9333ea)}
+#pill-mensalidades{background:linear-gradient(135deg,#C2410C,#F97316)}
+#pill-historico{background:linear-gradient(135deg,#1D4ED8,#3B82F6)}
+
+.painel-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+.painel-col{display:flex;flex-direction:column;gap:1rem}
+.section-card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden}
+.section-header{padding:.9rem 1.2rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem;border-bottom:1px solid #F3E8FF}
+.section-header-left{display:flex;align-items:center;gap:.6rem}
+.section-title{font-size:.95rem;font-weight:700}
+.section-count{font-size:.72rem;font-weight:700;padding:.25rem .7rem;border-radius:20px}
+.section-count.orange{background:var(--orange-light);color:#B45309}
+.section-count.red{background:var(--red-light);color:#B91C1C}
+.section-count.green{background:var(--green-light);color:#065F46}
+.section-count.purple{background:var(--primary-light);color:var(--primary)}
+
+.pac-item{padding:.85rem 1.1rem;border-bottom:1px solid #FAF5FF;display:flex;align-items:flex-start;gap:.8rem;transition:background .15s}
+.pac-item:last-child{border-bottom:none}
+.pac-item:hover{background:#FAF5FF}
+
+/* NOVO CARD DE PACIENTE — botoes grandes */
+.pac-item-card{padding:1rem 1.2rem;border-bottom:2px solid #F3E8FF;transition:background .15s}
+.pac-item-card:last-child{border-bottom:none}
+.pac-item-card.atraso{background:#FFF5F5;border-left:4px solid #EF4444}
+.pac-item-card.hoje-card{background:#FFFBEB;border-left:4px solid #F59E0B}
+.pac-item-card:hover{background:#FAF5FF}
+.pac-item-card.atraso:hover{background:#FEE2E2}
+.pac-card-top{display:flex;align-items:center;gap:.85rem;margin-bottom:.85rem}
+.pac-card-info{flex:1;min-width:0}
+.pac-nome-big{font-size:.95rem;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pac-tel{font-size:.75rem;color:var(--muted);margin-top:.15rem;display:flex;align-items:center;gap:.3rem}
+.pac-card-valor{text-align:right;flex-shrink:0}
+.pac-valor-big{font-size:1.25rem;font-weight:900;color:var(--primary);line-height:1}
+.pac-card-btns{display:flex;gap:.6rem;flex-wrap:wrap}
+
+/* BOTOES DE ACAO GRANDES */
+.pac-card-btns{display:grid;grid-template-columns:1fr 1fr auto auto;gap:.5rem;align-items:stretch}
+.btn-card-action{display:flex;align-items:center;justify-content:center;gap:.55rem;padding:.75rem 1rem;border:none;border-radius:12px;font-family:'Poppins',sans-serif;font-size:.85rem;font-weight:800;cursor:pointer;transition:all .2s;white-space:nowrap;width:100%}
+.btn-card-action i{font-size:1rem;flex-shrink:0}
+.btn-card-action.pagar{background:var(--green);color:#fff;box-shadow:0 3px 10px rgba(16,185,129,.3)}
+.btn-card-action.pagar:hover{background:#059669;transform:translateY(-2px);box-shadow:0 5px 16px rgba(16,185,129,.4)}
+.btn-card-action.whatsapp{background:#25D366;color:#fff;box-shadow:0 3px 10px rgba(37,211,102,.3)}
+.btn-card-action.whatsapp:hover{background:#128C7E;transform:translateY(-2px);box-shadow:0 5px 16px rgba(37,211,102,.4)}
+.btn-card-action.editar{background:#EDE9FE;color:#6D28D9;}
+.btn-card-action.editar:hover{background:#DDD6FE;transform:translateY(-2px)}
+.btn-card-action.excluir{background:#FEE2E2;color:#B91C1C;}
+.btn-card-action.excluir:hover{background:#FECACA;transform:translateY(-2px)}
+.vence-tag{font-size:.72rem;font-weight:600;color:var(--muted);margin-top:.3rem;display:block}
+.pac-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#9333ea,#5b0082);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.8rem;font-weight:800;flex-shrink:0}
+.pac-avatar.red{background:linear-gradient(135deg,#EF4444,#B91C1C)}
+.pac-avatar.orange{background:linear-gradient(135deg,#F59E0B,#D97706)}
+.pac-info{flex:1;min-width:0}
+.pac-nome{font-size:.88rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pac-sub{font-size:.72rem;color:var(--muted);margin-top:2px}
+.pac-meta{display:flex;flex-direction:column;align-items:flex-end;gap:.3rem;flex-shrink:0}
+.pac-valor{font-size:1rem;font-weight:800;color:var(--primary)}
+.pac-acoes{display:flex;gap:.3rem;flex-wrap:wrap;justify-content:flex-end;margin-top:.4rem}
+.atraso-tag{font-size:.72rem;font-weight:800;padding:.22rem .6rem;border-radius:20px;background:var(--red-light);color:#B91C1C;white-space:nowrap}
+.atraso-tag.hoje{background:var(--orange-light);color:#B45309}
+
+.dia-sep{padding:.45rem 1.1rem .3rem;display:flex;align-items:center;gap:.6rem;background:#F9F5FF;border-bottom:1px solid #EDE9FE}
+.dia-sep-label{font-size:.7rem;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:.5px}
+.dia-sep-line{flex:1;height:1px;background:#E9D5FF}
+.dia-sep-badge{font-size:.68rem;font-weight:700;padding:.15rem .55rem;border-radius:20px}
+.dia-sep-badge.hoje{background:var(--orange-light);color:#B45309}
+.dia-sep-badge.futuro{background:var(--primary-light);color:var(--primary)}
+.plano-tag{font-size:.68rem;font-weight:700;padding:.18rem .5rem;border-radius:8px;background:var(--primary-light);color:var(--primary);display:inline-block}
+
+.act-btn{padding:.38rem .7rem;border:none;border-radius:9px;cursor:pointer;font-size:.72rem;font-weight:700;transition:all .2s;display:inline-flex;align-items:center;gap:.3rem;font-family:'Poppins',sans-serif;white-space:nowrap}
+.act-btn.pagar{background:var(--green-light);color:#065F46}.act-btn.pagar:hover{background:#A7F3D0}
+.act-btn.whatsapp{background:#DCFCE7;color:#15803D}.act-btn.whatsapp:hover{background:#BBF7D0}
+.act-btn.editar{background:#EDE9FE;color:#6D28D9}.act-btn.editar:hover{background:#DDD6FE}
+.act-btn.recibo{background:#DBEAFE;color:#1D4ED8}.act-btn.recibo:hover{background:#BFDBFE}
+.act-btn.encerrar{background:var(--orange-light);color:#B45309}
+.act-btn.excluir{background:var(--red-light);color:#B91C1C}
+
+.badge{padding:.25rem .6rem;border-radius:20px;font-size:.72rem;font-weight:700;display:inline-flex;align-items:center;gap:.3rem}
+.badge-pago{background:var(--green-light);color:#065F46}
+.badge-atrasado{background:var(--red-light);color:#B91C1C}
+.badge-hoje{background:var(--orange-light);color:#B45309}
+.badge-futuro{background:var(--primary-light);color:var(--primary)}
+.badge-cancelado{background:#F1F5F9;color:var(--muted)}
+
+.empty-state{text-align:center;padding:2.5rem 1rem}
+.empty-icon{font-size:2.5rem;margin-bottom:.75rem;opacity:.4}
+.empty-state h3{font-size:.95rem;color:var(--text2);font-weight:600}
+.empty-state p{font-size:.78rem;color:var(--muted);margin-top:.3rem}
+
 .table-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse}thead{background:#F8FAFC}
-th{padding:.65rem .85rem;text-align:left;font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
-td{padding:.75rem .85rem;font-size:.82rem;border-top:1px solid #F1F5F9;color:var(--text2)}
-tr:hover{background:#F8FAFC}
-.badge{padding:.25rem .6rem;border-radius:20px;font-size:.72rem;font-weight:600;display:inline-flex;align-items:center;gap:.3rem;white-space:nowrap}
-.badge-pago{background:#D1FAE5;color:#059669}.badge-atrasado{background:#FEE2E2;color:#DC2626}.badge-vence-hoje{background:#DBEAFE;color:#2563EB}.badge-futuro{background:#EDE9FE;color:#7C3AED}.badge-cancelado{background:#F1F5F9;color:#64748B}
-.plano-tag{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .55rem;border-radius:8px;font-size:.72rem;font-weight:600;background:#EDE9FE;color:#7C3AED}
-.inad-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.85rem;margin-bottom:1.25rem}
-.inad-card{background:#fff;border-radius:14px;padding:1.15rem;box-shadow:var(--shadow);border:2px solid transparent;cursor:pointer;transition:all .2s}
-.inad-card:hover{transform:translateY(-2px)}.inad-card.active{border-color:var(--primary)}
-.inad-count{font-size:2rem;font-weight:800;line-height:1}.inad-label{font-size:.82rem;color:var(--muted);margin-top:.2rem}
-.patient-info{display:flex;align-items:center;gap:.65rem}
-.patient-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#60A5FA);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.75rem;font-weight:700;flex-shrink:0}
-.patient-name{font-weight:600;color:var(--text);font-size:.83rem}.patient-phone{font-size:.72rem;color:var(--muted)}
-.action-btns{display:flex;gap:.3rem}
-.action-btn{width:30px;height:30px;border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.75rem;transition:all .2s}
-.action-btn.pay{background:#D1FAE5;color:#059669}.action-btn.pay:hover{background:#A7F3D0}
-.action-btn.whatsapp{background:#D1FAE5;color:#16A34A}.action-btn.whatsapp:hover{background:#BBF7D0}
-.action-btn.edit{background:#DBEAFE;color:#2563EB}.action-btn.edit:hover{background:#BFDBFE}
-.action-btn.receipt{background:#EDE9FE;color:#7C3AED}.action-btn.receipt:hover{background:#DDD6FE}
-.action-btn.delete{background:#FEE2E2;color:#DC2626}.action-btn.delete:hover{background:#FECACA}
-.action-btn.finish{background:#FEF3C7;color:#D97706}.action-btn.finish:hover{background:#FDE68A}
-.action-btn.del-all{background:#FEE2E2;color:#DC2626}.action-btn.del-all:hover{background:#FECACA}
-.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:5000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);padding:1rem}
+table{width:100%;border-collapse:collapse}
+thead{background:#F9F5FF}
+th{padding:.6rem .9rem;text-align:left;font-size:.72rem;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+td{padding:.7rem .9rem;font-size:.82rem;border-top:1px solid #F3E8FF;color:var(--text2)}
+tr:hover{background:#FAF5FF}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(30,0,50,.6);z-index:5000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);padding:1rem}
 .modal-overlay.show{display:flex}
-.modal{background:#fff;border-radius:16px;width:100%;max-width:720px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg)}
-.modal-header{padding:1.15rem 1.35rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;z-index:1;border-radius:16px 16px 0 0}
-.modal-header h2{font-size:1.05rem;font-weight:700;display:flex;align-items:center;gap:.5rem}
-.modal-close{width:34px;height:34px;border:none;background:#F1F5F9;border-radius:10px;cursor:pointer;font-size:1rem;color:var(--muted);display:flex;align-items:center;justify-content:center}
-.modal-close:hover{background:#FEE2E2;color:#EF4444}
-.modal-body{padding:1.35rem}.modal-footer{padding:.85rem 1.35rem;border-top:1px solid var(--border);display:flex;gap:.6rem;justify-content:flex-end;position:sticky;bottom:0;background:#fff;border-radius:0 0 16px 16px}
+.modal{background:#fff;border-radius:20px;width:100%;max-width:740px;max-height:92vh;overflow-y:auto;box-shadow:var(--shadow-lg)}
+.modal-wide{max-width:860px}
+.modal-header{padding:1.2rem 1.4rem;border-bottom:1px solid #EDE9FE;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;z-index:1;border-radius:20px 20px 0 0}
+.modal-header h2{font-size:1.05rem;font-weight:800;display:flex;align-items:center;gap:.5rem}
+.modal-close{width:34px;height:34px;border:none;background:#F1F5F9;border-radius:10px;cursor:pointer;font-size:1rem;color:var(--muted);display:flex;align-items:center;justify-content:center;transition:all .2s}
+.modal-close:hover{background:var(--red-light);color:var(--red)}
+.modal-body{padding:1.4rem}.modal-footer{padding:.9rem 1.4rem;border-top:1px solid #EDE9FE;display:flex;gap:.6rem;justify-content:flex-end;position:sticky;bottom:0;background:#fff;border-radius:0 0 20px 20px}
+
+/* FORM */
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:.85rem}
-.form-group{display:flex;flex-direction:column;gap:.3rem}.form-group.full{grid-column:1/-1}
-.form-label{font-size:.78rem;font-weight:600;color:var(--text2)}.form-label.required::after{content:' *';color:var(--red)}
-.form-input,.form-select,.form-textarea{padding:.55rem .75rem;border:1px solid var(--border);border-radius:10px;font-size:.82rem;font-family:'Poppins',sans-serif;background:#fff;color:var(--text)}
-.form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
-.form-hint{font-size:.72rem;color:var(--muted)}
-.alert-box.danger{background:#FEF2F2;color:#991B1B;border:1px solid #FECACA;padding:.85rem 1rem;border-radius:10px;font-size:.82rem;display:flex;align-items:center;gap:.5rem;margin-bottom:1rem}
+.form-group{display:flex;flex-direction:column;gap:.35rem}
+.form-group.full{grid-column:1/-1}
+.form-label{font-size:.78rem;font-weight:700;color:var(--text2);display:flex;align-items:center;gap:.25rem}
+.form-label.req::after{content:' *';color:var(--red)}
+.form-input,.form-select,.form-textarea{padding:.6rem .85rem;border:1.5px solid #E9D5FF;border-radius:10px;font-size:.88rem;font-family:'Poppins',sans-serif;background:#fff;color:var(--text);transition:border-color .2s}
+.form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(91,0,130,.1)}
+.form-input.big{font-size:1.1rem;font-weight:700;padding:.7rem .9rem}
+.info-box{background:#F9F5FF;border:1px solid #E9D5FF;border-radius:12px;padding:.85rem 1rem;font-size:.82rem;color:var(--primary);display:flex;align-items:flex-start;gap:.6rem;margin-bottom:.85rem}
+.warn-box{background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;padding:.75rem 1rem;font-size:.78rem;color:#92400E;display:flex;align-items:flex-start;gap:.5rem;margin-top:.75rem}
+.sec-label{font-size:.7rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin:1.2rem 0 .6rem;display:flex;align-items:center;gap:.5rem}
+.sec-label::after{content:'';flex:1;height:1px;background:#EDE9FE}
+
+/* PARCELAS NO MODAL */
+.parcela-lista{display:flex;flex-direction:column;gap:.5rem;margin-top:.5rem}
+.parcela-row{display:grid;grid-template-columns:auto 1fr 1fr auto;align-items:center;gap:.75rem;background:#F9F5FF;border:1.5px solid #EDE9FE;border-radius:12px;padding:.75rem 1rem;transition:all .2s}
+.parcela-row.pago{background:#F0FDF4;border-color:#A7F3D0}
+.parc-num{width:32px;height:32px;background:var(--primary-light);color:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;flex-shrink:0}
+.parc-num.pago{background:var(--green-light);color:#059669}
+.parc-info{display:flex;flex-direction:column;gap:.15rem}
+.parc-mes{font-size:.82rem;font-weight:700;color:var(--text)}
+.parc-venc{font-size:.7rem;color:var(--muted)}
+.parc-val-wrap{display:flex;align-items:center;gap:.4rem}
+.parc-val-prefix{font-size:.78rem;font-weight:700;color:var(--muted)}
+.parc-val-input{width:110px;padding:.4rem .65rem;border:1.5px solid #E9D5FF;border-radius:9px;font-size:.88rem;font-weight:700;font-family:'Poppins',sans-serif;color:var(--primary);background:#fff;text-align:right}
+.parc-val-input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 2px rgba(16,185,129,.12)}
+.parc-val-input.pago-input{background:var(--green-light);border-color:#A7F3D0;color:#059669}
+.btn-pago{padding:.45rem .9rem;border:2px solid #E9D5FF;background:#fff;border-radius:10px;font-size:.78rem;font-weight:800;cursor:pointer;font-family:'Poppins',sans-serif;display:flex;align-items:center;gap:.4rem;transition:all .2s;white-space:nowrap;color:var(--muted)}
+.btn-pago:hover{border-color:var(--green);color:#059669;background:var(--green-light)}
+.btn-pago.marcado{background:var(--green);color:#fff;border-color:var(--green)}
+.btn-pago.marcado:hover{background:#059669}
+
+/* LOADING / TOAST */
+.loading-overlay{position:fixed;inset:0;background:rgba(91,0,130,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10000;color:#fff}
+.loading-spinner{width:48px;height:48px;border:4px solid rgba(255,255,255,.25);border-top:4px solid #fff;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:1rem}
+@keyframes spin{to{transform:rotate(360deg)}}
 .toast{position:fixed;top:20px;right:20px;padding:.75rem 1.1rem;border-radius:12px;color:#fff;font-size:.82rem;font-weight:600;z-index:9999;transform:translateX(120%);transition:transform .3s;display:flex;align-items:center;gap:.45rem;box-shadow:var(--shadow-lg)}
 .toast.show{transform:translateX(0)}.toast.success{background:var(--green)}.toast.error{background:var(--red)}.toast.warning{background:var(--orange)}
-.loading-overlay{position:fixed;inset:0;background:rgba(37,99,235,.95);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10000;color:#fff}
-.loading-spinner{width:50px;height:50px;border:4px solid rgba(255,255,255,.3);border-top:4px solid #fff;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:1rem}
-@keyframes spin{to{transform:rotate(360deg)}}
-.empty-state{text-align:center;padding:2.5rem 1rem}.empty-state-icon{font-size:2.5rem;margin-bottom:.75rem;opacity:.4}.empty-state h3{font-size:1rem;color:var(--text2)}
 .hamburger{display:none;position:fixed;top:.85rem;left:.85rem;z-index:1100;width:38px;height:38px;border:none;background:#fff;border-radius:10px;box-shadow:var(--shadow-md);cursor:pointer;font-size:1.1rem;color:var(--text);align-items:center;justify-content:center}
-@media(max-width:1200px){.stats-grid{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:768px){.sidebar{transform:translateX(-280px)}.sidebar.open{transform:translateX(0)}.main-content{margin-left:0!important}.hamburger{display:flex}.header{padding:.85rem;padding-left:3.5rem}.content{padding:.85rem}.stats-grid{grid-template-columns:1fr 1fr}.inad-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}}
+@media(max-width:1100px){.painel-grid{grid-template-columns:1fr}.stats-row{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:1100px){.painel-grid{grid-template-columns:1fr}.stats-row{grid-template-columns:repeat(2,1fr)}.nav-row{grid-template-columns:repeat(2,1fr)}}@media(max-width:768px){.sidebar{transform:translateX(-260px)}.sidebar.open{transform:translateX(0)}.main-content{margin-left:0!important}.hamburger{display:flex}.header{padding:.85rem;padding-left:3.5rem}.content{padding:.85rem}.stats-row{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}.pac-card-btns{grid-template-columns:1fr 1fr}.nav-row{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -108,664 +227,1192 @@ tr:hover{background:#F8FAFC}
 <button class="hamburger" onclick="document.getElementById('sidebar').classList.toggle('open')"><i class="fas fa-bars"></i></button>
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-logo">
-    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjX3FIgwQ1yUrYjlzzlATIHy6w8gtyBGyYrv9UeDRnDgCYfvSzvXE8mySFxLQ45dut1UP_FD0Srttnd2kD6jf7VXIil6ZfJEUFchoazwH-ZP11gUsyt6zxgQ5K-aQ-76VXWOClTjSWmKxX8IKZI7uZEBZBKO7el9g9vj-sXRqRGrLxUYhLYNBdVDf_J9OuL/w200-h200/ChatGPT%20Image%2029%20de%20dez.%20de%202025,%2012_21_08.png" alt="Logo" style="width:48px;height:48px;border-radius:12px">
+    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjX3FIgwQ1yUrYjlzzlATIHy6w8gtyBGyYrv9UeDRnDgCYfvSzvXE8mySFxLQ45dut1UP_FD0Srttnd2kD6jf7VXIil6ZfJEUFchoazwH-ZP11gUsyt6zxgQ5K-aQ-76VXWOClTjSWmKxX8IKZI7uZEBZBKO7el9g9vj-sXRqRGrLxUYhLYNBdVDf_J9OuL/w200-h200/ChatGPT%20Image%2029%20de%20dez.%20de%202025,%2012_21_08.png" alt="Logo">
     <div class="logo-text" id="logoText">VECXO</div>
   </div>
   <ul class="sidebar-nav">
-    <li><a href="index1.html"><i class="fas fa-home"></i><span>Dashboard</span></a></li>
     <li><a href="cadastro-cliente.html"><i class="fas fa-user-injured"></i><span>Pacientes</span></a></li>
     <li><a href="mensalidades.html" class="active"><i class="fas fa-file-invoice-dollar"></i><span>Mensalidades</span></a></li>
-    <li><a href="cadastro-servicos.html"><i class="fas fa-hand-holding-medical"></i><span>Servicos</span></a></li>
-    <li><a href="cadastro-produtos.html"><i class="fas fa-box"></i><span>Materiais</span></a></li>
-    <li><a href="finalizar-servico.html"><i class="fas fa-shopping-cart"></i><span>Vendas</span></a></li>
-    <li><a href="profissionais.html"><i class="fas fa-user-md"></i><span>Profissionais</span></a></li>
-    <li><a href="ponto.html"><i class="fas fa-clock"></i><span>Ponto</span></a></li>
     <li><a href="financeiro.html"><i class="fas fa-chart-line"></i><span>Financeiro</span></a></li>
   </ul>
-  <div class="sidebar-footer"><div class="user-info"><div class="user-avatar" id="userAvatar">A</div><div class="user-details"><div class="user-name" id="userName">Admin</div><div class="user-role">Gerente</div></div><button class="logout-btn" onclick="handleLogout()" title="Sair"><i class="fas fa-sign-out-alt"></i></button></div></div>
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar" id="userAvatar">A</div>
+      <div class="user-details"><div class="user-name" id="userName">Admin</div><div class="user-role">Gerente</div></div>
+      <button class="logout-btn" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i></button>
+    </div>
+  </div>
 </aside>
+
 <main class="main-content">
+  <div class="alert-banner" id="alertBanner">
+    <i class="fas fa-exclamation-triangle"></i>
+    <span>Atencao! <strong id="alertCount">0</strong> mensalidades em atraso.</span>
+    <button class="btn btn-sm" style="background:rgba(255,255,255,.22);color:#fff;border:none;margin-left:auto" onclick="dispararAlertas()">
+      <i class="fab fa-whatsapp"></i> Cobrar todos pelo WhatsApp agora
+    </button>
+  </div>
   <header class="header">
-    <div class="header-left"><h1><i class="fas fa-file-invoice-dollar" style="color:var(--primary);margin-right:.4rem"></i>Mensalidades</h1><p>Controle de planos e cobracas</p></div>
+    <div class="header-left">
+      <h1><i class="fas fa-file-invoice-dollar" style="color:var(--primary)"></i> Mensalidades</h1>
+      <p>Controle de cobracas e planos dos pacientes</p>
+    </div>
     <div class="header-actions">
-      <button class="btn btn-purple" onclick="openPlanoModal()"><i class="fas fa-layer-group"></i> Novo Plano</button>
-      <button class="btn btn-primary" onclick="openMensModal()"><i class="fas fa-plus"></i> Nova Mensalidade</button>
-      <button class="btn btn-success" onclick="dispararAlertas()"><i class="fab fa-whatsapp"></i> Alertas</button>
+      <button class="btn btn-ghost btn-sm" onclick="openPlanoModal()">
+        <i class="fas fa-layer-group"></i> Gerenciar Planos
+        <span class="tip"><span class="tip-icon"><i class="fas fa-info"></i></span><span class="tip-text">Crie e edite tipos de plano (mensal, trimestral, semestral, anual)</span></span>
+      </button>
+      <button class="btn btn-ghost btn-sm" onclick="dispararAlertas()">
+        <i class="fab fa-whatsapp"></i> Cobrar Atrasados
+      </button>
     </div>
   </header>
   <div class="content">
-    <div class="stats-grid" id="statsGrid"></div>
-    <div class="tabs" id="tabsBar"></div>
+    <div class="stats-row" id="statsGrid"></div>
+
+    <!-- 4 BOTOES NA MESMA LINHA -->
+    <div class="nav-row">
+      <button class="btn-giant" onclick="openNovaMensModal()">
+        <i class="fas fa-plus-circle"></i>
+        <span>NOVA MENSALIDADE</span>
+      </button>
+      <button class="pill-btn active" onclick="switchTab('painel')" id="pill-painel">
+        <i class="fas fa-th-large"></i>
+        <span class="pill-label">Painel do Mes</span>
+      </button>
+      <button class="pill-btn" onclick="switchTab('mensalidades')" id="pill-mensalidades">
+        <i class="fas fa-list"></i>
+        <span class="pill-label">Todos os Contratos</span>
+      </button>
+      <button class="pill-btn" onclick="switchTab('historico')" id="pill-historico">
+        <i class="fas fa-history"></i>
+        <span class="pill-label">Historico de Pagamentos</span>
+      </button>
+    </div>
+
     <div id="tabContent"></div>
   </div>
 </main>
+
 <div class="modal-overlay" id="modalOverlay"><div class="modal" id="modalContent"></div></div>
+
 <script>
-var SUPABASE_URL = 'https://rdfcosxyeqgbjdedargd.supabase.co';
-var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkZmNvc3h5ZXFnYmpkZWRhcmdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDkxNTQsImV4cCI6MjA3NzA4NTE1NH0.wNx6jQAi9nn2K_E-40VuV6k0sWPoF5bWAw_si__aSyo';
-var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-var user, salaoId;
-var planos = [], mensalidades = [], pagamentos = [], pacientes = [], parcelas = [];
-var currentTab = 'inadimplencia', inadFilter = 'todos';
+var SUPABASE_URL='https://rdfcosxyeqgbjdedargd.supabase.co';
+var SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkZmNvc3h5ZXFnYmpkZWRhcmdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MDkxNTQsImV4cCI6MjA3NzA4NTE1NH0.wNx6jQAi9nn2K_E-40VuV6k0sWPoF5bWAw_si__aSyo';
+var sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+var user,salaoId;
+var planos=[],mensalidades=[],pagamentos=[],pacientes=[],parcelas=[];
+var currentTab='painel';
+// Estado do modal nova mensalidade
+var novaParcelaState=[];
 
-function el(id) { return document.getElementById(id); }
-function sL(t) { el('loadingText').textContent = t || 'Carregando...'; el('loadingOverlay').style.display = 'flex'; }
-function hL() { el('loadingOverlay').style.display = 'none'; }
-function sT(msg, tipo) {
-    var e = el('toast');
-    e.className = 'toast ' + (tipo === 'error' ? 'error' : tipo === 'warning' ? 'warning' : 'success') + ' show';
-    e.innerHTML = '<i class="fas fa-' + (tipo === 'error' ? 'times-circle' : tipo === 'warning' ? 'exclamation-circle' : 'check-circle') + '"></i> ' + msg;
-    setTimeout(function() { e.classList.remove('show'); }, 3500);
+function el(id){return document.getElementById(id)}
+function sL(t){el('loadingText').textContent=t||'Carregando...';el('loadingOverlay').style.display='flex'}
+function hL(){el('loadingOverlay').style.display='none'}
+function sT(msg,tipo){
+  var e=el('toast');
+  e.className='toast '+(tipo==='error'?'error':tipo==='warning'?'warning':'success')+' show';
+  e.innerHTML='<i class="fas fa-'+(tipo==='error'?'times-circle':tipo==='warning'?'exclamation-triangle':'check-circle')+'"></i> '+msg;
+  setTimeout(function(){e.classList.remove('show')},3500);
 }
-function fmt(v) { return 'R$ ' + (Number(v) || 0).toFixed(2).replace('.', ','); }
-function fmtD(d) { if (!d) return '-'; return new Date(d + 'T12:00:00').toLocaleDateString('pt-BR'); }
-function fmtF(f) { return { pix: 'PIX', cartao_credito: 'Cartao Credito', cartao_debito: 'Cartao Debito', dinheiro: 'Dinheiro', boleto: 'Boleto' }[f] || f; }
-function diasAtraso(d) { var h = new Date(); h.setHours(0, 0, 0, 0); return Math.floor((h - new Date(d + 'T00:00:00')) / 86400000); }
-function openModal(html) { el('modalContent').innerHTML = html; el('modalOverlay').classList.add('show'); }
-function closeModal() { el('modalOverlay').classList.remove('show'); }
-function switchTab(t) { currentTab = t; renderTabs(); renderTabContent(); }
+function fmt(v){return 'R$ '+(Number(v)||0).toFixed(2).replace('.',',')}
+function fmtD(d){if(!d)return'-';return new Date(d+'T12:00:00').toLocaleDateString('pt-BR')}
+function fmtF(f){return{pix:'PIX',cartao_credito:'Cartao Credito',cartao_debito:'Cartao Debito',dinheiro:'Dinheiro',boleto:'Boleto'}[f]||f}
+function diasAtraso(d){var h=new Date();h.setHours(0,0,0,0);return Math.floor((h-new Date(d+'T00:00:00'))/86400000)}
+function openModal(html,wide){
+  var mc=el('modalContent');mc.innerHTML=html;
+  mc.className='modal'+(wide?' modal-wide':'');
+  el('modalOverlay').classList.add('show');
+}
+function closeModal(){el('modalOverlay').classList.remove('show')}
 
-function badge(s) {
-    var map = {
-        pago: ['badge-pago', 'Pago'],
-        atrasado: ['badge-atrasado', 'Atrasado'],
-        vence_hoje: ['badge-vence-hoje', 'Vence Hoje'],
-        futuro: ['badge-futuro', 'Futuro'],
-        cancelado: ['badge-cancelado', 'Cancelado']
-    };
-    var b = map[s] || ['badge-cancelado', s];
-    return '<span class="badge ' + b[0] + '"><i class="fas fa-circle"></i> ' + b[1] + '</span>';
+function switchTab(t){
+  currentTab=t;
+  ['painel','mensalidades','historico'].forEach(function(id){
+    var p=el('pill-'+id);if(p)p.className='pill-btn'+(t===id?' active':'');
+  });
+  renderTabContent();
 }
 
-// ============================================================
-// CALCULAR PARCELAS — LOGICA CENTRAL IMUTAVEL
-// N_meses nas obs = gera EXATAMENTE N parcelas, SEMPRE
-// Pagar parcela NAO gera novas. Apenas muda status para pago.
-// ============================================================
-function calcularParcelas() {
-    var hoje = new Date(); hoje.setHours(0, 0, 0, 0);
-    parcelas = [];
-    mensalidades.filter(function(m) { return m.status !== 'cancelado'; }).forEach(function(m) {
-        var plano = planos.find(function(p) { return p.id === m.plano_id; });
-        if (!plano) return;
+// ==============================
+// CALCULO DE PARCELAS (intocado)
+// ==============================
+function calcularParcelas(){
+  var hoje=new Date();hoje.setHours(0,0,0,0);
+  parcelas=[];
+  mensalidades.filter(function(m){return m.status!=='cancelado'&&(!m.clientes||m.clientes.ativo!==false)}).forEach(function(m){
+    var plano=planos.find(function(p){return p.id===m.plano_id});
+    if(!plano)return;
+    var total;
+    if(plano.tipo==='trimestral')total=3;
+    else if(plano.tipo==='semestral')total=6;
+    else if(plano.tipo==='anual')total=12;
+    else{var mt=m.observacoes?m.observacoes.match(/(\d+)_meses/):null;total=mt?parseInt(mt[1]):1}
+    var dia=m.dia_vencimento;
+    var dtIni=new Date((m.data_inicio||m.data_vencimento)+'T00:00:00');
+    var pags=pagamentos.filter(function(p){return p.mensalidade_id===m.id});
+    for(var i=0;i<total;i++){
+      var ano=dtIni.getFullYear();
+      var mes=dtIni.getMonth()+1+i;
+      ano+=Math.floor(mes/12);mes=mes%12;
+      var vd=new Date(ano,mes,dia);vd.setHours(0,0,0,0);
+      var ds=vd.getFullYear()+'-'+String(vd.getMonth()+1).padStart(2,'0')+'-'+String(dia).padStart(2,'0');
+      var r7=ds.substring(0,7);
+      var pag=pags.find(function(p){return p.comprovante&&p.comprovante.substring(0,7)===r7})||null;
+      var st=pag?'pago':vd.getTime()===hoje.getTime()?'vence_hoje':vd<hoje?'atrasado':'futuro';
+      parcelas.push({id:m.id+'_'+ds,mensalidade_id:m.id,paciente_id:m.paciente_id,plano_id:m.plano_id,clientes:m.clientes,planos:m.planos,valor:m.valor,data_vencimento:ds,_st:st,pagamento:pag});
+    }
+  });
+  parcelas.sort(function(a,b){return a.data_vencimento>b.data_vencimento?1:-1});
+}
 
-        // Quantos meses tem esse contrato — FIXO, nao muda com pagamentos
-        var total;
-        if (plano.tipo === 'trimestral') total = 3;
-        else if (plano.tipo === 'semestral') total = 6;
-        else if (plano.tipo === 'anual') total = 12;
-        else {
-            var mt = m.observacoes ? m.observacoes.match(/(\d+)_meses/) : null;
-            total = mt ? parseInt(mt[1]) : 1;
-        }
+function renderStats(){
+  var atr=parcelas.filter(function(p){return p._st==='atrasado'}).length;
+  var hj=parcelas.filter(function(p){return p._st==='vence_hoje'}).length;
+  var pg=parcelas.filter(function(p){return p._st==='pago'}).length;
+  var mes=new Date().toISOString().substring(0,7);
+  var rec=pagamentos.filter(function(p){return p.data_pagamento&&p.data_pagamento.startsWith(mes)}).reduce(function(s,p){return s+(p.valor_pago||0)},0);
+  var ban=el('alertBanner');
+  if(atr>0){ban.classList.add('show');el('alertCount').textContent=atr}else{ban.classList.remove('show')}
+  el('statsGrid').innerHTML=
+    '<div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-body"><div class="stat-value green">'+pg+'</div><div class="stat-label">Pagamentos em dia este mes</div></div></div>'+
+    '<div class="stat-card"><div class="stat-icon orange"><i class="fas fa-clock"></i></div><div class="stat-body"><div class="stat-value orange">'+hj+'</div><div class="stat-label">Vencem hoje</div></div></div>'+
+    '<div class="stat-card"><div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-body"><div class="stat-value red">'+atr+'</div><div class="stat-label">Em atraso</div></div></div>'+
+    '<div class="stat-card"><div class="stat-icon purple"><i class="fas fa-dollar-sign"></i></div><div class="stat-body"><div class="stat-value purple" style="font-size:1.15rem">'+fmt(rec)+'</div><div class="stat-label">Recebido este mes</div></div></div>';
+}
 
-        var dia = m.dia_vencimento;
-        var dtIni = new Date((m.data_inicio || m.data_vencimento) + 'T00:00:00');
-        var pags = pagamentos.filter(function(p) { return p.mensalidade_id === m.id; });
+function renderTabContent(){
+  if(currentTab==='painel')renderPainel();
+  else if(currentTab==='mensalidades')renderMens();
+  else renderHist();
+}
 
-        for (var i = 0; i < total; i++) {
-            var ano = dtIni.getFullYear();
-            // Primeiro vencimento = mes SEGUINTE ao da chegada
-            var mes = dtIni.getMonth() + 1 + i;
-            ano += Math.floor(mes / 12); mes = mes % 12;
-            var vd = new Date(ano, mes, dia); vd.setHours(0, 0, 0, 0);
-            var ds = vd.getFullYear() + '-' + String(vd.getMonth() + 1).padStart(2, '0') + '-' + String(dia).padStart(2, '0');
-            var r7 = ds.substring(0, 7);
-            var pag = pags.find(function(p) {
-                // Usa APENAS o comprovante para identificar o mes de referencia
-                // data_pagamento nao serve pois pode ser pago em mes diferente
-                return p.comprovante && p.comprovante.substring(0, 7) === r7;
-            }) || null;
-            var st = pag ? 'pago' : vd.getTime() === hoje.getTime() ? 'vence_hoje' : vd < hoje ? 'atrasado' : 'futuro';
-            parcelas.push({ id: m.id + '_' + ds, mensalidade_id: m.id, paciente_id: m.paciente_id, plano_id: m.plano_id, clientes: m.clientes, planos: m.planos, valor: m.valor, data_vencimento: ds, _st: st, pagamento: pag });
-        }
+// ==============================
+// CALENDARIO
+// ==============================
+var calMesAtual=new Date();calMesAtual.setDate(1);calMesAtual.setHours(0,0,0,0);
+
+function renderPainel(){
+  var tc=el('tabContent');tc.innerHTML='';
+  var layout=document.createElement('div');
+  layout.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;align-items:start';
+
+  // ── COLUNA ESQUERDA: CALENDARIO ──
+  var wrap=document.createElement('div');wrap.className='section-card';wrap.style.overflow='visible';
+
+  var hdr=document.createElement('div');hdr.className='section-header';
+  var mesNome=calMesAtual.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+  mesNome=mesNome.charAt(0).toUpperCase()+mesNome.slice(1);
+  hdr.innerHTML=
+    '<button onclick="calNav(-1)" style="width:32px;height:32px;border:none;background:var(--primary-light);color:var(--primary);border-radius:9px;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center"><i class="fas fa-chevron-left"></i></button>'+
+    '<div style="font-size:.95rem;font-weight:800;color:var(--primary)">'+mesNome+'</div>'+
+    '<button onclick="calNav(1)" style="width:32px;height:32px;border:none;background:var(--primary-light);color:var(--primary);border-radius:9px;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center"><i class="fas fa-chevron-right"></i></button>';
+  wrap.appendChild(hdr);
+
+  // LEGENDA
+  var leg=document.createElement('div');
+  leg.style.cssText='display:flex;gap:.75rem;padding:.5rem 1rem;border-bottom:1px solid #F3E8FF;flex-wrap:wrap';
+  leg.innerHTML=
+    '<span style="display:flex;align-items:center;gap:.3rem;font-size:.7rem;font-weight:700"><span style="width:12px;height:12px;border-radius:3px;background:#EF4444;display:inline-block"></span>Atrasado</span>'+
+    '<span style="display:flex;align-items:center;gap:.3rem;font-size:.7rem;font-weight:700"><span style="width:12px;height:12px;border-radius:3px;background:#F59E0B;display:inline-block"></span>Hoje</span>'+
+    '<span style="display:flex;align-items:center;gap:.3rem;font-size:.7rem;font-weight:700"><span style="width:12px;height:12px;border-radius:3px;background:#8B5CF6;display:inline-block"></span>A vencer</span>'+
+    '<span style="display:flex;align-items:center;gap:.3rem;font-size:.7rem;font-weight:700"><span style="width:12px;height:12px;border-radius:3px;background:#10B981;display:inline-block"></span>Pago</span>';
+  wrap.appendChild(leg);
+
+  // DIAS DA SEMANA
+  var diasSem=document.createElement('div');
+  diasSem.style.cssText='display:grid;grid-template-columns:repeat(7,1fr);text-align:center;padding:.4rem .6rem .1rem;gap:3px';
+  ['D','S','T','Q','Q','S','S'].forEach(function(d){
+    var s=document.createElement('div');
+    s.style.cssText='font-size:.68rem;font-weight:800;color:var(--muted);padding:.2rem 0';
+    s.textContent=d;diasSem.appendChild(s);
+  });
+  wrap.appendChild(diasSem);
+
+  // GRID DOS DIAS
+  var grid=document.createElement('div');
+  grid.style.cssText='display:grid;grid-template-columns:repeat(7,1fr);gap:3px;padding:.2rem .6rem .8rem';
+
+  var ano=calMesAtual.getFullYear();
+  var mes=calMesAtual.getMonth();
+  var hoje=new Date();hoje.setHours(0,0,0,0);
+  var hojeStr=hoje.toISOString().split('T')[0];
+  var mesStr=ano+'-'+String(mes+1).padStart(2,'0');
+
+  var parcsDoMes=parcelas.filter(function(p){return p.data_vencimento.startsWith(mesStr)});
+  var porDia={};
+  parcsDoMes.forEach(function(p){
+    var d=parseInt(p.data_vencimento.split('-')[2]);
+    if(!porDia[d])porDia[d]=[];
+    porDia[d].push(p);
+  });
+
+  var primeiroDia=new Date(ano,mes,1).getDay();
+  for(var i=0;i<primeiroDia;i++){
+    var vz=document.createElement('div');vz.style.cssText='min-height:58px;border-radius:9px';
+    grid.appendChild(vz);
+  }
+  var totalDias=new Date(ano,mes+1,0).getDate();
+  for(var d=1;d<=totalDias;d++){
+    var ds=mesStr+'-'+String(d).padStart(2,'0');
+    var isHoje=ds===hojeStr;
+    var ps=porDia[d]||[];
+    var temPago=ps.some(function(p){return p._st==='pago'});
+    var temAtr=ps.some(function(p){return p._st==='atrasado'});
+    var temHoje=ps.some(function(p){return p._st==='vence_hoje'});
+    var temFut=ps.some(function(p){return p._st==='futuro'});
+
+    var bg='#fff',bord='#E9D5FF',numC='var(--text)';
+    if(ps.length){
+      if(temAtr){bg='#FEF2F2';bord='#EF4444';numC='#B91C1C';}
+      else if(temHoje){bg='#FFFBEB';bord='#F59E0B';numC='#B45309';}
+      else if(temFut&&!temPago){bg='#F5F3FF';bord='#8B5CF6';numC='#6D28D9';}
+      else if(temPago&&!temFut&&!temAtr&&!temHoje){bg='#F0FDF4';bord='#10B981';numC='#065F46';}
+    }
+    if(isHoje&&!ps.length){bord='var(--primary)';bg='var(--primary-light)';}
+
+    var cell=document.createElement('div');
+    cell.style.cssText='min-height:58px;border-radius:9px;border:2px solid '+bord+';background:'+bg+';padding:.3rem .3rem;cursor:'+(ps.length?'pointer':'default')+';transition:transform .15s;display:flex;flex-direction:column;gap:2px;position:relative';
+    if(ps.length){
+      cell.onmouseover=function(){this.style.transform='scale(1.06)';this.style.zIndex='10';};
+      cell.onmouseout=function(){this.style.transform='';this.style.zIndex='';};
+    }
+
+    // Numero
+    var numDiv=document.createElement('div');
+    numDiv.style.cssText='font-size:.75rem;font-weight:800;color:'+numC+';'+(isHoje?'background:var(--primary);color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.65rem':'');
+    numDiv.textContent=d;
+    cell.appendChild(numDiv);
+
+    // Chips de pacientes
+    if(ps.length){
+      var max=2;
+      ps.slice(0,max).forEach(function(p){
+        var ini2=(p.clientes&&p.clientes.nome?p.clientes.nome:'?').charAt(0).toUpperCase();
+        var cor2=p._st==='pago'?'#10B981':p._st==='atrasado'?'#EF4444':p._st==='vence_hoje'?'#F59E0B':'#8B5CF6';
+        var chip=document.createElement('div');
+        chip.style.cssText='display:flex;align-items:center;gap:2px;padding:1px 4px;border-radius:20px;background:'+cor2+';overflow:hidden';
+        chip.innerHTML='<span style="width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,.3);display:inline-flex;align-items:center;justify-content:center;font-size:.5rem;font-weight:800;color:#fff;flex-shrink:0">'+ini2+'</span>'+
+          '<span style="font-size:.55rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:40px">'+(p.clientes?p.clientes.nome.split(' ')[0]:'-')+'</span>';
+        cell.appendChild(chip);
+      });
+      if(ps.length>max){
+        var mais=document.createElement('div');
+        mais.style.cssText='font-size:.6rem;font-weight:800;color:'+numC+';text-align:center;line-height:1';
+        mais.textContent='+'+( ps.length-max);
+        cell.appendChild(mais);
+      }
+      cell.addEventListener('click',(function(parcsDia,diaStr){return function(){abrirDiaModal(parcsDia,diaStr)}})(ps,ds));
+    }
+    grid.appendChild(cell);
+  }
+  wrap.appendChild(grid);
+  layout.appendChild(wrap);
+
+  // ── COLUNA DIREITA: ATRASADOS ──
+  var colR=document.createElement('div');colR.className='section-card';
+  var parcsAtrasadas=parcelas.filter(function(p){return p._st==='atrasado'});
+  var hdrA=document.createElement('div');hdrA.className='section-header';
+  hdrA.innerHTML='<div class="section-header-left"><i class="fas fa-exclamation-triangle" style="color:#DC2626;font-size:1rem"></i><span class="section-title" style="color:#B91C1C">Em Atraso</span></div>'+
+    '<div style="display:flex;gap:.4rem;align-items:center"><span class="section-count red">'+parcsAtrasadas.length+' pendentes</span>'+
+    (parcsAtrasadas.length?'<button class="act-btn whatsapp" onclick="dispararAlertas()"><i class="fab fa-whatsapp"></i> Cobrar todos</button>':'')+
+    '</div>';
+  colR.appendChild(hdrA);
+  var bodyA=document.createElement('div');
+  if(!parcsAtrasadas.length){
+    bodyA.innerHTML='<div class="empty-state"><div class="empty-icon">✅</div><h3>Nenhum atraso!</h3><p>Todos em dia.</p></div>';
+  }else{
+    parcsAtrasadas.sort(function(a,b){return diasAtraso(b.data_vencimento)-diasAtraso(a.data_vencimento)});
+    parcsAtrasadas.forEach(function(p){bodyA.appendChild(mkPacItem(p,false,true))});
+  }
+  colR.appendChild(bodyA);
+  layout.appendChild(colR);
+
+  tc.appendChild(layout);
+}
+
+function calNav(dir){
+  calMesAtual.setMonth(calMesAtual.getMonth()+dir);
+  renderPainel();
+}
+
+function abrirDiaModal(ps,diaStr){
+  var dtObj=new Date(diaStr+'T12:00:00');
+  var label=dtObj.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  label=label.charAt(0).toUpperCase()+label.slice(1);
+  var html='<div class="modal-header"><h2><i class="fas fa-calendar-day" style="color:var(--primary)"></i> '+label+'</h2><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div>'+
+    '<div class="modal-body" style="padding:.75rem">';
+  ps.forEach(function(p){
+    var cor=p._st==='pago'?'#10B981':p._st==='atrasado'?'#EF4444':p._st==='vence_hoje'?'#F59E0B':'#8B5CF6';
+    var lbl=p._st==='pago'?'✅ Pago':p._st==='atrasado'?'⚠️ Atrasado':p._st==='vence_hoje'?'🔔 Vence Hoje':'📅 A Vencer';
+    var ini=(p.clientes&&p.clientes.nome?p.clientes.nome:'?').charAt(0).toUpperCase();
+    var tel=p.clientes&&p.clientes.telefone?p.clientes.telefone:'';
+    html+='<div style="border-radius:12px;border:2px solid '+cor+'30;background:'+cor+'08;margin-bottom:.75rem;overflow:hidden">'+
+      '<div style="display:flex;align-items:center;gap:.8rem;padding:.75rem">'+
+        '<div style="width:40px;height:40px;border-radius:50%;background:'+cor+';display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.9rem;flex-shrink:0">'+ini+'</div>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div style="font-weight:800;font-size:.9rem">'+(p.clientes?p.clientes.nome:'-')+'</div>'+
+          (tel?'<div style="font-size:.72rem;color:var(--muted)"><i class="fab fa-whatsapp" style="color:#25D366"></i> '+tel+'</div>':'')+
+          '<div style="font-size:.72rem;font-weight:700;color:'+cor+';margin-top:.1rem">'+lbl+'</div>'+
+        '</div>'+
+        '<div style="font-size:1.1rem;font-weight:900;color:var(--primary);flex-shrink:0">'+fmt(p.valor)+'</div>'+
+      '</div>'+
+      '<div style="display:flex;gap:.4rem;padding:.5rem .75rem;border-top:1px solid '+cor+'20">';
+    if(p._st!=='pago'){
+      html+='<button onclick="closeModal();openPagModal(\''+p.id+'\')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:.4rem;padding:.55rem .8rem;background:linear-gradient(135deg,#059669,#10B981);color:#fff;border:none;border-radius:9px;font-family:Poppins,sans-serif;font-size:.8rem;font-weight:800;cursor:pointer"><i class="fas fa-check-circle"></i> Marcar como Pago</button>';
+      if(tel) html+='<button onclick="enviarCobranca(\''+p.id+'\')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:.4rem;padding:.55rem .8rem;background:#25D366;color:#fff;border:none;border-radius:9px;font-family:Poppins,sans-serif;font-size:.8rem;font-weight:800;cursor:pointer"><i class="fab fa-whatsapp"></i> Cobrar WhatsApp</button>';
+    }else{
+      html+='<button onclick="gerarRecibo(\''+p.id+'\')" style="display:flex;align-items:center;justify-content:center;gap:.4rem;padding:.55rem .8rem;background:#DBEAFE;color:#1D4ED8;border:none;border-radius:9px;font-family:Poppins,sans-serif;font-size:.8rem;font-weight:800;cursor:pointer"><i class="fas fa-receipt"></i> Ver Recibo</button>';
+    }
+    html+='</div></div>';
+  });
+  html+='</div><div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal()"><i class="fas fa-times"></i> Fechar</button></div>';
+  openModal(html);
+}
+
+
+function mkPacItem(p,isHoje,isAtraso){
+  var div=document.createElement('div');
+  div.className='pac-item-card'+(isAtraso?' atraso':isHoje?' hoje-card':'');
+  var dias=diasAtraso(p.data_vencimento);
+  var ini=(p.clientes&&p.clientes.nome?p.clientes.nome:'?').charAt(0).toUpperCase();
+  var nome=p.clientes?p.clientes.nome:'-';
+  var tel=p.clientes&&p.clientes.telefone?p.clientes.telefone:'';
+  var atrasoHtml='';
+  if(isAtraso) atrasoHtml='<span class="atraso-tag">⚠️ '+dias+' dias em atraso</span>';
+  else if(isHoje) atrasoHtml='<span class="atraso-tag hoje">🔔 Vence hoje</span>';
+  else atrasoHtml='<span class="vence-tag">📅 Vence '+fmtD(p.data_vencimento)+'</span>';
+
+  div.innerHTML=
+    '<div class="pac-card-top">'+
+      '<div class="pac-avatar'+(isAtraso?' red':isHoje?' orange':'')+'">'+ini+'</div>'+
+      '<div class="pac-card-info">'+
+        '<div class="pac-nome-big">'+nome+'</div>'+
+        (tel?'<div class="pac-tel"><i class="fab fa-whatsapp" style="color:#25D366"></i> '+tel+'</div>':'')+
+      '</div>'+
+      '<div class="pac-card-valor">'+
+        '<div class="pac-valor-big">'+fmt(p.valor)+'</div>'+
+        atrasoHtml+
+      '</div>'+
+    '</div>'+
+    '<div class="pac-card-btns" id="ac_'+p.id.replace(/[^a-zA-Z0-9]/g,'_')+'"></div>';
+
+  setTimeout(function(){
+    var acId='ac_'+p.id.replace(/[^a-zA-Z0-9]/g,'_');
+    var acDiv=document.getElementById(acId);if(!acDiv)return;
+    // grid: pagar | whatsapp(se tiver) | editar | excluir
+    acDiv.style.gridTemplateColumns=tel?'1fr 1fr auto auto':'1fr auto auto';
+
+    // BOTAO PAGAR — grande, verde, destaque total
+    var bPag=document.createElement('button');
+    bPag.className='btn-card-action pagar';
+    bPag.innerHTML='<i class="fas fa-check-circle"></i><span>Marcar como Pago</span>';
+    bPag.onclick=(function(pid){return function(e){e.stopPropagation();openPagModal(pid)}})(p.id);
+    acDiv.appendChild(bPag);
+
+    // BOTAO WHATSAPP — grande, verde WhatsApp
+    if(tel){
+      var bWa=document.createElement('button');
+      bWa.className='btn-card-action whatsapp';
+      bWa.innerHTML='<i class="fab fa-whatsapp"></i><span>Cobrar pelo WhatsApp</span>';
+      bWa.onclick=(function(pid){return function(e){e.stopPropagation();enviarCobranca(pid)}})(p.id);
+      acDiv.appendChild(bWa);
+    }
+
+    // BOTAO EDITAR — menor, secundario
+    var bEdt=document.createElement('button');
+    bEdt.className='btn-card-action editar';
+    bEdt.innerHTML='<i class="fas fa-edit"></i><span>Editar</span>';
+    bEdt.onclick=(function(mid){return function(e){e.stopPropagation();openMensModal(mid)}})(p.mensalidade_id);
+    acDiv.appendChild(bEdt);
+
+    // BOTAO EXCLUIR — vermelho, abre modal de escolha
+    var bDel=document.createElement('button');
+    bDel.className='btn-card-action excluir';
+    bDel.innerHTML='<i class="fas fa-trash"></i><span>Excluir</span>';
+    bDel.onclick=(function(mid,pnome,pacId){return function(e){e.stopPropagation();openExcluirPacienteModal(mid,pnome,pacId)}})(p.mensalidade_id,nome,p.paciente_id);
+    acDiv.appendChild(bDel);
+  },0);
+  return div;
+}
+
+function badgeHtml(s){
+  var m={pago:['badge-pago','fa-check-circle','Pago'],atrasado:['badge-atrasado','fa-exclamation-triangle','Atrasado'],vence_hoje:['badge-hoje','fa-clock','Vence Hoje'],futuro:['badge-futuro','fa-hourglass-half','Futuro'],cancelado:['badge-cancelado','fa-times','Cancelado']};
+  var b=m[s]||['badge-cancelado','fa-circle',s];
+  return '<span class="badge '+b[0]+'"><i class="fas '+b[1]+'"></i> '+b[2]+'</span>';
+}
+
+// ==============================
+// TODOS OS CONTRATOS
+// ==============================
+function renderMens(){
+  // Agrupa por mensalidade_id usando a lista completa de mensalidades (inclui inativos/cancelados)
+  var lista=mensalidades.map(function(m){
+    // Calcula parcelas desta mensalidade especificamente
+    var plano=planos.find(function(p){return p.id===m.plano_id});
+    var total=1;
+    if(plano){
+      if(plano.tipo==='trimestral')total=3;
+      else if(plano.tipo==='semestral')total=6;
+      else if(plano.tipo==='anual')total=12;
+      else{var mt=m.observacoes?m.observacoes.match(/(\d+)_meses/):null;total=mt?parseInt(mt[1]):1}
+    }
+    var listaParc=parcelas.filter(function(p){return p.mensalidade_id===m.id});
+    // Se nao tem parcelas calculadas (inativo), usa total do plano
+    var pagas=listaParc.filter(function(x){return x._st==='pago'}).length;
+    var atrasadas=listaParc.filter(function(x){return x._st==='atrasado'}).length;
+    var pacInativo=m.clientes&&m.clientes.ativo===false;
+    var mensCancelada=m.status==='cancelado';
+    return{m:m,plano:plano,listaParc:listaParc,total:total,pagas:pagas,atrasadas:atrasadas,pacInativo:pacInativo,mensCancelada:mensCancelada};
+  });
+  lista.sort(function(a,b){
+    // Inativos vao pro final
+    if(a.pacInativo&&!b.pacInativo)return 1;
+    if(!a.pacInativo&&b.pacInativo)return -1;
+    return(a.m.clientes?a.m.clientes.nome:'')>(b.m.clientes?b.m.clientes.nome:'')?1:-1;
+  });
+  var tc=el('tabContent');tc.innerHTML='';
+  var card=document.createElement('div');card.className='section-card';
+  var hdr=document.createElement('div');hdr.className='section-header';
+  var ativos=lista.filter(function(g){return!g.pacInativo&&!g.mensCancelada}).length;
+  var inativos=lista.filter(function(g){return g.pacInativo||g.mensCancelada}).length;
+  hdr.innerHTML='<div class="section-header-left"><i class="fas fa-file-invoice-dollar" style="color:var(--primary)"></i><span class="section-title">Todos os Contratos</span></div>'+
+    '<div style="display:flex;gap:.4rem;align-items:center">'+
+    '<span class="section-count purple">'+ativos+' ativos</span>'+
+    (inativos?'<span class="section-count" style="background:#F1F5F9;color:#64748B">'+inativos+' inativos</span>':'')+
+    '</div>';
+  card.appendChild(hdr);
+  var wrap=document.createElement('div');wrap.className='table-wrap';
+  var tbl=document.createElement('table');
+  tbl.innerHTML='<thead><tr><th>Paciente</th><th>Valor/Mes</th><th>Parcelas Pagas</th><th>Situacao</th><th>Acoes</th></tr></thead>';
+  var tbody=document.createElement('tbody');
+  if(!lista.length){
+    tbody.innerHTML='<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">📋</div><h3>Nenhum contrato cadastrado</h3><p>Use o botao grande acima para comecar</p></div></td></tr>';
+  }else{
+    lista.forEach(function(g,i){
+      var m=g.m;
+      var inativo=g.pacInativo||g.mensCancelada;
+      var ini=(m.clientes&&m.clientes.nome?m.clientes.nome:'?').charAt(0).toUpperCase();
+      var rowId='det_'+i;
+      var sit='';
+      if(inativo){
+        sit='<span class="badge" style="background:#E2E8F0;color:#475569;font-weight:800;padding:.3rem .9rem"><i class="fas fa-ban"></i> INATIVO</span>';
+      }else if(g.atrasadas>0){
+        sit='<span class="badge badge-atrasado"><i class="fas fa-exclamation-triangle"></i> '+g.atrasadas+' em atraso</span>';
+      }else{
+        sit='<span class="badge badge-pago"><i class="fas fa-check-circle"></i> Em dia</span>';
+      }
+      var tr=document.createElement('tr');tr.style.cursor='pointer';
+      if(inativo){tr.style.background='#F8FAFC';}
+      tr.innerHTML=
+        '<td><div style="display:flex;align-items:center;gap:.6rem">'+
+        '<div class="pac-avatar" style="width:36px;height:36px;font-size:.8rem;'+(inativo?'background:#94A3B8;':'')+'">'+
+        (inativo?'<i class="fas fa-ban" style="font-size:.85rem"></i>':ini)+
+        '</div>'+
+        '<div>'+
+          '<div style="font-weight:700;font-size:.85rem;'+(inativo?'color:#94A3B8':'')+'">'+
+            (m.clientes?m.clientes.nome:'-')+
+            (inativo?' <span style="font-size:.65rem;background:#E2E8F0;color:#64748B;padding:.1rem .45rem;border-radius:6px;font-weight:800;margin-left:.25rem">INATIVO</span>':'')+
+          '</div>'+
+          '<div style="font-size:.7rem;color:var(--muted)">'+(m.clientes&&m.clientes.telefone?m.clientes.telefone:'')+'</div>'+
+        '</div></div></td>'+
+        '<td style="font-weight:700;'+(inativo?'color:#94A3B8':'')+'">'+fmt(m.valor)+'</td>'+
+        '<td style="color:var(--green);font-weight:700">'+g.pagas+'/'+(g.listaParc.length||g.total)+'</td>'+
+        '<td>'+sit+'</td><td></td>';
+      var acoesTd=tr.querySelector('td:last-child');
+      var aDiv=document.createElement('div');aDiv.style.cssText='display:flex;gap:.5rem;align-items:center;flex-wrap:wrap';
+      var chev=document.createElement('i');chev.className='fas fa-chevron-down';chev.style.cssText='color:var(--muted);font-size:.85rem;margin-left:.3rem;transition:transform .2s;cursor:pointer;flex-shrink:0';
+      if(inativo){
+        // REATIVAR
+        var bReat=document.createElement('button');
+        bReat.style.cssText='display:flex;align-items:center;gap:.5rem;padding:.6rem 1.1rem;background:linear-gradient(135deg,#059669,#10B981);color:#fff;border:none;border-radius:10px;font-family:Poppins,sans-serif;font-size:.82rem;font-weight:800;cursor:pointer;white-space:nowrap';
+        bReat.innerHTML='<i class="fas fa-user-check"></i> Reativar Paciente';
+        bReat.onclick=(function(pacId,mid,pnome){return function(e){e.stopPropagation();reativarPaciente(pacId,mid,pnome)}})(m.paciente_id,m.id,m.clientes?m.clientes.nome:'-');
+        aDiv.appendChild(bReat);
+      }else{
+        // EDITAR
+        var bEdt=document.createElement('button');
+        bEdt.style.cssText='display:flex;align-items:center;gap:.5rem;padding:.6rem 1.1rem;background:linear-gradient(135deg,#5b0082,#9333ea);color:#fff;border:none;border-radius:10px;font-family:Poppins,sans-serif;font-size:.82rem;font-weight:800;cursor:pointer;white-space:nowrap';
+        bEdt.innerHTML='<i class="fas fa-edit"></i> Editar Contrato';
+        bEdt.onclick=(function(mid){return function(e){e.stopPropagation();openMensModal(mid)}})(m.id);
+        // INATIVAR
+        var bInat=document.createElement('button');
+        bInat.style.cssText='display:flex;align-items:center;gap:.5rem;padding:.6rem 1.1rem;background:linear-gradient(135deg,#D97706,#F59E0B);color:#fff;border:none;border-radius:10px;font-family:Poppins,sans-serif;font-size:.82rem;font-weight:800;cursor:pointer;white-space:nowrap';
+        bInat.innerHTML='<i class="fas fa-user-slash"></i> Inativar';
+        bInat.onclick=(function(pacId,mid,pnome){return function(e){e.stopPropagation();openExcluirPacienteModal(mid,pnome,pacId)}})(m.paciente_id,m.id,m.clientes?m.clientes.nome:'-');
+        aDiv.appendChild(bEdt);aDiv.appendChild(bInat);
+      }
+      // EXCLUIR — sempre visivel
+      var bDel=document.createElement('button');
+      bDel.style.cssText='display:flex;align-items:center;gap:.5rem;padding:.6rem 1.1rem;background:linear-gradient(135deg,#B91C1C,#EF4444);color:#fff;border:none;border-radius:10px;font-family:Poppins,sans-serif;font-size:.82rem;font-weight:800;cursor:pointer;white-space:nowrap';
+      bDel.innerHTML='<i class="fas fa-trash"></i> Excluir';
+      bDel.onclick=(function(mid,pnome){return function(e){e.stopPropagation();excluirMensalidade(mid,pnome)}})(m.id,m.clientes?m.clientes.nome:'-');
+      aDiv.appendChild(bDel);aDiv.appendChild(chev);
+      acoesTd.appendChild(aDiv);
+      tr.addEventListener('click',function(){
+        var det=document.getElementById(rowId);
+        if(det){var open=det.style.display!=='none';det.style.display=open?'none':'table-row';chev.style.transform=open?'':'rotate(180deg)'}
+      });
+      tbody.appendChild(tr);
+      var trDet=document.createElement('tr');trDet.id=rowId;trDet.style.display='none';
+      var tdDet=document.createElement('td');tdDet.colSpan=5;tdDet.style.cssText='padding:0;background:#FAF5FF';
+      var subDiv=document.createElement('div');subDiv.style.padding='.75rem 1rem';
+      var subTbl=document.createElement('table');subTbl.style.fontSize='.8rem';
+      subTbl.innerHTML='<thead><tr style="background:#EDE9FE"><th>Mes Ref.</th><th>Vencimento</th><th>Valor</th><th>Status</th><th>Acao</th></tr></thead>';
+      var subTbody=document.createElement('tbody');
+      if(!g.listaParc.length){
+        subTbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:.75rem;font-size:.78rem"><i class="fas fa-ban"></i> Contrato cancelado — sem parcelas ativas</td></tr>';
+      }else{
+        g.listaParc.forEach(function(parc){
+          var sTr=document.createElement('tr');
+          sTr.innerHTML='<td style="font-weight:700">'+parc.data_vencimento.substring(0,7)+'</td><td>'+fmtD(parc.data_vencimento)+'</td><td style="font-weight:700">'+fmt(parc.valor)+'</td><td>'+badgeHtml(parc._st)+'</td><td></td>';
+          var sAc=sTr.querySelector('td:last-child');var bDiv2=document.createElement('div');bDiv2.style.cssText='display:flex;gap:.3rem';
+          if(parc._st!=='pago'&&parc._st!=='cancelado'){
+            var bP=document.createElement('button');bP.className='act-btn pagar';bP.innerHTML='<i class="fas fa-check"></i> Marcar como Pago';
+            bP.onclick=(function(pid){return function(e){e.stopPropagation();openPagModal(pid)}})(parc.id);bDiv2.appendChild(bP);
+          }
+          if(parc._st==='pago'){
+            var bR=document.createElement('button');bR.className='act-btn recibo';bR.innerHTML='<i class="fas fa-receipt"></i> Ver Recibo';
+            bR.onclick=(function(pid){return function(e){e.stopPropagation();gerarRecibo(pid)}})(parc.id);bDiv2.appendChild(bR);
+            var bDelPag=document.createElement('button');bDelPag.className='act-btn excluir';bDelPag.innerHTML='<i class="fas fa-undo"></i> Desfazer';
+            bDelPag.onclick=(function(pp){return function(e){e.stopPropagation();excluirPagamentoParcela(pp)}})(parc);bDiv2.appendChild(bDelPag);
+          }
+          var bDelMens=document.createElement('button');bDelMens.className='act-btn excluir';bDelMens.innerHTML='<i class="fas fa-trash"></i> Excluir Contrato';
+          bDelMens.onclick=(function(mid,pnome){return function(e){e.stopPropagation();excluirMensalidade(mid,pnome)}})(parc.mensalidade_id,parc.clientes?parc.clientes.nome:'-');bDiv2.appendChild(bDelMens);
+          sAc.appendChild(bDiv2);subTbody.appendChild(sTr);
+        });
+      }
+      subTbl.appendChild(subTbody);subDiv.appendChild(subTbl);tdDet.appendChild(subDiv);trDet.appendChild(tdDet);tbody.appendChild(trDet);
     });
-    parcelas.sort(function(a, b) { return a.data_vencimento > b.data_vencimento ? 1 : -1; });
+  }
+  tbl.appendChild(tbody);wrap.appendChild(tbl);card.appendChild(wrap);tc.appendChild(card);
 }
 
-async function init() {
-    try {
-        sL('Verificando...');
-        var sess = await sb.auth.getSession();
-        if (!sess.data.session) { window.location.href = 'login.html'; return; }
-        user = sess.data.session.user;
-        var sr = await sb.from('saloes').select('*').eq('usuario_id', user.id).eq('ativo', true).single();
-        if (!sr.data) { alert('Nenhum estabelecimento'); window.location.href = 'login.html'; return; }
-        salaoId = sr.data.id;
-        el('userName').textContent = user.user_metadata && user.user_metadata.nome ? user.user_metadata.nome : 'Admin';
-        el('userAvatar').textContent = (user.user_metadata && user.user_metadata.nome ? user.user_metadata.nome : 'A').charAt(0).toUpperCase();
-        await loadAll(); hL();
-    } catch (e) { console.error(e); hL(); sT('Erro ao carregar', 'error'); }
-}
-
-async function loadAll() {
-    sL('Carregando...');
-    try {
-        var r = await Promise.all([
-            sb.from('planos').select('*').eq('salao_id', salaoId).order('nome'),
-            sb.from('mensalidades').select('*,clientes(id,nome,telefone),planos(id,nome,tipo)').eq('salao_id', salaoId).order('data_inicio'),
-            sb.from('pagamentos_mensalidade').select('*').eq('salao_id', salaoId).order('data_pagamento', { ascending: false }),
-            sb.from('clientes').select('id,nome,telefone').eq('salao_id', salaoId).eq('ativo', true).order('nome')
-        ]);
-        planos = r[0].data || []; mensalidades = r[1].data || []; pagamentos = r[2].data || []; pacientes = r[3].data || [];
-        calcularParcelas();
-        renderStats(); renderTabs(); renderTabContent();
-    } catch (e) { console.error(e); sT('Erro ao carregar', 'error'); }
-    hL();
-}
-
-function renderStats() {
-    var atr = parcelas.filter(function(p) { return p._st === 'atrasado'; }).length;
-    var hj = parcelas.filter(function(p) { return p._st === 'vence_hoje'; }).length;
-    var pg = parcelas.filter(function(p) { return p._st === 'pago'; }).length;
-    var mes = new Date().toISOString().substring(0, 7);
-    var rec = pagamentos.filter(function(p) { return p.data_pagamento && p.data_pagamento.startsWith(mes); }).reduce(function(s, p) { return s + (p.valor_pago || 0); }, 0);
-    el('statsGrid').innerHTML =
-        '<div class="stat-card blue"><div class="stat-top"><div class="stat-icon blue"><i class="fas fa-file-invoice-dollar"></i></div></div><div class="stat-value">' + parcelas.length + '</div><div class="stat-label">Total Parcelas</div></div>' +
-        '<div class="stat-card green"><div class="stat-top"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div></div><div class="stat-value">' + pg + '</div><div class="stat-label">Em Dia</div></div>' +
-        '<div class="stat-card orange"><div class="stat-top"><div class="stat-icon orange"><i class="fas fa-clock"></i></div></div><div class="stat-value">' + hj + '</div><div class="stat-label">Vencem Hoje</div></div>' +
-        '<div class="stat-card red"><div class="stat-top"><div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div></div><div class="stat-value">' + atr + '</div><div class="stat-label">Atrasados</div></div>' +
-        '<div class="stat-card purple"><div class="stat-top"><div class="stat-icon purple"><i class="fas fa-dollar-sign"></i></div></div><div class="stat-value" style="font-size:1.1rem">' + fmt(rec) + '</div><div class="stat-label">Receita Mensal</div></div>';
-}
-
-function renderTabs() {
-    var tabs = [
-        { id: 'inadimplencia', icon: 'exclamation-circle', label: 'Inadimplencia' },
-        { id: 'mensalidades', icon: 'list', label: 'Mensalidades' },
-        { id: 'planos', icon: 'layer-group', label: 'Planos' },
-        { id: 'historico', icon: 'history', label: 'Historico' }
-    ];
-    var bar = el('tabsBar'); bar.innerHTML = '';
-    tabs.forEach(function(t) {
-        var btn = document.createElement('button');
-        btn.className = 'tab-btn' + (currentTab === t.id ? ' active' : '');
-        btn.innerHTML = '<i class="fas fa-' + t.icon + '"></i> ' + t.label;
-        btn.addEventListener('click', (function(tid) { return function() { switchTab(tid); }; })(t.id));
-        bar.appendChild(btn);
+// ==============================
+// HISTORICO
+// ==============================
+function renderHist(){
+  var tc=el('tabContent');tc.innerHTML='';
+  var card=document.createElement('div');card.className='section-card';
+  var hdr=document.createElement('div');hdr.className='section-header';
+  hdr.innerHTML='<div class="section-header-left"><i class="fas fa-history" style="color:var(--primary)"></i><span class="section-title">Historico de Pagamentos</span></div><span class="section-count purple">'+pagamentos.length+' registros</span>';
+  card.appendChild(hdr);
+  var wrap=document.createElement('div');wrap.className='table-wrap';
+  var tbl=document.createElement('table');
+  tbl.innerHTML='<thead><tr><th>Data do Pagamento</th><th>Paciente</th><th>Valor Pago</th><th>Forma de Pagamento</th><th>Acao</th></tr></thead>';
+  var tbody=document.createElement('tbody');
+  if(!pagamentos.length){
+    tbody.innerHTML='<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">📜</div><h3>Nenhum pagamento registrado ainda</h3></div></td></tr>';
+  }else{
+    pagamentos.forEach(function(pag){
+      var mens=mensalidades.find(function(m){return m.id===pag.mensalidade_id});
+      var nomePac=mens&&mens.clientes?mens.clientes.nome:'-';
+      var r7=pag.comprovante?pag.comprovante.substring(0,7):(pag.data_pagamento?pag.data_pagamento.substring(0,7):'');
+      var parc=parcelas.find(function(x){return x.mensalidade_id===pag.mensalidade_id&&x.data_vencimento.substring(0,7)===r7});
+      var tr=document.createElement('tr');
+      tr.innerHTML='<td>'+fmtD(pag.data_pagamento)+'</td><td style="font-weight:700">'+nomePac+'</td><td style="font-weight:800;color:var(--green)">'+fmt(pag.valor_pago)+'</td><td>'+fmtF(pag.forma_pagamento)+'</td><td></td>';
+      var td=tr.querySelector('td:last-child');
+      var bDiv2=document.createElement('div');bDiv2.style.cssText='display:flex;gap:.35rem;flex-wrap:wrap';
+      if(parc){
+        var bR2=document.createElement('button');bR2.className='act-btn recibo';bR2.innerHTML='<i class="fas fa-receipt"></i> Ver Recibo';
+        bR2.onclick=(function(pid){return function(){gerarRecibo(pid)}})(parc.id);bDiv2.appendChild(bR2);
+      }
+      // Excluir este pagamento do historico
+      var bDelH=document.createElement('button');bDelH.className='act-btn excluir';bDelH.innerHTML='<i class="fas fa-trash"></i> Excluir Pagamento';
+      bDelH.title='Remove este registro de pagamento. A parcela voltara ao status anterior.';
+      bDelH.onclick=(function(pagId){return function(){excluirPagamentoById(pagId)}})(pag.id);bDiv2.appendChild(bDelH);
+      td.appendChild(bDiv2);
+      tbody.appendChild(tr);
     });
+  }
+  tbl.appendChild(tbody);wrap.appendChild(tbl);card.appendChild(wrap);tc.appendChild(card);
 }
 
-function renderTabContent() {
-    if (currentTab === 'inadimplencia') renderInad();
-    else if (currentTab === 'mensalidades') renderMens();
-    else if (currentTab === 'planos') renderPlanos();
-    else renderHist();
+// ==============================
+// INIT / LOAD
+// ==============================
+async function init(){
+  try{
+    sL('Verificando acesso...');
+    var sess=await sb.auth.getSession();
+    if(!sess.data.session){window.location.href='login.html';return}
+    user=sess.data.session.user;
+    var sr=await sb.from('saloes').select('*').eq('usuario_id',user.id).eq('ativo',true).single();
+    if(!sr.data){alert('Nenhum estabelecimento');window.location.href='login.html';return}
+    salaoId=sr.data.id;
+    el('userName').textContent=user.user_metadata&&user.user_metadata.nome?user.user_metadata.nome:'Admin';
+    el('userAvatar').textContent=(user.user_metadata&&user.user_metadata.nome?user.user_metadata.nome:'A').charAt(0).toUpperCase();
+    await loadAll();hL();
+  }catch(e){console.error(e);hL();sT('Erro ao carregar','error')}
 }
 
-function mkBtn(cls, icon, title, fn) {
-    var b = document.createElement('button');
-    b.className = 'action-btn ' + cls; b.title = title;
-    b.innerHTML = '<i class="' + icon + '"></i>';
-    b.addEventListener('click', fn);
-    return b;
+async function loadAll(){
+  sL('Carregando...');
+  try{
+    var r=await Promise.all([
+      sb.from('planos').select('*').eq('salao_id',salaoId).order('nome'),
+      sb.from('mensalidades').select('*,clientes(id,nome,telefone,ativo,status),planos(id,nome,tipo)').eq('salao_id',salaoId).order('data_inicio'),
+      sb.from('pagamentos_mensalidade').select('*').eq('salao_id',salaoId).order('data_pagamento',{ascending:false}),
+      sb.from('clientes').select('id,nome,telefone,ativo,status').eq('salao_id',salaoId).order('nome')
+    ]);
+    planos=r[0].data||[];mensalidades=r[1].data||[];pagamentos=r[2].data||[];pacientes=r[3].data||[];
+    calcularParcelas();renderStats();renderTabContent();
+  }catch(e){console.error(e);sT('Erro ao carregar','error')}
+  hL();
 }
 
-function renderInad() {
-    var pend = parcelas.filter(function(p) { return p._st === 'atrasado' || p._st === 'vence_hoje'; });
-    var atr = pend.filter(function(p) { return p._st === 'atrasado'; }).length;
-    var hj = pend.filter(function(p) { return p._st === 'vence_hoje'; }).length;
-    var data = inadFilter === 'vence_hoje' ? pend.filter(function(p) { return p._st === 'vence_hoje'; }) :
-               inadFilter === 'atrasado' ? pend.filter(function(p) { return p._st === 'atrasado'; }) : pend;
-    data.sort(function(a, b) { return diasAtraso(b.data_vencimento) - diasAtraso(a.data_vencimento); });
+// ==============================
+// MODAL NOVA MENSALIDADE (fluxo novo)
+// ==============================
+function openNovaMensModal(){
+  novaParcelaState=[];
+  openModal(
+    '<div class="modal-header"><h2><i class="fas fa-plus-circle" style="color:var(--primary)"></i> Cadastrar Nova Mensalidade</h2><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div>'+
+    '<div class="modal-body">'+
+    '<div style="background:var(--primary-light);border-radius:14px;padding:1.1rem 1.2rem;margin-bottom:1.2rem">'+
+    '<div style="font-size:.78rem;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:.6px;margin-bottom:.85rem"><i class="fas fa-user"></i> Dados do Paciente</div>'+
+    '<div class="form-grid">'+
+    '<div class="form-group full"><label class="form-label req">Nome completo do paciente <span class="tip"><span class="tip-icon"><i class="fas fa-info"></i></span><span class="tip-text">Nome que aparecera em todas as cobracas e relatorios</span></span></label><input type="text" class="form-input big" id="nm_nome" placeholder="Ex: Joao da Silva" autofocus></div>'+
+    '<div class="form-group"><label class="form-label">Telefone (WhatsApp) <span class="tip"><span class="tip-icon"><i class="fas fa-info"></i></span><span class="tip-text">Usado para enviar cobrancas automaticas pelo WhatsApp</span></span></label><input type="text" class="form-input" id="nm_tel" placeholder="(00) 90000-0000"></div>'+
+    '<div class="form-group"><label class="form-label">Data de Entrada <span class="tip"><span class="tip-icon"><i class="fas fa-info"></i></span><span class="tip-text">Data que o paciente entrou. Usada como base para calcular os vencimentos.</span></span></label><input type="date" class="form-input" id="nm_entrada" value="'+new Date().toISOString().split('T')[0]+'" oninput="nmGerarParcelas()"></div>'+
+    '</div></div>'+
+    '<div style="background:#F0FDF4;border-radius:14px;padding:1.1rem 1.2rem;margin-bottom:1.2rem">'+
+    '<div style="font-size:.78rem;font-weight:800;color:#065F46;text-transform:uppercase;letter-spacing:.6px;margin-bottom:.85rem"><i class="fas fa-file-invoice-dollar"></i> Valores e Prazos</div>'+
+    '<div class="form-grid">'+
+    '<div class="form-group"><label class="form-label req">Valor da Mensalidade (R$) <span class="tip"><span class="tip-icon"><i class="fas fa-info"></i></span><span class="tip-text">Valor cobrado por mes. Voce pode editar cada mensalidade individualmente logo abaixo.</span></span></label><input type="number" class="form-input big" id="nm_valor" step="0.01" placeholder="0,00" oninput="nmGerarParcelas()"></div>'+
+    '<div class="form-group"><label class="form-label req">Dia do Vencimento <span class="tip"><span class="tip-icon"><i class="fas fa-info"></i></span><span class="tip-text">Dia do mes em que vence. Maximo dia 28.</span></span></label><input type="number" class="form-input big" id="nm_dia" min="1" max="28" placeholder="Ex: 5, 10, 15..." oninput="nmGerarParcelas()"></div>'+
+    '<div class="form-group full"><label class="form-label req">Quantos meses o paciente ficara na clinica? <span class="tip"><span class="tip-icon"><i class="fas fa-info"></i></span><span class="tip-text">O sistema gera uma mensalidade para cada mes automaticamente.</span></span></label><input type="number" class="form-input big" id="nm_qtd" min="1" max="60" placeholder="Ex: 1, 3, 6, 12..." oninput="nmGerarParcelas()"></div>'+
+    '</div></div>'+
+    '<div id="nm_parcelas_bloco" style="display:none">'+
+    '<div class="sec-label"><i class="fas fa-list-ol"></i> Mensalidades geradas — edite os valores e desmarque as ja pagas se necessario</div>'+
+    '<div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;padding:.65rem 1rem;font-size:.78rem;color:#92400E;display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem"><i class="fas fa-info-circle"></i> Mensalidades com data ja passada foram marcadas automaticamente como <strong style="margin:0 .2rem">JA PAGAS</strong>. Desmarque se necessario.</div>'+
+    '<div class="parcela-lista" id="nm_parcelas_lista"></div>'+
+    '</div>'+
+    '</div>'+
+    '<div class="modal-footer">'+
+    '<button class="btn btn-ghost btn-lg" onclick="closeModal()"><i class="fas fa-times"></i> Cancelar</button>'+
+    '<button class="btn btn-success btn-lg" onclick="salvarNovaMens()" style="font-size:1rem;padding:.9rem 2rem"><i class="fas fa-save"></i> Salvar Tudo e Cadastrar</button>'+
+    '</div>',
+    true
+  );
+}
 
-    var tc = el('tabContent'); tc.innerHTML = '';
-    var grid = document.createElement('div'); grid.className = 'inad-grid';
+function nmGerarParcelas(){
+  var valor=parseFloat((el('nm_valor')||{}).value||0);
+  var dia=parseInt((el('nm_dia')||{}).value||0);
+  var qtd=parseInt((el('nm_qtd')||{}).value||0);
+  if(!qtd||qtd<1||!dia||dia<1||dia>28||!valor||valor<=0){
+    var bloco=el('nm_parcelas_bloco');if(bloco)bloco.style.display='none';
+    return;
+  }
+  var entradaVal=(el('nm_entrada')||{}).value||new Date().toISOString().split('T')[0];
+  var dtIni=new Date(entradaVal+'T00:00:00');
+  var hoje=new Date();hoje.setHours(0,0,0,0);
+  var novas=[];
+  for(var i=0;i<qtd;i++){
+    var ano=dtIni.getFullYear();
+    var mes=dtIni.getMonth()+1+i;
+    ano+=Math.floor(mes/12);mes=mes%12;
+    var vd=new Date(ano,mes,dia);vd.setHours(0,0,0,0);
+    var ds=vd.getFullYear()+'-'+String(vd.getMonth()+1).padStart(2,'0')+'-'+String(dia).padStart(2,'0');
+    var retroativa=vd<hoje;
+    // Preserva toggle manual do usuario; senao auto-marca retroativas como pagas
+    var prev=novaParcelaState[i];
+    var userToggled=prev&&prev._userToggled;
+    var pago=userToggled?prev.pago:retroativa;
+    novas.push({ref:ds,valor:valor,pago:pago,retroativa:retroativa,_userToggled:userToggled||false});
+  }
+  novaParcelaState=novas;
+  renderNovaParcelaLista();
+}
 
-    function mkCard(label, count, color, filt) {
-        var c = document.createElement('div');
-        c.className = 'inad-card' + (inadFilter === filt ? ' active' : '');
-        c.innerHTML = '<div class="inad-count" style="color:' + color + '">' + count + '</div><div class="inad-label">' + label + '</div>';
-        c.addEventListener('click', function() { inadFilter = filt; renderInad(); });
-        return c;
+
+function renderNovaParcelaLista(){
+  var bloco=el('nm_parcelas_bloco');
+  var lista=el('nm_parcelas_lista');
+  if(!bloco||!lista)return;
+  if(!novaParcelaState.length){bloco.style.display='none';return}
+  bloco.style.display='block';
+  lista.innerHTML='';
+  novaParcelaState.forEach(function(p,i){
+    var dtObj=new Date(p.ref+'T12:00:00');
+    var mesNome=dtObj.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+    var div=document.createElement('div');
+    div.className='parcela-row'+(p.pago?' pago':'');
+    div.id='pr_'+i;
+    div.innerHTML=
+      '<div class="parc-num'+(p.pago?' pago':'')+'">'+( i+1)+'</div>'+
+      '<div class="parc-info"><div class="parc-mes">'+mesNome+'</div><div class="parc-venc">Vence: '+fmtD(p.ref)+(p.atrasado&&!p.pago?' <span style="color:#DC2626;font-weight:700">(em atraso)</span>':'')+'</div></div>'+
+      '<div class="parc-val-wrap"><span class="parc-val-prefix">R$</span><input type="number" class="parc-val-input'+(p.pago?' pago-input':'')+'" id="pv_'+i+'" step="0.01" value="'+p.valor.toFixed(2)+'" '+(p.pago?'readonly':'')+' onchange="nmUpdateValor('+i+',this.value)"></div>'+
+      '<button class="btn-pago'+(p.pago?' marcado':'')+'" onclick="nmTogglePago('+i+')" id="pbtn_'+i+'">'+
+      (p.pago?'<i class="fas fa-check-circle"></i> JA FOI PAGO':'<i class="far fa-circle"></i> Marcar como Ja Pago')+
+      '</button>';
+    lista.appendChild(div);
+  });
+}
+
+function nmUpdateValor(i,v){
+  if(novaParcelaState[i])novaParcelaState[i].valor=parseFloat(v)||0;
+}
+
+function nmTogglePago(i){
+  if(!novaParcelaState[i])return;
+  novaParcelaState[i].pago=!novaParcelaState[i].pago;
+  novaParcelaState[i]._userToggled=true;
+  renderNovaParcelaLista();
+}
+
+async function salvarNovaMens(){
+  var nome=(el('nm_nome')||{}).value;
+  if(!nome||!nome.trim()){sT('Informe o nome do paciente','error');return}
+  var valor=parseFloat((el('nm_valor')||{}).value||0);
+  if(!valor||valor<=0){sT('Informe o valor da mensalidade','error');return}
+  var dia=parseInt((el('nm_dia')||{}).value||0);
+  if(!dia||dia<1||dia>28){sT('Informe o dia de vencimento (1 a 28)','error');return}
+  var qtd=parseInt((el('nm_qtd')||{}).value||0);
+  if(!qtd||qtd<1){sT('Informe quantos meses o paciente ficara','error');return}
+  if(!novaParcelaState.length){sT('Preencha os campos acima para gerar as mensalidades','error');return}
+  var obs=qtd+'_meses';
+  var entradaVal=(el('nm_entrada')||{}).value||new Date().toISOString().split('T')[0];
+  var tel=((el('nm_tel')||{}).value||'').trim();
+  var dtIni=new Date(entradaVal+'T00:00:00');
+  var hoje=new Date();hoje.setHours(0,0,0,0);
+  var dv=dtIni.getFullYear()+'-'+String(dtIni.getMonth()+1).padStart(2,'0')+'-'+String(dia).padStart(2,'0');
+  var st=new Date(dv+'T00:00:00')<hoje?'atrasado':'pendente';
+  // Busca ou cria plano padrao "Mensal" para compatibilidade com calcularParcelas
+  var planoPadrao=planos.find(function(p){return p.tipo==='mensal'&&p.ativo!==false});
+  try{
+    sL('Cadastrando paciente...');
+    // 1. Se nao tiver plano padrao, cria um
+    var planoId=planoPadrao?planoPadrao.id:null;
+    if(!planoId){
+      var rPl=await sb.from('planos').insert({nome:'Mensal',tipo:'mensal',valor:valor,salao_id:salaoId,ativo:true}).select('id').single();
+      if(rPl.error)throw rPl.error;
+      planoId=rPl.data.id;
     }
-    grid.appendChild(mkCard('Todos Pendentes', pend.length, 'var(--primary)', 'todos'));
-    grid.appendChild(mkCard('Vencem Hoje', hj, 'var(--orange)', 'vence_hoje'));
-    grid.appendChild(mkCard('Atrasados', atr, 'var(--red)', 'atrasado'));
-    tc.appendChild(grid);
-
-    var card = document.createElement('div'); card.className = 'table-card';
-    card.innerHTML = '<div class="table-header"><div class="table-title">Painel de Inadimplencia</div><div class="table-count">' + data.length + ' registros</div></div>';
-    var wrap = document.createElement('div'); wrap.className = 'table-wrap';
-    var tbl = document.createElement('table');
-    tbl.innerHTML = '<thead><tr><th>Paciente</th><th>Plano</th><th>Vencimento</th><th>Valor</th><th>Status</th><th>Atraso</th><th>Acoes</th></tr></thead>';
-    var tbody = document.createElement('tbody');
-    if (!data.length) {
-        tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">✅</div><h3>Nenhum inadimplente!</h3></div></td></tr>';
-    } else {
-        data.forEach(function(p) {
-            var tr = document.createElement('tr');
-            var dias = diasAtraso(p.data_vencimento);
-            var diasTxt = dias > 0 ? '<span style="color:var(--red);font-weight:700">' + dias + 'd</span>' : dias === 0 ? '<span style="color:var(--orange)">Hoje</span>' : '';
-            var ini = (p.clientes && p.clientes.nome ? p.clientes.nome : '?').charAt(0);
-            tr.innerHTML =
-                '<td><div class="patient-info"><div class="patient-avatar">' + ini + '</div><div><div class="patient-name">' + (p.clientes ? p.clientes.nome : '-') + '</div><div class="patient-phone">' + (p.clientes && p.clientes.telefone ? p.clientes.telefone : '') + '</div></div></div></td>' +
-                '<td><span class="plano-tag">' + (p.planos ? p.planos.nome : '-') + '</span></td>' +
-                '<td>' + fmtD(p.data_vencimento) + '</td><td style="font-weight:700">' + fmt(p.valor) + '</td>' +
-                '<td>' + badge(p._st) + '</td><td>' + diasTxt + '</td><td></td>';
-            var acoes = tr.querySelector('td:last-child');
-            var btnDiv = document.createElement('div'); btnDiv.className = 'action-btns';
-            btnDiv.appendChild(mkBtn('pay', 'fas fa-dollar-sign', 'Pagar', (function(pid) { return function(e) { e.stopPropagation(); openPagModal(pid); }; })(p.id)));
-            btnDiv.appendChild(mkBtn('whatsapp', 'fab fa-whatsapp', 'WhatsApp', (function(pid) { return function(e) { e.stopPropagation(); enviarCobranca(pid); }; })(p.id)));
-            btnDiv.appendChild(mkBtn('edit', 'fas fa-edit', 'Editar Mensalidade', (function(mid) { return function(e) { e.stopPropagation(); openMensModal(mid); }; })(p.mensalidade_id)));
-            btnDiv.appendChild(mkBtn('finish', 'fas fa-flag-checkered', 'Finalizar Mensalidade', (function(mid, pnome) { return function(e) { e.stopPropagation(); finalizarMensalidade(mid, pnome); }; })(p.mensalidade_id, p.clientes ? p.clientes.nome : '-')));
-            btnDiv.appendChild(mkBtn('del-all', 'fas fa-trash', 'Excluir Mensalidade', (function(mid, pnome) { return function(e) { e.stopPropagation(); excluirMensalidade(mid, pnome); }; })(p.mensalidade_id, p.clientes ? p.clientes.nome : '-')));
-            acoes.appendChild(btnDiv);
-            tbody.appendChild(tr);
-        });
+    // 2. Criar paciente
+    var pacData={salao_id:salaoId,nome:nome.trim(),ativo:true,status:'ativo',permite_sms:true,permite_email:true,permite_whatsapp:true};
+    if(tel)pacData.telefone=tel;
+    var rPac=await sb.from('clientes').insert(pacData).select('id').single();
+    if(rPac.error)throw rPac.error;
+    var pacId=rPac.data.id;
+    sL('Criando mensalidade...');
+    // 3. Criar mensalidade
+    var mensData={paciente_id:pacId,plano_id:planoId,valor:valor,data_inicio:entradaVal,dia_vencimento:dia,data_vencimento:dv,observacoes:obs,salao_id:salaoId,status:st};
+    var rMens=await sb.from('mensalidades').insert(mensData).select('id').single();
+    if(rMens.error)throw rMens.error;
+    var mensId=rMens.data.id;
+    // 4. Registrar mensalidades marcadas como pagas
+    var pagas=novaParcelaState.filter(function(p){return p.pago});
+    if(pagas.length){
+      sL('Registrando '+pagas.length+' pagamentos...');
+      var hoje2=new Date().toISOString().split('T')[0];
+      var inserts=pagas.map(function(p){return{mensalidade_id:mensId,valor_pago:p.valor,forma_pagamento:'dinheiro',data_pagamento:hoje2,comprovante:p.ref.substring(0,7),salao_id:salaoId}});
+      var rPag=await sb.from('pagamentos_mensalidade').insert(inserts);
+      if(rPag.error)throw rPag.error;
     }
-    tbl.appendChild(tbody); wrap.appendChild(tbl); card.appendChild(wrap); tc.appendChild(card);
+    closeModal();await loadAll();
+    sT(pagas.length?'Cadastrado! '+pagas.length+' mensalidades ja marcadas como pagas.':'Paciente e mensalidade cadastrados!');
+  }catch(e){hL();console.error(e);sT('Erro ao salvar: '+(e.message||e),'error')}
 }
 
-function renderMens() {
-    var grupos = {};
-    parcelas.forEach(function(p) {
-        var k = p.mensalidade_id;
-        if (!grupos[k]) grupos[k] = { info: p, lista: [] };
-        grupos[k].lista.push(p);
+// ==============================
+// REGISTRAR PAGAMENTO
+// ==============================
+function openPagModal(parcId){
+  var parc=parcelas.find(function(x){return x.id===parcId});
+  if(!parc)return;
+  var hoje=new Date().toISOString().split('T')[0];
+  openModal(
+    '<div class="modal-header"><h2><i class="fas fa-check-circle" style="color:var(--green)"></i> Registrar Pagamento</h2><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div>'+
+    '<div class="modal-body"><input type="hidden" id="pagMid" value="'+parc.mensalidade_id+'"><input type="hidden" id="pagRef" value="'+parc.data_vencimento+'">'+
+    '<div class="info-box"><i class="fas fa-user-circle" style="font-size:1.3rem"></i><div><strong style="font-size:.95rem">'+(parc.clientes?parc.clientes.nome:'-')+'</strong><br><span style="font-size:.75rem">'+(parc.planos?parc.planos.nome:'-')+' &middot; Ref: '+parc.data_vencimento.substring(0,7)+' &middot; Vence: '+fmtD(parc.data_vencimento)+'</span></div></div>'+
+    '<div class="form-grid">'+
+    '<div class="form-group"><label class="form-label req">Valor Recebido (R$)</label><input type="number" class="form-input big" id="pagVal" step="0.01" value="'+parc.valor+'"></div>'+
+    '<div class="form-group"><label class="form-label req">Forma de Pagamento</label><select class="form-select" id="pagFor"><option value="pix">PIX</option><option value="cartao_credito">Cartao Credito</option><option value="cartao_debito">Cartao Debito</option><option value="dinheiro">Dinheiro</option><option value="boleto">Boleto</option></select></div>'+
+    '<div class="form-group"><label class="form-label req">Data do Pagamento</label><input type="date" class="form-input" id="pagDat" value="'+hoje+'"></div>'+
+    '<div class="form-group"><label class="form-label">Comprovante (opcional)</label><input type="text" class="form-input" id="pagComp" placeholder="Codigo PIX ou numero do recibo..."></div>'+
+    '</div></div>'+
+    '<div class="modal-footer"><button class="btn btn-ghost btn-lg" onclick="closeModal()"><i class="fas fa-times"></i> Cancelar</button><button class="btn btn-success btn-lg" onclick="registrarPag()"><i class="fas fa-check-circle"></i> Confirmar Pagamento</button></div>'
+  );
+}
+
+async function registrarPag(){
+  var mid=el('pagMid').value,val=parseFloat(el('pagVal').value),forma=el('pagFor').value,data=el('pagDat').value,comp=el('pagComp').value,ref=el('pagRef').value;
+  if(!val||!data){sT('Preencha o valor e a data','error');return}
+  var compFinal=ref.substring(0,7)+(comp?'|'+comp:'');
+  try{sL('Registrando...');await sb.from('pagamentos_mensalidade').insert({mensalidade_id:mid,valor_pago:val,forma_pagamento:forma,data_pagamento:data,comprovante:compFinal,salao_id:salaoId});closeModal();await loadAll();sT('Pagamento registrado!')}
+  catch(e){hL();sT('Erro ao registrar','error')}
+}
+
+// ==============================
+// MODAL EDITAR MENSALIDADE (existente)
+// ==============================
+var editParcelaState=[];
+
+function openMensModal(editId){
+  var m=editId?mensalidades.find(function(x){return x.id===editId}):null;
+  if(!m)return;
+  var qtdSalvo='';
+  if(m.observacoes){var mt=m.observacoes.match(/(\d+)_meses/);if(mt)qtdSalvo=mt[1]}
+  editParcelaState=[];
+  openModal(
+    '<div class="modal-header"><h2><i class="fas fa-edit" style="color:var(--primary)"></i> Editar Contrato — '+(m.clientes?m.clientes.nome:'-')+'</h2><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div>'+
+    '<div class="modal-body"><input type="hidden" id="mensId" value="'+m.id+'"><input type="hidden" id="mensPacId" value="'+(m.paciente_id||'')+'">'+
+    '<div style="background:var(--primary-light);border-radius:14px;padding:1rem 1.2rem;margin-bottom:1rem">'+
+    '<div style="font-size:.72rem;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:.6px;margin-bottom:.75rem"><i class="fas fa-user"></i> Dados do Paciente</div>'+
+    '<div class="form-grid">'+
+    '<div class="form-group full"><label class="form-label req">Nome do Paciente</label><input type="text" class="form-input big" id="mensNomePac" value="'+(m.clientes?m.clientes.nome:'')+'" placeholder="Nome completo"></div>'+
+    '<div class="form-group"><label class="form-label">Telefone (WhatsApp)</label><input type="text" class="form-input" id="mensTelPac" value="'+(m.clientes&&m.clientes.telefone?m.clientes.telefone:'')+'" placeholder="(00) 90000-0000"></div>'+
+    '</div></div>'+
+    '<div style="background:#F0FDF4;border-radius:14px;padding:1rem 1.2rem;margin-bottom:1rem">'+
+    '<div style="font-size:.72rem;font-weight:800;color:#065F46;text-transform:uppercase;letter-spacing:.6px;margin-bottom:.75rem"><i class="fas fa-file-invoice-dollar"></i> Dados da Mensalidade</div>'+
+    '<div class="form-grid">'+
+    '<div class="form-group"><label class="form-label req">Valor por Mes (R$)</label><input type="number" class="form-input big" id="mensVal" step="0.01" value="'+m.valor+'" oninput="editGerarParcelas()"></div>'+
+    '<div class="form-group"><label class="form-label req">Dia do Vencimento</label><input type="number" class="form-input big" id="mensDia" min="1" max="28" value="'+(m.dia_vencimento||'')+'" oninput="editGerarParcelas()"></div>'+
+    '<div class="form-group"><label class="form-label req">Data de Inicio</label><input type="date" class="form-input" id="mensIni" value="'+(m.data_inicio||'')+'" oninput="editGerarParcelas()"></div>'+
+    '<div class="form-group"><label class="form-label req">Total de Meses</label><input type="number" class="form-input big" id="mensQtd" min="1" max="60" value="'+qtdSalvo+'" placeholder="Ex: 6, 12..." oninput="editGerarParcelas()"></div>'+
+    '</div></div>'+
+    '<div id="edit_parcelas_bloco" style="display:none">'+
+    '<div class="sec-label"><i class="fas fa-list-ol"></i> Mes a mes — edite o valor de cada mensalidade individualmente</div>'+
+    '<div class="parcela-lista" id="edit_parcelas_lista"></div>'+
+    '</div>'+
+    '</div>'+
+    '<div class="modal-footer"><button class="btn btn-ghost btn-lg" onclick="closeModal()"><i class="fas fa-times"></i> Cancelar</button><button class="btn btn-primary btn-lg" onclick="saveMensEdit()"><i class="fas fa-save"></i> Salvar Alteracoes</button></div>',
+    true
+  );
+  // Pre-carrega parcelas existentes
+  setTimeout(function(){
+    var parcsExist=parcelas.filter(function(p){return p.mensalidade_id===m.id});
+    editParcelaState=parcsExist.map(function(p){
+      return{ref:p.data_vencimento,valor:p.valor,pago:p._st==='pago',retroativa:new Date(p.data_vencimento+'T00:00:00')<new Date()};
     });
-    var lista = Object.values(grupos);
-    lista.sort(function(a, b) { return (a.info.clientes ? a.info.clientes.nome : '') > (b.info.clientes ? b.info.clientes.nome : '') ? 1 : -1; });
+    editGerarParcelas(true);
+  },50);
+}
 
-    var tc = el('tabContent'); tc.innerHTML = '';
-    var card = document.createElement('div'); card.className = 'table-card';
-    card.innerHTML = '<div class="table-header"><div class="table-title">Mensalidades por Paciente</div><div class="table-count">' + lista.length + ' contratos</div></div>';
-    var wrap = document.createElement('div'); wrap.className = 'table-wrap';
-    var tbl = document.createElement('table');
-    tbl.innerHTML = '<thead><tr><th>Paciente</th><th>Plano</th><th>Valor</th><th>Pagas</th><th>Atrasadas</th><th>Situacao</th><th></th></tr></thead>';
-    var tbody = document.createElement('tbody');
-    if (!lista.length) {
-        tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">📋</div><h3>Nenhuma mensalidade</h3></div></td></tr>';
-    } else {
-        lista.forEach(function(g, i) {
-            var p = g.info;
-            var pagas = g.lista.filter(function(x) { return x._st === 'pago'; }).length;
-            var atrasadas = g.lista.filter(function(x) { return x._st === 'atrasado'; }).length;
-            var ini = (p.clientes && p.clientes.nome ? p.clientes.nome : '?').charAt(0);
-            var sit = atrasadas > 0 ? '<span class="badge badge-atrasado">Devedor (' + atrasadas + ')</span>' : '<span class="badge badge-pago">Em Dia</span>';
-            var rowId = 'det_' + i;
+function editGerarParcelas(manterEstado){
+  var valor=parseFloat((el('mensVal')||{}).value||0);
+  var dia=parseInt((el('mensDia')||{}).value||0);
+  var qtd=parseInt((el('mensQtd')||{}).value||0);
+  var ini=(el('mensIni')||{}).value||'';
+  var bloco=el('edit_parcelas_bloco');
+  if(!qtd||qtd<1||!dia||dia<1||dia>28||!valor||valor<=0||!ini){if(bloco)bloco.style.display='none';return;}
+  var dtIni=new Date(ini+'T00:00:00');
+  var hoje=new Date();hoje.setHours(0,0,0,0);
+  var novas=[];
+  for(var i=0;i<qtd;i++){
+    var ano=dtIni.getFullYear();
+    var mes=dtIni.getMonth()+1+i;
+    ano+=Math.floor(mes/12);mes=mes%12;
+    var vd=new Date(ano,mes,dia);vd.setHours(0,0,0,0);
+    var ds=vd.getFullYear()+'-'+String(vd.getMonth()+1).padStart(2,'0')+'-'+String(dia).padStart(2,'0');
+    var prev=editParcelaState[i];
+    var pago=manterEstado&&prev?prev.pago:vd<hoje;
+    var valorP=manterEstado&&prev?prev.valor:valor;
+    novas.push({ref:ds,valor:valorP,pago:pago,retroativa:vd<hoje});
+  }
+  editParcelaState=novas;
+  renderEditParcelaLista();
+}
 
-            var tr = document.createElement('tr'); tr.style.cursor = 'pointer';
-            tr.innerHTML =
-                '<td><div class="patient-info"><div class="patient-avatar">' + ini + '</div><div><div class="patient-name">' + (p.clientes ? p.clientes.nome : '-') + '</div><div class="patient-phone">' + (p.clientes && p.clientes.telefone ? p.clientes.telefone : '') + '</div></div></div></td>' +
-                '<td><span class="plano-tag">' + (p.planos ? p.planos.nome : '-') + '</span></td>' +
-                '<td style="font-weight:700">' + fmt(p.valor) + '/mes</td>' +
-                '<td style="color:var(--green);font-weight:700">' + pagas + '/' + g.lista.length + '</td>' +
-                '<td>' + (atrasadas > 0 ? '<span style="color:var(--red);font-weight:700">' + atrasadas + '</span>' : '<span style="color:var(--muted)">0</span>') + '</td>' +
-                '<td>' + sit + '</td><td></td>';
-            var acoesTd = tr.querySelector('td:last-child');
-            var acoesDiv = document.createElement('div'); acoesDiv.className = 'action-btns'; acoesDiv.style.alignItems = 'center';
-            var chevron = document.createElement('i'); chevron.className = 'fas fa-chevron-down'; chevron.style.cssText = 'color:var(--muted);font-size:.8rem;margin-right:.4rem';
-            acoesDiv.appendChild(chevron);
-            var btnAtv = document.createElement('button');
-            btnAtv.className = 'btn btn-sm'; btnAtv.style.cssText = 'background:#DBEAFE;color:#2563EB;border:none;font-size:.75rem;padding:.3rem .6rem;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:.3rem';
-            btnAtv.innerHTML = '<i class="fas fa-dollar-sign"></i> Atualizar';
-            btnAtv.title = 'Atualizar Valor';
-            btnAtv.addEventListener('click', (function(mid, pnome, pval) { return function(e) { e.stopPropagation(); openAtualizarValorModal(mid, pnome, pval); }; })(p.mensalidade_id, p.clientes ? p.clientes.nome : '-', p.valor));
-            acoesDiv.appendChild(btnAtv);
-            // Botao Editar
-            var btnEdt = document.createElement('button');
-            btnEdt.className = 'action-btn edit'; btnEdt.title = 'Editar Mensalidade';
-            btnEdt.innerHTML = '<i class="fas fa-edit"></i>';
-            btnEdt.addEventListener('click', (function(mid) { return function(e) { e.stopPropagation(); openMensModal(mid); }; })(p.mensalidade_id));
-            acoesDiv.appendChild(btnEdt);
-            // Botao Finalizar
-            var btnFin = document.createElement('button');
-            btnFin.className = 'action-btn finish'; btnFin.title = 'Finalizar Mensalidade (mantém pagas, cancela abertas)';
-            btnFin.innerHTML = '<i class="fas fa-flag-checkered"></i>';
-            btnFin.addEventListener('click', (function(mid, pnome) { return function(e) { e.stopPropagation(); finalizarMensalidade(mid, pnome); }; })(p.mensalidade_id, p.clientes ? p.clientes.nome : '-'));
-            acoesDiv.appendChild(btnFin);
-            // Botao Excluir
-            var btnDel = document.createElement('button');
-            btnDel.className = 'action-btn del-all'; btnDel.title = 'Excluir Mensalidade (exclui tudo)';
-            btnDel.innerHTML = '<i class="fas fa-trash"></i>';
-            btnDel.addEventListener('click', (function(mid, pnome) { return function(e) { e.stopPropagation(); excluirMensalidade(mid, pnome); }; })(p.mensalidade_id, p.clientes ? p.clientes.nome : '-'));
-            acoesDiv.appendChild(btnDel);
-            acoesTd.appendChild(acoesDiv);
-            tr.addEventListener('click', function() {
-                var det = document.getElementById(rowId);
-                if (det) det.style.display = det.style.display === 'none' ? 'table-row' : 'none';
-            });
-            tbody.appendChild(tr);
+function renderEditParcelaLista(){
+  var bloco=el('edit_parcelas_bloco');var lista=el('edit_parcelas_lista');
+  if(!bloco||!lista)return;
+  if(!editParcelaState.length){bloco.style.display='none';return;}
+  bloco.style.display='block';lista.innerHTML='';
+  editParcelaState.forEach(function(p,i){
+    var dtObj=new Date(p.ref+'T12:00:00');
+    var mesNome=dtObj.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+    var div=document.createElement('div');
+    div.className='parcela-row'+(p.pago?' pago':'');
+    div.innerHTML=
+      '<div class="parc-num'+(p.pago?' pago':'')+'">'+( i+1)+'</div>'+
+      '<div class="parc-info"><div class="parc-mes">'+mesNome+'</div>'+
+      '<div class="parc-venc">Vence: '+fmtD(p.ref)+(p.retroativa&&!p.pago?' <span style="color:#DC2626;font-weight:700">(atrasado)</span>':'')+'</div></div>'+
+      '<div class="parc-val-wrap"><span class="parc-val-prefix">R$</span>'+
+      '<input type="number" class="parc-val-input'+(p.pago?' pago-input':'')+'" id="epv_'+i+'" step="0.01" value="'+p.valor.toFixed(2)+'" '+(p.pago?'readonly':'')+' onchange="editUpdateValor('+i+',this.value)"></div>'+
+      '<button class="btn-pago'+(p.pago?' marcado':'')+'" onclick="editTogglePago('+i+')">'+
+      (p.pago?'<i class="fas fa-check-circle"></i> JA PAGO':'<i class="far fa-circle"></i> Marcar como Pago')+'</button>';
+    lista.appendChild(div);
+  });
+}
 
-            // Detalhe parcelas
-            var trDet = document.createElement('tr'); trDet.id = rowId; trDet.style.display = 'none';
-            var tdDet = document.createElement('td'); tdDet.colSpan = 7; tdDet.style.cssText = 'padding:0;background:#F8FAFC';
-            var div = document.createElement('div'); div.style.cssText = 'padding:.75rem 1rem';
-            var subTbl = document.createElement('table'); subTbl.style.cssText = 'width:100%;font-size:.8rem';
-            subTbl.innerHTML = '<thead><tr style="background:#EFF6FF"><th>Mes Ref.</th><th>Vencimento</th><th>Valor</th><th>Status</th><th>Acoes</th></tr></thead>';
-            var subTbody = document.createElement('tbody');
-            g.lista.forEach(function(parc) {
-                var subTr = document.createElement('tr');
-                subTr.innerHTML =
-                    '<td style="font-weight:600">' + parc.data_vencimento.substring(0, 7) + '</td>' +
-                    '<td>' + fmtD(parc.data_vencimento) + '</td>' +
-                    '<td style="font-weight:600">' + fmt(parc.valor) + '</td>' +
-                    '<td>' + badge(parc._st) + '</td><td></td>';
-                var subAcoes = subTr.querySelector('td:last-child');
-                var bDiv = document.createElement('div'); bDiv.className = 'action-btns';
-                if (parc._st !== 'pago' && parc._st !== 'cancelado') {
-                    bDiv.appendChild(mkBtn('pay', 'fas fa-dollar-sign', 'Pagar', (function(pid) { return function(e) { e.stopPropagation(); openPagModal(pid); }; })(parc.id)));
-                }
-                if (parc._st === 'pago') {
-                    bDiv.appendChild(mkBtn('receipt', 'fas fa-receipt', 'Recibo', (function(pid) { return function(e) { e.stopPropagation(); gerarRecibo(pid); }; })(parc.id)));
-                }
-                subAcoes.appendChild(bDiv);
-                subTbody.appendChild(subTr);
-            });
-            subTbl.appendChild(subTbody); div.appendChild(subTbl); tdDet.appendChild(div); trDet.appendChild(tdDet);
-            tbody.appendChild(trDet);
-        });
+function editUpdateValor(i,v){if(editParcelaState[i])editParcelaState[i].valor=parseFloat(v)||0;}
+function editTogglePago(i){if(!editParcelaState[i])return;editParcelaState[i].pago=!editParcelaState[i].pago;renderEditParcelaLista();}
+
+async function saveMensEdit(){
+  var id=el('mensId').value;
+  var pacId=el('mensPacId').value;
+  var nomePac=(el('mensNomePac').value||'').trim();
+  var telPac=(el('mensTelPac').value||'').trim();
+  var valor=parseFloat(el('mensVal').value);
+  var ini=el('mensIni').value;
+  var dia=parseInt(el('mensDia').value);
+  var qtd=parseInt(el('mensQtd').value||0);
+  if(!nomePac){sT('Informe o nome do paciente','error');return}
+  if(!valor||!ini||!dia){sT('Preencha todos os campos da mensalidade','error');return}
+  if(!qtd||qtd<1){sT('Informe o total de meses','error');return}
+  var obs=qtd+'_meses';
+  var dtIni=new Date(ini+'T00:00:00');
+  var dv=dtIni.getFullYear()+'-'+String(dtIni.getMonth()+1).padStart(2,'0')+'-'+String(dia).padStart(2,'0');
+  var hj=new Date();hj.setHours(0,0,0,0);
+  var st=new Date(dv+'T00:00:00')<hj?'atrasado':'pendente';
+  try{
+    sL('Salvando...');
+    if(pacId){var pacUpd={nome:nomePac};if(telPac)pacUpd.telefone=telPac;await sb.from('clientes').update(pacUpd).eq('id',pacId);}
+    await sb.from('mensalidades').update({valor:valor,data_inicio:ini,dia_vencimento:dia,data_vencimento:dv,observacoes:obs,status:st}).eq('id',id);
+    // Sincroniza pagamentos: remove todos e recria os marcados como pagos
+    await sb.from('pagamentos_mensalidade').delete().eq('mensalidade_id',id).eq('salao_id',salaoId);
+    var pagas=editParcelaState.filter(function(p){return p.pago});
+    if(pagas.length){
+      var hoje2=new Date().toISOString().split('T')[0];
+      var inserts=pagas.map(function(p){return{mensalidade_id:id,valor_pago:p.valor,forma_pagamento:'dinheiro',data_pagamento:hoje2,comprovante:p.ref.substring(0,7),salao_id:salaoId}});
+      await sb.from('pagamentos_mensalidade').insert(inserts);
     }
-    tbl.appendChild(tbody); wrap.appendChild(tbl); card.appendChild(wrap); tc.appendChild(card);
+    closeModal();await loadAll();sT('Contrato atualizado com sucesso!');
+  }catch(e){hL();sT('Erro ao salvar','error');console.error(e)}
 }
 
-function renderPlanos() {
-    var tc = el('tabContent'); tc.innerHTML = '';
-    var card = document.createElement('div'); card.className = 'table-card';
-    var addBtn = document.createElement('button'); addBtn.className = 'btn btn-purple btn-sm'; addBtn.innerHTML = '<i class="fas fa-plus"></i> Novo Plano'; addBtn.onclick = function() { openPlanoModal(); };
-    card.innerHTML = '<div class="table-header"><div class="table-title">Planos Cadastrados</div></div>';
-    card.querySelector('.table-header').appendChild(addBtn);
-    var wrap = document.createElement('div'); wrap.className = 'table-wrap';
-    var tbl = document.createElement('table');
-    tbl.innerHTML = '<thead><tr><th>Plano</th><th>Tipo</th><th>Valor</th><th>Status</th><th>Acoes</th></tr></thead>';
-    var tbody = document.createElement('tbody');
-    if (!planos.length) {
-        tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">📦</div><h3>Nenhum plano</h3></div></td></tr>';
-    } else {
-        var tipos = { mensal: 'Mensal', trimestral: 'Trimestral', semestral: 'Semestral', anual: 'Anual' };
-        planos.forEach(function(p) {
-            var tr = document.createElement('tr');
-            tr.innerHTML = '<td style="font-weight:600">' + p.nome + '</td><td><span class="plano-tag">' + (tipos[p.tipo] || p.tipo) + '</span></td><td style="font-weight:700">' + fmt(p.valor) + '</td><td>' + (p.ativo !== false ? '<span class="badge badge-pago">Ativo</span>' : '<span class="badge badge-cancelado">Inativo</span>') + '</td><td></td>';
-            var bDiv = document.createElement('div'); bDiv.className = 'action-btns';
-            bDiv.appendChild(mkBtn('edit', 'fas fa-edit', 'Editar', (function(pid) { return function() { openPlanoModal(pid); }; })(p.id)));
-            bDiv.appendChild(mkBtn('delete', 'fas fa-power-off', 'Ativar/Desativar', (function(pid) { return function() { togglePlano(pid); }; })(p.id)));
-            tr.querySelector('td:last-child').appendChild(bDiv);
-            tbody.appendChild(tr);
-        });
+// ==============================
+// ATUALIZAR VALOR
+// ==============================
+function openAtualizarValorModal(mensalidadeId,nomePaciente,valorAtual){
+  openModal(
+    '<div class="modal-header"><h2><i class="fas fa-dollar-sign" style="color:var(--green)"></i> Atualizar Valor</h2><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div>'+
+    '<div class="modal-body"><input type="hidden" id="atvMid" value="'+mensalidadeId+'">'+
+    '<div class="info-box"><i class="fas fa-user-circle" style="font-size:1.3rem"></i><div><strong>'+nomePaciente+'</strong><br><span style="font-size:.75rem">Valor atual: '+fmt(valorAtual)+'/mes</span></div></div>'+
+    '<div class="form-group"><label class="form-label req">Novo Valor (R$)</label><input type="number" class="form-input big" id="atvVal" step="0.01" placeholder="Ex: 600.00" autofocus></div>'+
+    '<div class="warn-box"><i class="fas fa-info-circle"></i> Somente parcelas futuras serao atualizadas. Parcelas ja pagas nao mudam.</div>'+
+    '</div>'+
+    '<div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-success btn-lg" onclick="salvarNovoValor()"><i class="fas fa-check"></i> Atualizar Valor</button></div>'
+  );
+  setTimeout(function(){var v=el('atvVal');if(v)v.focus()},100);
+}
+
+async function salvarNovoValor(){
+  var mid=el('atvMid').value,novoValor=parseFloat(el('atvVal').value);
+  if(!novoValor||novoValor<=0){sT('Informe um valor valido','error');return}
+  try{sL('Atualizando...');var res=await sb.from('mensalidades').update({valor:novoValor}).eq('id',mid);if(res.error)throw res.error;closeModal();await loadAll();sT('Valor atualizado!')}
+  catch(e){hL();sT('Erro ao atualizar','error')}
+}
+
+// ==============================
+// PLANOS
+// ==============================
+function openPlanoModal(editId){
+  var p=editId?planos.find(function(x){return x.id===editId}):null;
+  var tipos={mensal:'Mensal (mes a mes)',trimestral:'Trimestral (3 meses)',semestral:'Semestral (6 meses)',anual:'Anual (12 meses)'};
+  var listHtml='';
+  if(planos.length){
+    listHtml='<div style="margin-top:1rem;border-top:1px solid #EDE9FE;padding-top:1rem"><div style="font-size:.78rem;font-weight:800;color:var(--muted);margin-bottom:.6rem;text-transform:uppercase;letter-spacing:.5px">Planos cadastrados</div>';
+    planos.forEach(function(pl){
+      listHtml+='<div style="display:flex;align-items:center;justify-content:space-between;padding:.6rem .8rem;border:1px solid #EDE9FE;border-radius:10px;margin-bottom:.35rem;background:#FAF5FF">'+
+        '<div><div style="font-weight:700;font-size:.85rem">'+pl.nome+'</div><div style="font-size:.72rem;color:var(--muted)">'+(tipos[pl.tipo]||pl.tipo)+' &middot; '+fmt(pl.valor)+'/mes &middot; '+(pl.ativo!==false?'<span style="color:#059669">Ativo</span>':'<span style="color:#DC2626">Inativo</span>')+'</div></div>'+
+        '<div style="display:flex;gap:.3rem">'+
+        '<button class="act-btn editar" onclick="openPlanoModal(\''+pl.id+'\')"><i class="fas fa-edit"></i> Editar</button>'+
+        '<button class="act-btn '+(pl.ativo!==false?'excluir':'pagar')+'" onclick="togglePlano(\''+pl.id+'\')"><i class="fas fa-power-off"></i> '+(pl.ativo!==false?'Desativar':'Ativar')+'</button>'+
+        '</div></div>';
+    });
+    listHtml+='</div>';
+  }
+  openModal(
+    '<div class="modal-header"><h2><i class="fas fa-layer-group" style="color:var(--primary)"></i> '+(p?'Editar Plano':'Novo Plano')+'</h2><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div>'+
+    '<div class="modal-body"><input type="hidden" id="planoId" value="'+(p?p.id:'')+'"><div class="form-grid">'+
+    '<div class="form-group full"><label class="form-label req">Nome do Plano</label><input type="text" class="form-input" id="planoNome" value="'+(p?p.nome:'')+'" placeholder="Ex: Plano Mensal Basico"></div>'+
+    '<div class="form-group"><label class="form-label req">Tipo <span class="tip"><span class="tip-icon"><i class="fas fa-info"></i></span><span class="tip-text">Mensal: voce define quantas mensalidades. Trimestral/Semestral/Anual: numero fixo de parcelas.</span></span></label><select class="form-select" id="planoTipo"><option value="mensal"'+(p&&p.tipo==='mensal'?' selected':'')+'>Mensal (mes a mes)</option><option value="trimestral"'+(p&&p.tipo==='trimestral'?' selected':'')+'>Trimestral (3 meses)</option><option value="semestral"'+(p&&p.tipo==='semestral'?' selected':'')+'>Semestral (6 meses)</option><option value="anual"'+(p&&p.tipo==='anual'?' selected':'')+'>Anual (12 meses)</option></select></div>'+
+    '<div class="form-group"><label class="form-label req">Valor por Mes (R$)</label><input type="number" class="form-input" id="planoValor" step="0.01" value="'+(p?p.valor:'')+'" placeholder="Ex: 500.00"></div>'+
+    '<div class="form-group full"><label class="form-label">Descricao (opcional)</label><textarea class="form-textarea" id="planoDesc" rows="2" placeholder="Informacoes adicionais...">'+(p&&p.descricao?p.descricao:'')+'</textarea></div>'+
+    '</div>'+listHtml+'</div>'+
+    '<div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal()"><i class="fas fa-times"></i> Fechar</button><button class="btn btn-primary btn-lg" onclick="savePlano()"><i class="fas fa-save"></i> '+(p?'Salvar Alteracoes':'Criar Plano')+'</button></div>'
+  );
+}
+
+async function savePlano(){
+  var id=el('planoId').value,nome=el('planoNome').value.trim(),tipo=el('planoTipo').value,valor=parseFloat(el('planoValor').value),desc=el('planoDesc').value.trim();
+  if(!nome||!valor){sT('Informe nome e valor','error');return}
+  try{
+    sL('Salvando plano...');
+    if(id)await sb.from('planos').update({nome:nome,tipo:tipo,valor:valor,descricao:desc}).eq('id',id);
+    else await sb.from('planos').insert({nome:nome,tipo:tipo,valor:valor,descricao:desc,salao_id:salaoId,ativo:true});
+    closeModal();await loadAll();sT(id?'Plano atualizado!':'Plano criado!');
+  }catch(e){hL();sT('Erro ao salvar plano','error')}
+}
+
+async function togglePlano(id){
+  var p=planos.find(function(x){return x.id===id});
+  if(!p||!confirm((p.ativo!==false?'Desativar':'Reativar')+' "'+p.nome+'"?'))return;
+  await sb.from('planos').update({ativo:p.ativo===false}).eq('id',id);closeModal();await loadAll();sT('Plano atualizado!');
+}
+
+// ==============================
+// FINALIZAR / EXCLUIR
+// ==============================
+async function finalizarMensalidade(mensalidadeId,nomePaciente){
+  if(!confirm('Encerrar mensalidade de '+nomePaciente+'?\n\nParcelas JA PAGAS serao mantidas.\nParcelas abertas serao CANCELADAS.'))return;
+  try{sL('Encerrando...');var res=await sb.from('mensalidades').update({status:'cancelado'}).eq('id',mensalidadeId);if(res.error)throw res.error;closeModal();await loadAll();sT('Contrato encerrado!')}
+  catch(e){hL();sT('Erro ao encerrar','error')}
+}
+
+function openExcluirPacienteModal(mensalidadeId, nomePaciente, pacienteId){
+  openModal(
+    '<div class="modal-header"><h2><i class="fas fa-user-slash" style="color:var(--red)"></i> O que deseja fazer com '+nomePaciente+'?</h2><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div>'+
+    '<div class="modal-body">'+
+
+    // OPCAO 1 — INATIVAR
+    '<div style="border:2px solid #E9D5FF;border-radius:16px;padding:1.2rem 1.3rem;margin-bottom:1rem;cursor:pointer;transition:all .2s" '+
+    'onmouseover="this.style.borderColor=\'#F59E0B\';this.style.background=\'#FFFBEB\'" '+
+    'onmouseout="this.style.borderColor=\'#E9D5FF\';this.style.background=\'#fff\'" '+
+    'onclick="inativarPaciente(\''+pacienteId+'\',\''+mensalidadeId+'\',\''+nomePaciente.replace(/'/g,"\\'")+'\')">'+ 
+    '<div style="display:flex;align-items:center;gap:1rem">'+
+    '<div style="width:52px;height:52px;background:#FEF3C7;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fas fa-user-slash" style="font-size:1.4rem;color:#D97706"></i></div>'+
+    '<div>'+
+    '<div style="font-size:1rem;font-weight:800;color:#D97706;margin-bottom:.25rem">Inativar paciente</div>'+
+    '<div style="font-size:.82rem;color:var(--muted);line-height:1.5">O paciente fica <strong>inativo no sistema</strong> mas o historico de pagamentos e mensalidades e mantido. Pode ser reativado depois.</div>'+
+    '</div></div></div>'+
+
+    // OPCAO 2 — EXCLUIR TUDO
+    '<div style="border:2px solid #E9D5FF;border-radius:16px;padding:1.2rem 1.3rem;cursor:pointer;transition:all .2s" '+
+    'onmouseover="this.style.borderColor=\'#EF4444\';this.style.background=\'#FFF5F5\'" '+
+    'onmouseout="this.style.borderColor=\'#E9D5FF\';this.style.background=\'#fff\'" '+
+    'onclick="excluirPacienteCompleto(\''+pacienteId+'\',\''+mensalidadeId+'\',\''+nomePaciente.replace(/'/g,"\\'")+'\')">'+ 
+    '<div style="display:flex;align-items:center;gap:1rem">'+
+    '<div style="width:52px;height:52px;background:#FEE2E2;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fas fa-trash" style="font-size:1.4rem;color:#DC2626"></i></div>'+
+    '<div>'+
+    '<div style="font-size:1rem;font-weight:800;color:#DC2626;margin-bottom:.25rem">Excluir paciente da base de dados</div>'+
+    '<div style="font-size:.82rem;color:var(--muted);line-height:1.5">Remove <strong>tudo permanentemente</strong>: paciente, mensalidades e pagamentos. <strong style="color:#DC2626">Essa acao nao pode ser desfeita.</strong></div>'+
+    '</div></div></div>'+
+
+    '</div>'+
+    '<div class="modal-footer"><button class="btn btn-ghost btn-lg" onclick="closeModal()"><i class="fas fa-times"></i> Cancelar</button></div>'
+  );
+}
+
+async function inativarPaciente(pacienteId, mensalidadeId, nomePaciente){
+  if(!confirm('Inativar '+nomePaciente+'?\n\nO paciente sera marcado como INATIVO e todas as mensalidades em aberto serao canceladas (nao vai cobrar mais nada).\n\nOs pagamentos ja realizados sao mantidos no historico.\nPode ser reativado depois se necessario.'))return;
+  try{
+    sL('Inativando paciente...');
+    // 1. Inativar o paciente
+    var r1=await sb.from('clientes').update({ativo:false,status:'inativo'}).eq('id',pacienteId).eq('salao_id',salaoId);
+    if(r1.error)throw r1.error;
+    // 2. Cancelar TODAS as mensalidades ativas deste paciente (para de cobrar)
+    var r2=await sb.from('mensalidades').update({status:'cancelado'}).eq('paciente_id',pacienteId).eq('salao_id',salaoId).neq('status','cancelado');
+    if(r2.error)throw r2.error;
+    closeModal();await loadAll();sT(nomePaciente+' inativado. Mensalidades canceladas, historico mantido.');
+  }catch(e){hL();sT('Erro ao inativar','error');console.error(e)}
+}
+
+async function excluirPacienteCompleto(pacienteId, mensalidadeId, nomePaciente){
+  if(!confirm('EXCLUIR '+nomePaciente+' da base de dados?\n\nIsso vai apagar:\n- O cadastro do paciente\n- Todas as mensalidades e pagamentos\n- Todos os agendamentos\n\nEssa acao NAO pode ser desfeita!'))return;
+  if(!confirm('Ultima confirmacao: excluir TUDO de '+nomePaciente+'?'))return;
+  try{
+    sL('Excluindo paciente...');
+    // 1. Busca todas as mensalidades deste paciente
+    var rMens=await sb.from('mensalidades').select('id').eq('paciente_id',pacienteId).eq('salao_id',salaoId);
+    if(rMens.error)throw rMens.error;
+    var mensIds=(rMens.data||[]).map(function(m){return m.id});
+    // 2. Exclui pagamentos vinculados às mensalidades
+    for(var i=0;i<mensIds.length;i++){
+      await sb.from('pagamentos_mensalidade').delete().eq('mensalidade_id',mensIds[i]).eq('salao_id',salaoId);
     }
-    tbl.appendChild(tbody); wrap.appendChild(tbl); card.appendChild(wrap); tc.appendChild(card);
-}
-
-function renderHist() {
-    var tc = el('tabContent'); tc.innerHTML = '';
-    var card = document.createElement('div'); card.className = 'table-card';
-    card.innerHTML = '<div class="table-header"><div class="table-title">Historico de Pagamentos</div><div class="table-count">' + pagamentos.length + '</div></div>';
-    var wrap = document.createElement('div'); wrap.className = 'table-wrap';
-    var tbl = document.createElement('table');
-    tbl.innerHTML = '<thead><tr><th>Data</th><th>Paciente</th><th>Valor</th><th>Forma</th><th>Recibo</th></tr></thead>';
-    var tbody = document.createElement('tbody');
-    if (!pagamentos.length) {
-        tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">📜</div><h3>Nenhum pagamento</h3></div></td></tr>';
-    } else {
-        pagamentos.forEach(function(pag) {
-            var mens = mensalidades.find(function(m) { return m.id === pag.mensalidade_id; });
-            var nomePac = mens && mens.clientes ? mens.clientes.nome : '-';
-            var r7 = pag.comprovante ? pag.comprovante.substring(0, 7) : (pag.data_pagamento ? pag.data_pagamento.substring(0, 7) : '');
-            var parc = parcelas.find(function(x) { return x.mensalidade_id === pag.mensalidade_id && x.data_vencimento.substring(0, 7) === r7; });
-            var tr = document.createElement('tr');
-            tr.innerHTML = '<td>' + fmtD(pag.data_pagamento) + '</td><td style="font-weight:600">' + nomePac + '</td><td style="font-weight:700;color:var(--green)">' + fmt(pag.valor_pago) + '</td><td>' + fmtF(pag.forma_pagamento) + '</td><td></td>';
-            if (parc) {
-                tr.querySelector('td:last-child').appendChild(mkBtn('receipt', 'fas fa-receipt', 'Recibo', (function(pid) { return function() { gerarRecibo(pid); }; })(parc.id)));
-            }
-            tbody.appendChild(tr);
-        });
+    // 3. Exclui mensalidades
+    if(mensIds.length){
+      await sb.from('mensalidades').delete().eq('paciente_id',pacienteId).eq('salao_id',salaoId);
     }
-    tbl.appendChild(tbody); wrap.appendChild(tbl); card.appendChild(wrap); tc.appendChild(card);
-}
-
-function openPlanoModal(editId) {
-    var p = editId ? planos.find(function(x) { return x.id === editId; }) : null;
-    openModal(
-        '<div class="modal-header"><h2><i class="fas fa-layer-group" style="color:var(--purple)"></i> ' + (p ? 'Editar' : 'Novo') + ' Plano</h2><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div>' +
-        '<div class="modal-body"><input type="hidden" id="planoId" value="' + (p ? p.id : '') + '"><div class="form-grid">' +
-        '<div class="form-group full"><label class="form-label required">Nome</label><input type="text" class="form-input" id="planoNome" value="' + (p ? p.nome : '') + '" placeholder="Ex: Plano Trimestral"></div>' +
-        '<div class="form-group"><label class="form-label required">Tipo</label><select class="form-select" id="planoTipo">' +
-        '<option value="mensal"' + (p && p.tipo === 'mensal' ? ' selected' : '') + '>Mensal</option>' +
-        '<option value="trimestral"' + (p && p.tipo === 'trimestral' ? ' selected' : '') + '>Trimestral (3 meses)</option>' +
-        '<option value="semestral"' + (p && p.tipo === 'semestral' ? ' selected' : '') + '>Semestral (6 meses)</option>' +
-        '<option value="anual"' + (p && p.tipo === 'anual' ? ' selected' : '') + '>Anual (12 meses)</option>' +
-        '</select></div>' +
-        '<div class="form-group"><label class="form-label required">Valor Mensal (R$)</label><input type="number" class="form-input" id="planoValor" step="0.01" value="' + (p ? p.valor : '') + '"></div>' +
-        '<div class="form-group full"><label class="form-label">Descricao</label><textarea class="form-textarea" id="planoDesc">' + (p && p.descricao ? p.descricao : '') + '</textarea></div>' +
-        '</div></div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-purple" onclick="savePlano()"><i class="fas fa-save"></i> Salvar</button></div>'
-    );
-}
-
-async function savePlano() {
-    var id = el('planoId').value, nome = el('planoNome').value.trim(), tipo = el('planoTipo').value, valor = parseFloat(el('planoValor').value), desc = el('planoDesc').value.trim();
-    if (!nome || !valor) { sT('Preencha nome e valor', 'error'); return; }
-    try { sL('Salvando...'); if (id) await sb.from('planos').update({ nome: nome, tipo: tipo, valor: valor, descricao: desc }).eq('id', id); else await sb.from('planos').insert({ nome: nome, tipo: tipo, valor: valor, descricao: desc, salao_id: salaoId, ativo: true }); closeModal(); await loadAll(); sT(id ? 'Atualizado!' : 'Plano criado!'); } catch (e) { hL(); sT('Erro', 'error'); }
-}
-
-async function togglePlano(id) {
-    var p = planos.find(function(x) { return x.id === id; });
-    if (!p || !confirm((p.ativo !== false ? 'Desativar' : 'Reativar') + ' "' + p.nome + '"?')) return;
-    await sb.from('planos').update({ ativo: p.ativo === false }).eq('id', id); await loadAll(); sT('Atualizado!');
-}
-
-function openMensModal(editId) {
-    var m = editId ? mensalidades.find(function(x) { return x.id === editId; }) : null;
-    var pacOpts = pacientes.map(function(p) { return '<option value="' + p.id + '"' + (m && m.paciente_id === p.id ? ' selected' : '') + '>' + p.nome + '</option>'; }).join('');
-    var plOpts = planos.filter(function(p) { return p.ativo !== false; }).map(function(p) { return '<option value="' + p.id + '" data-tipo="' + p.tipo + '" data-valor="' + p.valor + '"' + (m && m.plano_id === p.id ? ' selected' : '') + '>' + p.nome + '</option>'; }).join('');
-    var hoje = new Date().toISOString().split('T')[0];
-    var qtdSalvo = '';
-    if (m && m.observacoes) { var mt = m.observacoes.match(/(\d+)_meses/); if (mt) qtdSalvo = mt[1]; }
-    var planoAtual = m ? planos.find(function(p) { return p.id === m.plano_id; }) : null;
-    var mostrarQtd = !m || (planoAtual && planoAtual.tipo === 'mensal');
-    openModal(
-        '<div class="modal-header"><h2><i class="fas fa-file-invoice-dollar" style="color:var(--primary)"></i> ' + (m ? 'Editar' : 'Nova') + ' Mensalidade</h2><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div>' +
-        '<div class="modal-body"><input type="hidden" id="mensId" value="' + (m ? m.id : '') + '"><div class="form-grid">' +
-        '<div class="form-group full"><label class="form-label required">Paciente</label><div style="display:flex;gap:.5rem;align-items:center"><select class="form-select" id="mensPac" style="flex:1"><option value="">Selecione...</option>' + pacOpts + '</select><button type="button" onclick="toggleNovoPacMens()" style="min-width:38px;height:38px;background:var(--primary);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0" title="Novo paciente"><i class="fas fa-user-plus"></i></button></div>' +
-        '<div id="novoPacGrp" style="display:none;grid-column:1/-1;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:.75rem">' +
-        '<div style="font-size:.8rem;font-weight:700;color:var(--primary);margin-bottom:.5rem"><i class="fas fa-user-plus"></i> Cadastro Rapido</div>' +
-        '<div style="display:flex;gap:.5rem;align-items:flex-end">' +
-        '<div style="flex:1"><label class="form-label required" style="font-size:.72rem">Nome do Paciente</label><input type="text" class="form-input" id="novoPacNome" placeholder="Nome completo" style="font-size:.82rem"></div>' +
-        '<div><label class="form-label" style="font-size:.72rem">Telefone</label><input type="text" class="form-input" id="novoPacTel" placeholder="(00) 00000-0000" style="font-size:.82rem;width:160px"></div>' +
-        '<button type="button" class="btn btn-primary btn-sm" onclick="salvarNovoPacMens()"><i class="fas fa-check"></i> Salvar</button>' +
-        '<button type="button" class="btn btn-secondary btn-sm" onclick="toggleNovoPacMens()">Cancelar</button>' +
-        '</div></div>' +
-        '<div class="form-group"><label class="form-label required">Plano</label><select class="form-select" id="mensPlan" onchange="onPlanoChange(this)"><option value="">Selecione...</option>' + plOpts + '</select></div>' +
-        '<div class="form-group"><label class="form-label required">Valor (R$)</label><input type="number" class="form-input" id="mensVal" step="0.01" value="' + (m ? m.valor : '') + '"></div>' +
-        '<div class="form-group"><label class="form-label required">Data Inicio</label><input type="date" class="form-input" id="mensIni" value="' + (m && m.data_inicio ? m.data_inicio : hoje) + '" onchange="onDataIniChange(this.value)"></div>' +
-        '<div class="form-group"><label class="form-label">Dia Vencimento</label><input type="number" class="form-input" id="mensDia" min="1" max="28" value="' + (m && m.dia_vencimento ? m.dia_vencimento : '') + '" placeholder="Auto pelo inicio"></div>' +
-        '<div class="form-group" id="qtdGrp" style="display:' + (mostrarQtd ? 'flex' : 'none') + '"><label class="form-label required">Qtd de Meses</label><input type="number" class="form-input" id="mensQtd" min="1" max="60" value="' + qtdSalvo + '" placeholder="Ex: 2, 3..."><div class="form-hint">Quantos meses dura esse contrato</div></div>' +
-        '</div></div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveMens()"><i class="fas fa-save"></i> Salvar</button></div>'
-    );
-}
-
-function onPlanoChange(sel) {
-    var opt = sel.selectedOptions[0];
-    if (opt && opt.dataset.valor) el('mensVal').value = parseFloat(opt.dataset.valor);
-    var grp = el('qtdGrp');
-    if (grp) grp.style.display = (opt && opt.dataset.tipo === 'mensal') ? 'flex' : 'none';
-}
-
-function onDataIniChange(val) {
-    if (!val) return;
-    var diaEl = el('mensDia');
-    if (diaEl && !diaEl.value) { var d = new Date(val + 'T12:00:00'); diaEl.value = Math.min(d.getDate(), 28); }
-}
-
-async function saveMens() {
-    var id = el('mensId').value, pid = el('mensPac').value, plid = el('mensPlan').value, valor = parseFloat(el('mensVal').value), ini = el('mensIni').value;
-    if (!pid || !plid || !valor || !ini) { sT('Preencha todos os campos obrigatorios', 'error'); return; }
-    var planoSel = planos.find(function(p) { return p.id === plid; });
-    var obs = null;
-    if (planoSel && planoSel.tipo === 'mensal') {
-        var qtdEl = el('mensQtd'); var qtd = qtdEl ? parseInt(qtdEl.value) : 0;
-        if (!qtd || qtd < 1) { sT('Informe a quantidade de meses', 'error'); return; }
-        obs = qtd + '_meses';
+    // 4. Exclui agendamentos (foreign key que bloqueava)
+    await sb.from('agendamentos').delete().eq('cliente_id',pacienteId);
+    // 5. Tenta excluir outras tabelas que possam referenciar o cliente
+    try{await sb.from('servicos_realizados').delete().eq('cliente_id',pacienteId)}catch(e){}
+    try{await sb.from('vendas').delete().eq('cliente_id',pacienteId)}catch(e){}
+    // 6. Exclui o paciente
+    var res=await sb.from('clientes').delete().eq('id',pacienteId).eq('salao_id',salaoId);
+    if(res.error)throw res.error;
+    closeModal();await loadAll();sT(nomePaciente+' foi removido completamente.');
+  }catch(e){
+    hL();console.error(e);
+    // Se ainda tiver FK, oferece só inativar
+    if(e.code==='23503'){
+      sT('Nao foi possivel excluir pois existem outros registros vinculados. O paciente foi inativado no lugar.','warning');
+      await sb.from('clientes').update({ativo:false,status:'inativo'}).eq('id',pacienteId).eq('salao_id',salaoId);
+      await sb.from('mensalidades').update({status:'cancelado'}).eq('paciente_id',pacienteId).eq('salao_id',salaoId).neq('status','cancelado');
+      closeModal();await loadAll();
+    }else{
+      sT('Erro ao excluir: '+(e.message||e),'error');
     }
-    var dtIni = new Date(ini + 'T00:00:00');
-    var diaInput = parseInt((el('mensDia') || {}).value || '0');
-    var dia = diaInput >= 1 && diaInput <= 28 ? diaInput : Math.min(dtIni.getDate(), 28);
-    var dv = dtIni.getFullYear() + '-' + String(dtIni.getMonth() + 1).padStart(2, '0') + '-' + String(dia).padStart(2, '0');
-    var hj = new Date(); hj.setHours(0, 0, 0, 0);
-    var st = new Date(dv + 'T00:00:00') < hj ? 'atrasado' : 'pendente';
-    try {
-        sL('Salvando...');
-        var data = { paciente_id: pid, plano_id: plid, valor: valor, data_inicio: ini, dia_vencimento: dia, data_vencimento: dv, observacoes: obs, salao_id: salaoId, status: st };
-        if (id) await sb.from('mensalidades').update(data).eq('id', id);
-        else await sb.from('mensalidades').insert(data);
-        closeModal(); await loadAll(); sT(id ? 'Atualizado!' : 'Mensalidade criada!');
-    } catch (e) { hL(); sT('Erro ao salvar', 'error'); }
+  }
 }
 
-function openPagModal(parcId) {
-    var parc = parcelas.find(function(x) { return x.id === parcId; });
-    if (!parc) return;
-    var hoje = new Date().toISOString().split('T')[0];
-    openModal(
-        '<div class="modal-header"><h2><i class="fas fa-money-bill-wave" style="color:var(--green)"></i> Registrar Pagamento</h2><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div>' +
-        '<div class="modal-body"><input type="hidden" id="pagMid" value="' + parc.mensalidade_id + '"><input type="hidden" id="pagRef" value="' + parc.data_vencimento + '">' +
-        '<div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:.85rem;margin-bottom:1rem">' +
-        '<div style="font-size:.78rem;color:#16A34A;font-weight:600">Paciente</div>' +
-        '<div style="font-size:1rem;font-weight:700;color:#15803D">' + (parc.clientes ? parc.clientes.nome : '-') + '</div>' +
-        '<div style="font-size:.82rem;color:#16A34A">' + (parc.planos ? parc.planos.nome : '-') + ' - Ref: ' + parc.data_vencimento.substring(0, 7) + ' - Venc: ' + fmtD(parc.data_vencimento) + '</div></div>' +
-        '<div class="form-grid">' +
-        '<div class="form-group"><label class="form-label required">Valor (R$)</label><input type="number" class="form-input" id="pagVal" step="0.01" value="' + parc.valor + '"></div>' +
-        '<div class="form-group"><label class="form-label required">Forma</label><select class="form-select" id="pagFor"><option value="pix">PIX</option><option value="cartao_credito">Cartao Credito</option><option value="cartao_debito">Cartao Debito</option><option value="dinheiro">Dinheiro</option><option value="boleto">Boleto</option></select></div>' +
-        '<div class="form-group"><label class="form-label required">Data Pgto</label><input type="date" class="form-input" id="pagDat" value="' + hoje + '"></div>' +
-        '<div class="form-group"><label class="form-label">Comprovante</label><input type="text" class="form-input" id="pagComp" placeholder="No ou referencia"></div>' +
-        '</div></div>' +
-        '<div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-success" onclick="registrarPag()"><i class="fas fa-check"></i> Confirmar</button></div>'
-    );
+async function excluirMensalidade(mensalidadeId,nomePaciente){
+  if(!confirm('EXCLUIR mensalidade de '+nomePaciente+'?\n\nApaga TUDO. Nao pode desfazer!'))return;
+  if(!confirm('Confirmar exclusao total de '+nomePaciente+'?'))return;
+  try{sL('Excluindo...');await sb.from('pagamentos_mensalidade').delete().eq('mensalidade_id',mensalidadeId).eq('salao_id',salaoId);var res=await sb.from('mensalidades').delete().eq('id',mensalidadeId).eq('salao_id',salaoId);if(res.error)throw res.error;closeModal();await loadAll();sT('Mensalidade excluida!')}
+  catch(e){hL();sT('Erro ao excluir','error')}
 }
 
-async function registrarPag() {
-    var mid = el('pagMid').value, val = parseFloat(el('pagVal').value), forma = el('pagFor').value, data = el('pagDat').value, comp = el('pagComp').value, ref = el('pagRef').value;
-    if (!val || !data) { sT('Preencha valor e data', 'error'); return; }
-    // comprovante = YYYY-MM do mes de referencia — assim calcularParcelas encontra pelo ref7
-    var compFinal = ref.substring(0, 7) + (comp ? '|' + comp : '');
-    try {
-        sL('Registrando...');
-        await sb.from('pagamentos_mensalidade').insert({ mensalidade_id: mid, valor_pago: val, forma_pagamento: forma, data_pagamento: data, comprovante: compFinal, salao_id: salaoId });
-        closeModal(); await loadAll(); sT('Pagamento registrado!');
-    } catch (e) { hL(); sT('Erro', 'error'); }
+// ==============================
+// RECIBO / WHATSAPP
+// ==============================
+function gerarRecibo(parcId){
+  var parc=parcelas.find(function(x){return x.id===parcId});if(!parc)return;
+  var pag=parc.pagamento;
+  var txt='RECIBO DE PAGAMENTO\n\nPaciente: '+(parc.clientes?parc.clientes.nome:'-')+'\nPlano: '+(parc.planos?parc.planos.nome:'-')+'\nReferencia: '+parc.data_vencimento.substring(0,7)+'\nVencimento: '+fmtD(parc.data_vencimento)+'\nValor: '+fmt(pag?pag.valor_pago:parc.valor)+'\nForma: '+(pag?fmtF(pag.forma_pagamento):'-')+'\nData Pgto: '+(pag?fmtD(pag.data_pagamento):'-')+'\n\nGerado em '+new Date().toLocaleString('pt-BR');
+  var w=window.open('about:blank','_blank');if(w){w.document.title='Recibo';w.document.body.innerText=txt;w.print()}else alert(txt);
 }
 
-function gerarRecibo(parcId) {
-    var parc = parcelas.find(function(x) { return x.id === parcId; });
-    if (!parc) return;
-    var pag = parc.pagamento;
-    var txt = 'RECIBO DE PAGAMENTO\n\nPaciente: ' + (parc.clientes ? parc.clientes.nome : '-') + '\nPlano: ' + (parc.planos ? parc.planos.nome : '-') + '\nReferencia: ' + parc.data_vencimento.substring(0, 7) + '\nVencimento: ' + fmtD(parc.data_vencimento) + '\nValor: ' + fmt(pag ? pag.valor_pago : parc.valor) + '\nForma: ' + (pag ? fmtF(pag.forma_pagamento) : '-') + '\nData Pgto: ' + (pag ? fmtD(pag.data_pagamento) : '-') + '\n\nGerado em ' + new Date().toLocaleString('pt-BR');
-    var w = window.open('about:blank', '_blank');
-    if (w) { w.document.title = 'Recibo'; w.document.body.innerText = txt; w.print(); } else alert(txt);
+function enviarCobranca(parcId){
+  var parc=parcelas.find(function(x){return x.id===parcId});
+  if(!parc||!parc.clientes||!parc.clientes.telefone){sT('Paciente sem telefone cadastrado','error');return}
+  var tel=parc.clientes.telefone.replace(/\D/g,'');if(!tel.startsWith('55'))tel='55'+tel;
+  var dias=diasAtraso(parc.data_vencimento);
+  var msg=dias>0?'Ola, '+parc.clientes.nome+'! Sua mensalidade de '+fmt(parc.valor)+' esta com '+dias+' dia(s) de atraso (venceu em '+fmtD(parc.data_vencimento)+'). Por favor regularize. Obrigado!':'Ola, '+parc.clientes.nome+'! Sua mensalidade de '+fmt(parc.valor)+' vence hoje ('+fmtD(parc.data_vencimento)+'). Qualquer duvida estamos a disposicao!';
+  window.open('https://wa.me/'+tel+'?text='+encodeURIComponent(msg),'_blank');
 }
 
-function enviarCobranca(parcId) {
-    var parc = parcelas.find(function(x) { return x.id === parcId; });
-    if (!parc || !parc.clientes || !parc.clientes.telefone) { sT('Sem telefone', 'error'); return; }
-    var tel = parc.clientes.telefone.replace(/\D/g, ''); if (!tel.startsWith('55')) tel = '55' + tel;
-    var dias = diasAtraso(parc.data_vencimento);
-    var msg = dias > 0 ? 'Ola ' + parc.clientes.nome + '! Sua mensalidade de ' + fmt(parc.valor) + ' esta com ' + dias + ' dias de atraso (venc: ' + fmtD(parc.data_vencimento) + '). Por favor regularize!' : 'Ola ' + parc.clientes.nome + '! Sua mensalidade de ' + fmt(parc.valor) + ' vence hoje (' + fmtD(parc.data_vencimento) + '). Realize o pagamento!';
-    window.open('https://wa.me/' + tel + '?text=' + encodeURIComponent(msg), '_blank');
+function dispararAlertas(){
+  var pend=parcelas.filter(function(p){return p._st==='atrasado'||p._st==='vence_hoje'});
+  if(!pend.length){sT('Nenhum alerta pendente','warning');return}
+  if(!confirm('Enviar cobranca pelo WhatsApp para '+pend.length+' pacientes?'))return;
+  pend.forEach(function(p,i){setTimeout(function(){enviarCobranca(p.id)},i*1500)});
+  sT('Abrindo alertas para '+pend.length+' pacientes...');
 }
 
-function dispararAlertas() {
-    var pend = parcelas.filter(function(p) { return p._st === 'atrasado' || p._st === 'vence_hoje'; });
-    if (!pend.length) { sT('Nenhum alerta', 'warning'); return; }
-    if (!confirm('Enviar alertas para ' + pend.length + ' pacientes?')) return;
-    pend.forEach(function(p, i) { setTimeout(function() { enviarCobranca(p.id); }, i * 1500); });
-    sT('Abrindo ' + pend.length + ' alertas...');
+async function reativarPaciente(pacienteId, mensalidadeId, nomePaciente){
+  if(!confirm('Reativar '+nomePaciente+'?\n\nO paciente voltara ao status ATIVO e a mensalidade sera reaberta.'))return;
+  try{
+    sL('Reativando paciente...');
+    var r1=await sb.from('clientes').update({ativo:true,status:'ativo'}).eq('id',pacienteId).eq('salao_id',salaoId);
+    if(r1.error)throw r1.error;
+    var r2=await sb.from('mensalidades').update({status:'pendente'}).eq('id',mensalidadeId).eq('salao_id',salaoId);
+    if(r2.error)throw r2.error;
+    await loadAll();sT(nomePaciente+' reativado com sucesso!');
+  }catch(e){hL();sT('Erro ao reativar','error');console.error(e)}
 }
 
-function toggleNovoPacMens() {
-    var grp = el('novoPacGrp');
-    if (grp) grp.style.display = grp.style.display === 'none' ? 'block' : 'none';
-    var nomeEl = el('novoPacNome');
-    if (nomeEl) nomeEl.value = '';
-    var telEl = el('novoPacTel');
-    if (telEl) telEl.value = '';
+async function excluirPagamentoParcela(parc){
+  if(!parc.pagamento||!parc.pagamento.id){sT('Nenhum pagamento encontrado para esta parcela','error');return}
+  var nomePac=parc.clientes?parc.clientes.nome:'-';
+  var ref=parc.data_vencimento.substring(0,7);
+  if(!confirm('Desfazer pagamento de '+nomePac+' referente a '+ref+'?\n\nA parcela voltara ao status "Em Atraso" ou "Futuro".'))return;
+  try{
+    sL('Removendo pagamento...');
+    var res=await sb.from('pagamentos_mensalidade').delete().eq('id',parc.pagamento.id).eq('salao_id',salaoId);
+    if(res.error)throw res.error;
+    await loadAll();sT('Pagamento desfeito. Parcela voltou ao status anterior.');
+  }catch(e){hL();sT('Erro ao remover pagamento','error');console.error(e)}
 }
 
-async function salvarNovoPacMens() {
-    var nome = (el('novoPacNome') || {}).value;
-    if (!nome || !nome.trim()) { sT('Informe o nome do paciente', 'error'); return; }
-    var tel = ((el('novoPacTel') || {}).value || '').trim();
-    try {
-        sL('Salvando paciente...');
-        var data = { salao_id: salaoId, nome: nome.trim(), ativo: true, status: 'ativo', permite_sms: true, permite_email: true, permite_whatsapp: true };
-        if (tel) data.telefone = tel;
-        var res = await sb.from('clientes').insert(data).select('id,nome').single();
-        if (res.error) throw res.error;
-        // Adicionar ao select e selecionar
-        var sel = el('mensPac');
-        if (sel) {
-            var opt = document.createElement('option');
-            opt.value = res.data.id;
-            opt.textContent = res.data.nome;
-            opt.selected = true;
-            sel.appendChild(opt);
-        }
-        pacientes.push(res.data);
-        toggleNovoPacMens();
-        hL();
-        sT('Paciente cadastrado!');
-    } catch (e) { hL(); sT('Erro ao cadastrar', 'error'); }
+async function excluirPagamentoById(pagId){
+  if(!confirm('Excluir este pagamento do historico?\n\nA parcela correspondente voltara ao status anterior.'))return;
+  try{
+    sL('Excluindo pagamento...');
+    var res=await sb.from('pagamentos_mensalidade').delete().eq('id',pagId).eq('salao_id',salaoId);
+    if(res.error)throw res.error;
+    await loadAll();sT('Pagamento excluido do historico.');
+  }catch(e){hL();sT('Erro ao excluir pagamento','error');console.error(e)}
 }
 
-function openAtualizarValorModal(mensalidadeId, nomePaciente, valorAtual) {
-    openModal(
-        '<div class="modal-header"><h2><i class="fas fa-dollar-sign" style="color:var(--green)"></i> Atualizar Valor da Mensalidade</h2><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div>' +
-        '<div class="modal-body">' +
-        '<input type="hidden" id="atvMid" value="' + mensalidadeId + '">' +
-        '<div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:.85rem;margin-bottom:1.1rem">' +
-        '<div style="font-size:.75rem;color:#16A34A;font-weight:600">Paciente</div>' +
-        '<div style="font-size:1rem;font-weight:700;color:#15803D">' + nomePaciente + '</div>' +
-        '<div style="font-size:.82rem;color:#16A34A;margin-top:.2rem">Valor atual: <strong>' + fmt(valorAtual) + '/mês</strong></div>' +
-        '</div>' +
-        '<div class="form-grid">' +
-        '<div class="form-group full"><label class="form-label required">Novo Valor (R$)</label><input type="number" class="form-input" id="atvVal" step="0.01" placeholder="Ex: 350.00" style="font-size:1.1rem;font-weight:700" autofocus></div>' +
-        '</div>' +
-        '<div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;padding:.7rem;font-size:.78rem;color:#92400E;margin-top:.75rem"><i class="fas fa-info-circle"></i> O novo valor será aplicado a todas as parcelas futuras desta mensalidade.</div>' +
-        '</div>' +
-        '<div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-success" onclick="salvarNovoValor()"><i class="fas fa-check"></i> Atualizar</button></div>'
-    );
-    setTimeout(function() { var v = el('atvVal'); if (v) v.focus(); }, 100);
-}
-
-async function salvarNovoValor() {
-    var mid = el('atvMid').value;
-    var novoValor = parseFloat(el('atvVal').value);
-    if (!novoValor || novoValor <= 0) { sT('Informe um valor válido', 'error'); return; }
-    try {
-        sL('Atualizando valor...');
-        var res = await sb.from('mensalidades').update({ valor: novoValor }).eq('id', mid);
-        if (res.error) throw res.error;
-        closeModal();
-        await loadAll();
-        sT('Valor atualizado com sucesso!');
-    } catch (e) { hL(); sT('Erro ao atualizar valor', 'error'); console.error(e); }
-}
-
-async function finalizarMensalidade(mensalidadeId, nomePaciente) {
-    if (!confirm('Finalizar mensalidade de ' + nomePaciente + '?\n\nParcelas PAGAS serão mantidas.\nParcelas em aberto (atrasadas/futuras) serão CANCELADAS.')) return;
-    try {
-        sL('Finalizando...');
-        // Cancela a mensalidade — calcularParcelas filtra status cancelado
-        var res = await sb.from('mensalidades').update({ status: 'cancelado' }).eq('id', mensalidadeId);
-        if (res.error) throw res.error;
-        closeModal(); await loadAll(); sT('Mensalidade finalizada! Pagas mantidas, abertas canceladas.');
-    } catch (e) { hL(); sT('Erro ao finalizar', 'error'); console.error(e); }
-}
-
-async function excluirMensalidade(mensalidadeId, nomePaciente) {
-    if (!confirm('EXCLUIR mensalidade de ' + nomePaciente + '?\n\nEsta ação irá excluir TODOS os registros (parcelas e pagamentos). Isso não pode ser desfeito.')) return;
-    if (!confirm('Confirmar exclusão total da mensalidade de ' + nomePaciente + '?')) return;
-    try {
-        sL('Excluindo...');
-        // Exclui pagamentos vinculados
-        await sb.from('pagamentos_mensalidade').delete().eq('mensalidade_id', mensalidadeId).eq('salao_id', salaoId);
-        // Exclui a mensalidade
-        var res = await sb.from('mensalidades').delete().eq('id', mensalidadeId).eq('salao_id', salaoId);
-        if (res.error) throw res.error;
-        closeModal(); await loadAll(); sT('Mensalidade excluída com sucesso.');
-    } catch (e) { hL(); sT('Erro ao excluir', 'error'); console.error(e); }
-}
-
-async function handleLogout() { await sb.auth.signOut(); window.location.href = 'login.html'; }
-document.addEventListener('DOMContentLoaded', init);
+async function handleLogout(){await sb.auth.signOut();window.location.href='login.html'}
+document.addEventListener('DOMContentLoaded',init);
 </script>
 </body>
 </html>
