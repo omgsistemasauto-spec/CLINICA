@@ -231,6 +231,7 @@ tr:hover{background:#FAF5FF}
     <div class="logo-text" id="logoText">VECXO</div>
   </div>
   <ul class="sidebar-nav">
+    <li><a href="index1.html"><i class="fas fa-home"></i><span>Dashboard</span></a></li>
     <li><a href="cadastro-cliente.html"><i class="fas fa-user-injured"></i><span>Pacientes</span></a></li>
     <li><a href="mensalidades.html" class="active"><i class="fas fa-file-invoice-dollar"></i><span>Mensalidades</span></a></li>
     <li><a href="financeiro.html"><i class="fas fa-chart-line"></i><span>Financeiro</span></a></li>
@@ -371,7 +372,14 @@ function renderStats(){
   var hj=parcelas.filter(function(p){return p._st==='vence_hoje'}).length;
   var pg=parcelas.filter(function(p){return p._st==='pago'}).length;
   var mes=new Date().toISOString().substring(0,7);
-  var rec=pagamentos.filter(function(p){return p.data_pagamento&&p.data_pagamento.startsWith(mes)}).reduce(function(s,p){return s+(p.valor_pago||0)},0);
+  // Recebido este mes = parcelas cujo MES DE VENCIMENTO e este mes E estao pagas
+  var parcMesAtual=parcelas.filter(function(p){
+    return p._st==='pago' && p.data_vencimento.substring(0,7)===mes;
+  });
+  console.log('[DEBUG rec] mes=',mes,'parcelas pagas deste mes:',parcMesAtual.map(function(p){return{nome:p.clientes&&p.clientes.nome,venc:p.data_vencimento,val:p.valor,pag_val:p.pagamento&&p.pagamento.valor_pago}}));
+  var rec=parcMesAtual.reduce(function(s,p){
+    return s+((p.pagamento&&p.pagamento.valor_pago)?p.pagamento.valor_pago:p.valor);
+  },0);
   var ban=el('alertBanner');
   if(atr>0){ban.classList.add('show');el('alertCount').textContent=atr}else{ban.classList.remove('show')}
   el('statsGrid').innerHTML=
