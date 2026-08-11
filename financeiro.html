@@ -6,6 +6,7 @@
 <title>Vecxo - Financeiro</title>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -154,10 +155,10 @@ tr:hover{background:#FAF5FF}
     <div class="logo-text">VECXO</div>
   </div>
   <ul class="sidebar-nav">
-    <li><a href="index1.html"><i class="fas fa-home"></i><span>Dashboard</span></a></li>
-    <li><a href="cadastro-cliente.html"><i class="fas fa-user-injured"></i><span>Pacientes</span></a></li>
-    <li><a href="mensalidades.html"><i class="fas fa-file-invoice-dollar"></i><span>Mensalidades</span></a></li>
-    <li><a href="financeiro.html" class="active"><i class="fas fa-chart-line"></i><span>Financeiro</span></a></li>
+    <li><a href='/index1'><i class="fas fa-home"></i><span>Dashboard</span></a></li>
+    <li><a href='/cadastro-cliente'><i class="fas fa-user-injured"></i><span>Pacientes</span></a></li>
+    <li><a href='/mensalidades'><i class="fas fa-file-invoice-dollar"></i><span>Mensalidades</span></a></li>
+    <li><a class='active' href='/financeiro'><i class="fas fa-chart-line"></i><span>Financeiro</span></a></li>
   </ul>
   <div class="sidebar-footer">
     <div class="user-info">
@@ -178,6 +179,8 @@ tr:hover{background:#FAF5FF}
       <p>Controle de receitas, despesas e fluxo de caixa</p>
     </div>
     <div class="header-actions">
+      <select id="exp-mes" class="btn btn-ghost btn-sm" style="font-size:.78rem;padding:.3rem .6rem"></select>
+      <button class="btn btn-green" onclick="exportarExcel()"><i class="fas fa-file-excel"></i> Exportar Excel</button>
       <button class="btn btn-red" onclick="openDespesaModal()"><i class="fas fa-minus-circle"></i> Lançar Despesa</button>
       <button class="btn btn-ghost" onclick="carregarTudo()"><i class="fas fa-sync-alt"></i> Atualizar</button>
     </div>
@@ -431,7 +434,12 @@ async function init(){
 function preencherSeletores(){
   var hoje=new Date();var ano=hoje.getFullYear();
   var selMes=el('sel-mes-receita');selMes.innerHTML='';
-  for(var i=5;i>=0;i--){var d=new Date(hoje.getFullYear(),hoje.getMonth()-i,1);var v=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');var opt=document.createElement('option');opt.value=v;opt.textContent=mesLabel(v);if(i===0)opt.selected=true;selMes.appendChild(opt);}
+  var expMes=el('exp-mes');expMes.innerHTML='';
+  for(var i=5;i>=0;i--){
+    var d=new Date(hoje.getFullYear(),hoje.getMonth()-i,1);var v=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+    var opt=document.createElement('option');opt.value=v;opt.textContent=mesLabel(v);if(i===0)opt.selected=true;selMes.appendChild(opt);
+    var opt2=document.createElement('option');opt2.value=v;opt2.textContent=mesLabel(v);if(i===0)opt2.selected=true;expMes.appendChild(opt2);
+  }
   var selAno=el('sel-ano');selAno.innerHTML='';
   for(var y=ano-2;y<=ano;y++){var o=document.createElement('option');o.value=y;o.textContent=y;if(y===ano)o.selected=true;selAno.appendChild(o);}
 }
@@ -515,295 +523,6 @@ async function carregarReceitas(){
   }catch(e){console.error('receitas error',e);sT('Erro ao carregar receitas','error')}
 }
 
-async function carregarContas(){
-  try{
-    var r=await sb.from('contas_pagar').select('*').eq('salao_id',salaoId).order('data_vencimento');
-    if(r.error){
-      el('sql-aviso').style.display='block';
-      todasContas=[];
-      el('t-contas').innerHTML='<tr><td colspan="6"><div class="empty-state"><div class="icon">⚙️</div><p style="color:#B45309;font-weight:700">Execute o SQL acima para habilitar despesas</p></div></td></tr>';
-      el('total-contas').textContent=fmt(0);el('kpi-pend').textContent=0;renderCalendario();return;
-    }
-    // Filtra por data no JS para evitar erros de query
-    var ini=el('filtro-ini').value;var fim=el('filtro-fim').value;
-    todasContas=(r.data||[]).filter(function(c){
-      if(ini&&c.data_vencimento<ini)return false;
-      if(fim&&c.data_vencimento>fim)return false;
-      return true;
-    });
-    var tbody=el('t-contas');tbody.innerHTML='';
-    if(!todasContas.length){
-      tbody.innerHTML='<tr><td colspan="6"><div class="empty-state"><div class="icon">✅</div><p>Nenhuma conta cadastrada</p></div></td></tr>';
-      el('total-contas').textContent=fmt(0);
-      el('kpi-pend').textContent=0;
-      renderCalendario();
-      return;
-    }
-    var totalAberto=0;
-    var hoje=new Date().toISOString().split('T')[0];
-    todasContas.forEach(function(c){
-      var pago=c.pago===true;
-      var vencida=!pago&&c.data_vencimento<hoje;
-      if(!pago)totalAberto+=c.valor||0;
-      var st=pago?'<span class="badge badge-pago"><i class="fas fa-check-circle"></i> Pago</span>':vencida?'<span class="badge badge-venc"><i class="fas fa-exclamation-triangle"></i> Vencida</span>':'<span class="badge badge-pend"><i class="fas fa-clock"></i> Pendente</span>';
-      var tr=document.createElement('tr');
-      tr.style.opacity=pago?'.6':'1';
-      tr.innerHTML='<td><input type="checkbox" '+(pago?'checked':'')+' onchange="togglePago(\''+c.id+'\',this.checked)" style="cursor:pointer;accent-color:var(--green)"></td>'+
-        '<td style="font-weight:600">'+(c.descricao||'-')+'<br><span style="font-size:.7rem;color:var(--muted)">'+(c.categoria||'')+'</span></td>'+
-        '<td style="font-weight:700;color:#DC2626">'+fmt(c.valor)+'</td>'+
-        '<td>'+(vencida?'<span style="color:#DC2626;font-weight:700">':'')+fmtD(c.data_vencimento)+(vencida?'</span>':'')+'</td>'+
-        '<td>'+st+'</td>'+
-        '<td><button class="btn btn-ghost btn-sm" onclick="excluirConta(\''+c.id+'\')"><i class="fas fa-trash" style="color:#DC2626"></i></button></td>';
-      tbody.appendChild(tr);
-    });
-    el('total-contas').textContent=fmt(totalAberto);
-    el('kpi-pend').textContent=todasContas.filter(function(c){return c.pago!==true}).length;
-    renderCalendario();
-  }catch(e){
-    console.error(e);
-    el('sql-aviso').style.display='block';
-    todasContas=[];
-    renderCalendario();
-  }
-}
-
-async function carregarHistDespesas(){
-  try{
-    var r=await sb.from('contas_pagar').select('*').eq('salao_id',salaoId).order('data_vencimento',{ascending:false}).limit(50);
-    var lista=r.data||[];
-    var tbody=el('t-hist-despesas');tbody.innerHTML='';
-    if(!lista.length){tbody.innerHTML='<tr><td colspan="6"><div class="empty-state"><div class="icon">📋</div><p>Nenhuma despesa lancada</p></div></td></tr>';return;}
-    var hoje=new Date().toISOString().split('T')[0];
-    lista.forEach(function(c){
-      var pago=c.pago===true;var vencida=!pago&&c.data_vencimento<hoje;
-      var st=pago?'<span class="badge badge-pago">Pago</span>':vencida?'<span class="badge badge-venc">Vencida</span>':'<span class="badge badge-pend">Pendente</span>';
-      var tr=document.createElement('tr');
-      tr.innerHTML='<td style="font-weight:600">'+(c.descricao||'-')+'</td>'+
-        '<td><span style="background:var(--primary-light);color:var(--primary);font-size:.7rem;font-weight:700;padding:.15rem .5rem;border-radius:6px">'+(c.categoria||'outros')+'</span></td>'+
-        '<td style="font-weight:700;color:#DC2626">'+fmt(c.valor)+'</td>'+
-        '<td>'+fmtD(c.data_vencimento)+'</td>'+
-        '<td>'+st+'</td>'+
-        '<td><div style="display:flex;gap:.3rem">'+
-        '<button class="btn btn-ghost btn-sm" onclick="editarConta(\''+c.id+'\')" title="Editar"><i class="fas fa-edit" style="color:var(--primary)"></i></button>'+
-        '<button class="btn btn-ghost btn-sm" onclick="excluirConta(\''+c.id+'\')" title="Excluir"><i class="fas fa-trash" style="color:#DC2626"></i></button>'+
-        '</div></td>';
-      tbody.appendChild(tr);
-    });
-  }catch(e){console.error(e)}
-}
-
-async function carregarGrafico(){
-  try{
-    var ano=parseInt(el('sel-ano').value)||new Date().getFullYear();
-    var meses=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-    var receitas=new Array(12).fill(0);
-    var despesas=new Array(12).fill(0);
-
-    // ── RECEITAS ──
-    // Busca todos os pagamentos do salao
-    var rPags=await sb.from('pagamentos_mensalidade')
-      .select('valor_pago,comprovante,data_pagamento')
-      .eq('salao_id',salaoId);
-
-    (rPags.data||[]).forEach(function(p){
-      var mesRef='';
-
-      // 1a opcao: comprovante (ex: "2026-05" ou "2026-05|abc")
-      if(p.comprovante&&p.comprovante.length>=7){
-        mesRef=p.comprovante.substring(0,7);
-      }
-
-      // 2a opcao: data_pagamento
-      if(!mesRef&&p.data_pagamento&&p.data_pagamento.length>=7){
-        mesRef=p.data_pagamento.substring(0,7);
-      }
-
-      // So conta se for do ano selecionado
-      if(!mesRef||mesRef.substring(0,4)!==String(ano))return;
-
-      var idx=parseInt(mesRef.substring(5,7))-1;
-      if(idx>=0&&idx<=11)receitas[idx]+=(p.valor_pago||0);
-    });
-
-    // ── DESPESAS ──
-    try{
-      var rDesp=await sb.from('contas_pagar')
-        .select('valor,data_vencimento,pago')
-        .eq('salao_id',salaoId);
-
-      (rDesp.data||[]).filter(function(d){return d.pago===true}).forEach(function(d){
-        if(!d.data_vencimento||d.data_vencimento.substring(0,4)!==String(ano))return;
-        var idx=parseInt(d.data_vencimento.substring(5,7))-1;
-        if(idx>=0&&idx<=11)despesas[idx]+=(d.valor||0);
-      });
-    }catch(e){}
-
-    // ── RENDER ──
-    if(chartAnual){chartAnual.destroy();chartAnual=null;}
-    var ctx=document.getElementById('chartAnual').getContext('2d');
-    chartAnual=new Chart(ctx,{
-      type:'bar',
-      data:{
-        labels:meses,
-        datasets:[
-          {
-            label:'Receitas (R$)',
-            data:receitas,
-            backgroundColor:'rgba(16,185,129,.8)',
-            borderColor:'#10B981',
-            borderWidth:2,
-            borderRadius:6
-          },
-          {
-            label:'Despesas (R$)',
-            data:despesas,
-            backgroundColor:'rgba(239,68,68,.8)',
-            borderColor:'#EF4444',
-            borderWidth:2,
-            borderRadius:6
-          }
-        ]
-      },
-      options:{
-        responsive:true,
-        maintainAspectRatio:false,
-        plugins:{
-          legend:{
-            position:'top',
-            labels:{font:{family:'Poppins',size:12},usePointStyle:true}
-          },
-          tooltip:{
-            callbacks:{
-              label:function(ctx){
-                return ctx.dataset.label+': R$ '+ctx.parsed.y.toLocaleString('pt-BR',{minimumFractionDigits:2});
-              }
-            }
-          }
-        },
-        scales:{
-          y:{
-            beginAtZero:true,
-            ticks:{
-              callback:function(v){
-                return'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:0});
-              }
-            },
-            grid:{color:'rgba(0,0,0,.05)'}
-          },
-          x:{grid:{display:false}}
-        }
-      }
-    });
-
-    console.log('[GRAFICO] Ano:'+ano+' Receitas:',receitas,'Despesas:',despesas);
-  }catch(e){console.error('Erro grafico:',e)}
-}
-
-async function salvarDespesa(){
-  var desc=el('desp-desc').value.trim();var valor=parseFloat(el('desp-valor').value);var venc=el('desp-venc').value;
-  if(!desc||!valor||!venc){sT('Preencha descricao, valor e vencimento','error');return}
-  try{
-    sL('Salvando...');
-    var id=el('despesaId').value;
-    var isPago=el('desp-pago').checked;
-    var data={
-      descricao:desc,valor:valor,data_vencimento:venc,
-      categoria:el('desp-cat').value,
-      forma_pagamento:el('desp-forma').value,
-      observacoes:el('desp-obs').value.trim(),
-      pago:isPago,
-      data_pagamento:isPago?new Date().toISOString().split('T')[0]:null,
-      salao_id:salaoId
-    };
-    if(id){await sb.from('contas_pagar').update(data).eq('id',id).eq('salao_id',salaoId);}
-    else{await sb.from('contas_pagar').insert(data);}
-    closeDespesaModal();await carregarTudo();sT(id?'Despesa atualizada!':'Despesa lancada!');
-  }catch(e){
-    hL();console.error(e);
-    if(e&&e.message&&e.message.includes('does not exist')){
-      sT('Tabela nao existe. Crie-a no Supabase com o SQL no console.','error');
-      console.log('%c SQL para criar a tabela contas_pagar:', 'color:orange;font-weight:bold');
-      console.log(`CREATE TABLE contas_pagar (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  salao_id UUID REFERENCES saloes(id) ON DELETE CASCADE,
-  descricao TEXT NOT NULL,
-  valor NUMERIC(10,2) NOT NULL,
-  data_vencimento DATE NOT NULL,
-  data_pagamento DATE,
-  pago BOOLEAN DEFAULT FALSE,
-  categoria TEXT DEFAULT 'outros',
-  forma_pagamento TEXT,
-  observacoes TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-ALTER TABLE contas_pagar ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "salao_own" ON contas_pagar FOR ALL USING (salao_id = (SELECT id FROM saloes WHERE usuario_id = auth.uid() LIMIT 1));`);
-    }else{
-      sT('Erro ao salvar','error');
-    }
-  }
-  hL();
-}
-
-async function togglePago(id,pago){
-  try{
-    var upd={pago:pago};
-    if(pago)upd.data_pagamento=new Date().toISOString().split('T')[0];
-    else upd.data_pagamento=null;
-    await sb.from('contas_pagar').update(upd).eq('id',id).eq('salao_id',salaoId);
-    await carregarTudo();sT(pago?'Marcada como paga!':'Desmarcada!');
-  }catch(e){sT('Erro ao atualizar','error')}
-}
-
-async function editarConta(id){
-  var c=todasContas.find(function(x){return x.id===id});
-  if(!c){var r=await sb.from('contas_pagar').select('*').eq('id',id).single();c=r.data;}
-  if(c){
-    el('despesaId').value=c.id;
-    el('despesaModalTitle').textContent='Editar Despesa';
-    el('desp-desc').value=c.descricao||'';
-    el('desp-valor').value=c.valor||'';
-    el('desp-venc').value=c.data_vencimento||'';
-    el('desp-cat').value=c.categoria||'outros';
-    el('desp-forma').value=c.forma_pagamento||'pix';
-    el('desp-obs').value=c.observacoes||'';
-    el('desp-pago').checked=c.pago===true;
-    el('despesaOverlay').classList.add('show');
-  }
-}
-
-async function carregarContas(){
-  try{
-    var q=sb.from('contas_pagar').select('*').eq('salao_id',salaoId).order('data_vencimento');
-    var ini=el('filtro-ini').value;var fim=el('filtro-fim').value;
-    if(ini)q=q.gte('data_vencimento',ini);
-    if(fim)q=q.lte('data_vencimento',fim);
-    var r=await q;todasContas=r.data||[];
-    var tbody=el('t-contas');tbody.innerHTML='';
-    if(!todasContas.length){tbody.innerHTML='<tr><td colspan="6"><div class="empty-state"><div class="icon">✅</div><p>Nenhuma conta cadastrada</p></div></td></tr>';el('total-contas').textContent=fmt(0);return;}
-    var totalAberto=0;
-    var hoje=new Date().toISOString().split('T')[0];
-    todasContas.forEach(function(c){
-      var pago=c.pago===true;
-      var vencida=!pago&&c.data_vencimento<hoje;
-      if(!pago)totalAberto+=c.valor||0;
-      var st=pago?'<span class="badge badge-pago"><i class="fas fa-check-circle"></i> Pago</span>':vencida?'<span class="badge badge-venc"><i class="fas fa-exclamation-triangle"></i> Vencida</span>':'<span class="badge badge-pend"><i class="fas fa-clock"></i> Pendente</span>';
-      var tr=document.createElement('tr');
-      tr.style.opacity=pago?'.6':'1';
-      tr.innerHTML='<td><input type="checkbox" '+(pago?'checked':'')+' onchange="togglePago(\''+c.id+'\',this.checked)" style="cursor:pointer;accent-color:var(--green)"></td>'+
-        '<td style="font-weight:600">'+(c.descricao||'-')+'<br><span style="font-size:.7rem;color:var(--muted)">'+(c.categoria||'')+'</span></td>'+
-        '<td style="font-weight:700;color:#DC2626">'+fmt(c.valor)+'</td>'+
-        '<td>'+(vencida?'<span style="color:#DC2626;font-weight:700">':'<span>')+fmtD(c.data_vencimento)+'</span></td>'+
-        '<td>'+st+'</td>'+
-        '<td><button class="btn btn-ghost btn-sm" onclick="excluirConta(\''+c.id+'\')"><i class="fas fa-trash" style="color:#DC2626"></i></button></td>';
-      tbody.appendChild(tr);
-    });
-    el('total-contas').textContent=fmt(totalAberto);
-    el('kpi-pend').textContent=todasContas.filter(function(c){return c.status!=='pago'}).length;
-    renderCalendario();
-  }catch(e){console.error(e);sT('Erro ao carregar contas','error')}
-}
-
 async function carregarHistDespesas(){
   try{
     var r=await sb.from('contas_pagar').select('*').eq('salao_id',salaoId).order('data_vencimento',{ascending:false}).limit(50);
@@ -829,6 +548,112 @@ async function carregarHistDespesas(){
   }catch(e){console.error(e)}
 }
 
+async function carregarGrafico(){
+  try{
+    var ano=parseInt(el('sel-ano').value)||new Date().getFullYear();
+    var meses=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    var receitas=new Array(12).fill(0);
+    var despesas=new Array(12).fill(0);
+
+    // ── RECEITAS ──
+    var rPags=await sb.from('pagamentos_mensalidade')
+      .select('valor_pago,comprovante,data_pagamento')
+      .eq('salao_id',salaoId);
+
+    (rPags.data||[]).forEach(function(p){
+      var mesRef='';
+      if(p.comprovante&&p.comprovante.length>=7){mesRef=p.comprovante.substring(0,7);}
+      if(!mesRef&&p.data_pagamento&&p.data_pagamento.length>=7){mesRef=p.data_pagamento.substring(0,7);}
+      if(!mesRef||mesRef.substring(0,4)!==String(ano))return;
+      var idx=parseInt(mesRef.substring(5,7))-1;
+      if(idx>=0&&idx<=11)receitas[idx]+=(p.valor_pago||0);
+    });
+
+    // ── DESPESAS (mês = vencimento, contando só as que foram dadas baixa/pago) ──
+    try{
+      var rDesp=await sb.from('contas_pagar')
+        .select('valor,data_vencimento,pago')
+        .eq('salao_id',salaoId);
+      (rDesp.data||[]).filter(function(d){return d.pago===true}).forEach(function(d){
+        if(!d.data_vencimento||d.data_vencimento.substring(0,4)!==String(ano))return;
+        var idx=parseInt(d.data_vencimento.substring(5,7))-1;
+        if(idx>=0&&idx<=11)despesas[idx]+=(d.valor||0);
+      });
+    }catch(e){}
+
+    // ── RENDER ──
+    if(chartAnual){chartAnual.destroy();chartAnual=null;}
+    var ctx=document.getElementById('chartAnual').getContext('2d');
+    chartAnual=new Chart(ctx,{
+      type:'bar',
+      data:{
+        labels:meses,
+        datasets:[
+          {label:'Receitas (R$)',data:receitas,backgroundColor:'rgba(16,185,129,.8)',borderColor:'#10B981',borderWidth:2,borderRadius:6},
+          {label:'Despesas (R$)',data:despesas,backgroundColor:'rgba(239,68,68,.8)',borderColor:'#EF4444',borderWidth:2,borderRadius:6}
+        ]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{
+          legend:{position:'top',labels:{font:{family:'Poppins',size:12},usePointStyle:true}},
+          tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label+': R$ '+ctx.parsed.y.toLocaleString('pt-BR',{minimumFractionDigits:2});}}}
+        },
+        scales:{
+          y:{beginAtZero:true,ticks:{callback:function(v){return'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:0});}},grid:{color:'rgba(0,0,0,.05)'}},
+          x:{grid:{display:false}}
+        }
+      }
+    });
+  }catch(e){console.error('Erro grafico:',e)}
+}
+
+async function carregarContas(){
+  try{
+    var q=sb.from('contas_pagar').select('*').eq('salao_id',salaoId).order('data_vencimento');
+    var ini=el('filtro-ini').value;var fim=el('filtro-fim').value;
+    if(ini)q=q.gte('data_vencimento',ini);
+    if(fim)q=q.lte('data_vencimento',fim);
+    var r=await q;
+    if(r.error){
+      el('sql-aviso').style.display='block';
+      todasContas=[];
+      el('t-contas').innerHTML='<tr><td colspan="6"><div class="empty-state"><div class="icon">⚙️</div><p style="color:#B45309;font-weight:700">Execute o SQL acima para habilitar despesas</p></div></td></tr>';
+      el('total-contas').textContent=fmt(0);el('kpi-pend').textContent=0;renderCalendario();return;
+    }
+    todasContas=r.data||[];
+    var tbody=el('t-contas');tbody.innerHTML='';
+    if(!todasContas.length){
+      tbody.innerHTML='<tr><td colspan="6"><div class="empty-state"><div class="icon">✅</div><p>Nenhuma conta cadastrada</p></div></td></tr>';
+      el('total-contas').textContent=fmt(0);el('kpi-pend').textContent=0;renderCalendario();return;
+    }
+    var totalAberto=0;
+    var hoje=new Date().toISOString().split('T')[0];
+    todasContas.forEach(function(c){
+      var pago=c.pago===true;
+      var vencida=!pago&&c.data_vencimento<hoje;
+      if(!pago)totalAberto+=c.valor||0;
+      var st=pago?'<span class="badge badge-pago"><i class="fas fa-check-circle"></i> Pago</span>':vencida?'<span class="badge badge-venc"><i class="fas fa-exclamation-triangle"></i> Vencida</span>':'<span class="badge badge-pend"><i class="fas fa-clock"></i> Pendente</span>';
+      var tr=document.createElement('tr');
+      tr.style.opacity=pago?'.6':'1';
+      tr.innerHTML='<td><input type="checkbox" '+(pago?'checked':'')+' onchange="togglePago(\''+c.id+'\',this.checked)" style="cursor:pointer;accent-color:var(--green)"></td>'+
+        '<td style="font-weight:600">'+(c.descricao||'-')+'<br><span style="font-size:.7rem;color:var(--muted)">'+(c.categoria||'')+'</span></td>'+
+        '<td style="font-weight:700;color:#DC2626">'+fmt(c.valor)+'</td>'+
+        '<td>'+(vencida?'<span style="color:#DC2626;font-weight:700">':'<span>')+fmtD(c.data_vencimento)+'</span></td>'+
+        '<td>'+st+'</td>'+
+        '<td><button class="btn btn-ghost btn-sm" onclick="excluirConta(\''+c.id+'\')"><i class="fas fa-trash" style="color:#DC2626"></i></button></td>';
+      tbody.appendChild(tr);
+    });
+    el('total-contas').textContent=fmt(totalAberto);
+    el('kpi-pend').textContent=todasContas.filter(function(c){return c.pago!==true}).length;
+    renderCalendario();
+  }catch(e){
+    console.error(e);
+    el('sql-aviso').style.display='block';
+    todasContas=[];
+    renderCalendario();
+  }
+}
 
 // ── CALENDARIO ──
 function renderCalendario(){
@@ -965,8 +790,102 @@ async function excluirConta(id){
 }
 
 async function togglePago(id,pago){
-  try{await sb.from('contas_pagar').update({pago:pago}).eq('id',id).eq('salao_id',salaoId);await carregarTudo();sT(pago?'Marcada como paga!':'Desmarcada!')}
-  catch(e){sT('Erro ao atualizar','error')}
+  try{
+    var upd={pago:pago};
+    if(pago)upd.data_pagamento=new Date().toISOString().split('T')[0];
+    else upd.data_pagamento=null;
+    await sb.from('contas_pagar').update(upd).eq('id',id).eq('salao_id',salaoId);
+    await carregarTudo();sT(pago?'Marcada como paga!':'Desmarcada!');
+  }catch(e){sT('Erro ao atualizar','error')}
+}
+
+// ── EXPORTAÇÃO PARA EXCEL ──
+async function exportarExcel(){
+  var mes=el('exp-mes').value;
+  if(!mes){sT('Selecione um mes para exportar','warning');return}
+  try{
+    sL('Gerando planilha...');
+
+    // ENTRADAS: mensalidades recebidas no mes de referencia selecionado
+    var rPags=await sb.from('pagamentos_mensalidade')
+      .select('*,mensalidades(id,data_vencimento,paciente_id,clientes(nome))')
+      .eq('salao_id',salaoId)
+      .order('data_pagamento',{ascending:true});
+    var entradas=(rPags.data||[]).filter(function(p){
+      var ref=p.comprovante?p.comprovante.substring(0,7):'';
+      if(ref)return ref===mes;
+      var venc=p.mensalidades&&p.mensalidades.data_vencimento;
+      return venc&&venc.substring(0,7)===mes;
+    });
+
+    // SAIDAS: despesas pagas com vencimento no mes de referencia selecionado
+    var saidas=[];
+    try{
+      var rDesp=await sb.from('contas_pagar').select('*').eq('salao_id',salaoId).eq('pago',true).order('data_vencimento',{ascending:true});
+      if(!rDesp.error){
+        saidas=(rDesp.data||[]).filter(function(c){
+          var ref=c.data_vencimento?c.data_vencimento.substring(0,7):'';
+          return ref===mes;
+        });
+      }
+    }catch(e){console.warn('contas_pagar indisponivel para exportacao')}
+
+    if(!entradas.length&&!saidas.length){
+      hL();sT('Nenhum lançamento encontrado em '+mesLabel(mes),'warning');return;
+    }
+
+    var linhasEntrada=entradas.map(function(p){
+      var nome=p.mensalidades&&p.mensalidades.clientes?p.mensalidades.clientes.nome:'-';
+      return{
+        'Paciente':nome,
+        'Referência':p.comprovante?p.comprovante.substring(0,7):(p.mensalidades&&p.mensalidades.data_vencimento?p.mensalidades.data_vencimento.substring(0,7):'-'),
+        'Valor (R$)':Number(p.valor_pago)||0,
+        'Forma de Pagamento':fmtF(p.forma_pagamento),
+        'Data Pagamento':fmtD(p.data_pagamento)
+      };
+    });
+    var totalEntradas=linhasEntrada.reduce(function(s,l){return s+l['Valor (R$)']},0);
+    linhasEntrada.push({'Paciente':'','Referência':'','Valor (R$)':'','Forma de Pagamento':'','Data Pagamento':''});
+    linhasEntrada.push({'Paciente':'TOTAL','Referência':'','Valor (R$)':totalEntradas,'Forma de Pagamento':'','Data Pagamento':''});
+
+    var linhasSaida=saidas.map(function(c){
+      return{
+        'Descrição':c.descricao||'-',
+        'Categoria':c.categoria||'outros',
+        'Valor (R$)':Number(c.valor)||0,
+        'Vencimento':fmtD(c.data_vencimento),
+        'Forma de Pagamento':fmtF(c.forma_pagamento),
+        'Data Pagamento':fmtD(c.data_pagamento)
+      };
+    });
+    var totalSaidas=linhasSaida.reduce(function(s,l){return s+l['Valor (R$)']},0);
+    linhasSaida.push({'Descrição':'','Categoria':'','Valor (R$)':'','Vencimento':'','Forma de Pagamento':'','Data Pagamento':''});
+    linhasSaida.push({'Descrição':'TOTAL','Categoria':'','Valor (R$)':totalSaidas,'Vencimento':'','Forma de Pagamento':'','Data Pagamento':''});
+
+    var linhasResumo=[
+      {'Item':'Total de Entradas (R$)','Valor':totalEntradas},
+      {'Item':'Total de Saídas (R$)','Valor':totalSaidas},
+      {'Item':'Saldo do Mês (R$)','Valor':totalEntradas-totalSaidas}
+    ];
+
+    var wb=XLSX.utils.book_new();
+    var wsResumo=XLSX.utils.json_to_sheet(linhasResumo);
+    wsResumo['!cols']=[{wch:26},{wch:16}];
+    XLSX.utils.book_append_sheet(wb,wsResumo,'Resumo');
+
+    var wsEntradas=XLSX.utils.json_to_sheet(linhasEntrada);
+    wsEntradas['!cols']=[{wch:28},{wch:12},{wch:14},{wch:20},{wch:14}];
+    XLSX.utils.book_append_sheet(wb,wsEntradas,'Entradas');
+
+    var wsSaidas=XLSX.utils.json_to_sheet(linhasSaida);
+    wsSaidas['!cols']=[{wch:28},{wch:16},{wch:14},{wch:14},{wch:20},{wch:14}];
+    XLSX.utils.book_append_sheet(wb,wsSaidas,'Saídas');
+
+    XLSX.writeFile(wb,'Financeiro_'+mes+'.xlsx');
+    hL();sT('Planilha exportada!');
+  }catch(e){
+    hL();console.error(e);sT('Erro ao exportar planilha','error');
+  }
 }
 
 async function logout(){await sb.auth.signOut();window.location.href='login.html'}
